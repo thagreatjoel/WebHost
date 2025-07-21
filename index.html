@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Jonathan Bangert - Folio</title>
+  <meta name="description" content="My place on the internet! Welcome." />
+  <meta name="author" content="Jonathan Bangert" />
+  <meta name="keywords" content="Jonathan Bangert, folio, portfolio, website" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="color-scheme" content="only light" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="icon" href="/favicon.ico" />
+</head>
+<body class="antialiased bg-white text-black">
+  <!-- Header -->
+  <header class="sticky top-0 z-10 flex flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 py-6 sm:mb-8 max-w-4xl mx-auto px-6 sm:px-4">
+    <div class="flex flex-row items-center gap-4">
+      <h1 class="text-lg font-semibold">Jonathan Bangert</h1>
+      <div class="hidden sm:flex items-center gap-3 text-zinc-500">
+        <span id="clock-icon">🕒</span>
+        <span>Copenhagen</span>
+        <span id="copenhagen-time">Loading...</span>
+      </div>
+    </div>
+    <nav class="flex gap-4 items-center text-zinc-600">
+      <a href="https://x.com/jonba_" target="_blank" class="hover:text-zinc-900 hover:scale-110 transition">X</a>
+      <a href="https://github.com/jonbng" target="_blank" class="hover:text-zinc-900 hover:scale-110 transition">GitHub</a>
+      <a href="https://linkedin.com/in/jonathan-bangert/" target="_blank" class="hidden sm:inline-flex hover:text-zinc-900 hover:scale-110 transition">LinkedIn</a>
+      <a href="mailto:contact@jonathanb.dk" class="hover:text-zinc-900 hover:scale-110 transition">Email</a>
+    </nav>
+  </header>  <!-- Hero Section -->  <section class="max-w-4xl mx-auto px-6 sm:px-4 pt-2 pb-10 mb-6 sm:mt-12">
+    <div class="flex flex-col-reverse sm:flex-row items-start gap-8 sm:gap-12 mb-5">
+      <div class="flex-1">
+        <h2 class="text-4xl font-normal tracking-tight mb-8">Hey, I'm Jonathan! 👋</h2>
+        <p class="text-xl text-zinc-600 leading-relaxed mb-4">
+          I'm a 17-year-old software engineer who cares about building high-quality, thoughtful software.
+          I co-founded <strong>Akademia</strong>. I focus on making technology that is beautiful,
+          intuitive, and genuinely useful.
+        </p>
+        <div class="flex flex-wrap gap-4 -ml-4">
+          <a href="https://x.com/jonba_" class="px-4 py-2 bg-black text-white rounded-xl hover:bg-zinc-800">Follow Me!</a>
+          <a href="#guestbook" class="px-4 py-2 border border-black rounded-xl hover:bg-black hover:text-white">Sign Guestbook!</a>
+        </div>
+      </div>
+      <div class="shrink-0 w-full sm:w-auto hover:scale-105 transition-transform duration-300">
+        <img src="/pfp.jpg" alt="Jonathan Bangert" class="w-full sm:w-[210px] aspect-[3/2] sm:aspect-square object-[50%_10%] rounded-2xl object-cover" />
+      </div>
+    </div>
+  </section>  <!-- About Section -->  <section class="max-w-4xl mx-auto px-6 sm:px-4">
+    <p class="text-xl text-zinc-600 leading-relaxed mb-12">
+      I've been passionate about technology and design since I started coding at 10, hacked my school PC at 12 for admin access
+      because I didn't have my own, and haven't looked back. Over the years, I've developed a strong focus on building useful,
+      well-designed products and have contributed to countless projects along the way.
+    </p>
+  </section>  <!-- Currently Reading -->  <div class="flex items-center gap-2 mb-14 text-zinc-600 max-w-4xl mx-auto px-6 sm:px-4">
+    <span>📚</span>
+    <span>Currently reading: "The Creative Act" by Rick Rubin</span>
+  </div>  <!-- Guestbook Section -->  <section id="guestbook" class="max-w-4xl mx-auto px-6 sm:px-4 py-12">
+    <h2 class="text-2xl font-bold mb-4">Guestbook</h2>
+    <p class="text-zinc-600 mb-4">This feature is under construction. Stay tuned!</p>
+    <a href="mailto:contact@jonathanb.dk" class="text-blue-600 underline">Leave a message</a>
+  </section>  <!-- Footer -->  <footer class="mt-14 pt-10 border-t border-zinc-200 max-w-4xl mx-auto px-6 sm:px-4">
+    <div class="flex justify-between items-center">
+      <p class="text-sm text-zinc-500">
+        Designed with ❤️ by Jonathan Bangert. © <span id="year"></span> All rights reserved.
+      </p>
+      <a href="mailto:contact@jonathanb.dk" class="text-sm text-zinc-500 hover:text-black">Contact</a>
+    </div>
+  </footer>  <!-- Time & Year Script -->  <script>
+    function updateTime() {
+      const now = new Date();
+      const options = { timeZone: "Europe/Copenhagen", hour: "numeric", minute: "2-digit", hour12: true };
+      document.getElementById("copenhagen-time").textContent = now.toLocaleTimeString("en-US", options);
+    }
+    updateTime();
+    setInterval(updateTime, 30000);
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script></body>
+</html>

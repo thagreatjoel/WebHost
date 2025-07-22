@@ -1,80 +1,174 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Jonathan Bangert - Folio</title>
-  <meta name="description" content="My place on the internet! Welcome." />
-  <meta name="author" content="Jonathan Bangert" />
-  <meta name="keywords" content="Jonathan Bangert, folio, portfolio, website" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#ffffff" />
-  <meta name="color-scheme" content="only light" />
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="color-scheme" content="light dark" />
+
+  <title>Joel Jo • Developer Portfolio</title>
+
+  <!-- SEO Meta -->
+  <meta name="description" content="I'm Joel Joju, a 16-year-old hacker and full-stack developer from India." />
+  <meta name="author" content="Joel Jo" />
+  <meta name="keywords" content="Joel Joju, thagreatjoel, Joel Jo, Hackcluber, Teen Hacker, Developer, Full-stack, India" />
+
+  <!-- Open Graph (for LinkedIn, GitHub, Facebook, Discord) -->
+  <meta property="og:title" content="Joel Jo • Developer Portfolio" />
+  <meta property="og:description" content="I'm Joel Joju, a full-stack developer and teen hacker from India." />
+  <meta property="og:image" content="https://avatars.githubusercontent.com/u/124015127?v=4" />
+  <meta property="og:url" content="https://thagreatjoel.me" />
+  <meta property="og:type" content="website" />
+
+  <!-- Social Profiles -->
+  <meta property="og:see_also" content="https://github.com/thagreatjoel" />
+  <meta property="og:see_also" content="https://www.linkedin.com/in/joeljoju" />
+  <meta property="og:see_also" content="https://www.instagram.com/thagreatjoel" />
+
+  <!-- Favicon -->
   <link rel="icon" href="/favicon.ico" />
-  <link rel="stylesheet" href="globals.css" />
+
+  <!-- Schema Markup for Google Rich Results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Joel Joju",
+    "alternateName": ["Joel Jo", "thagreatjoel"],
+    "url": "https://thagreatjoel.me",
+    "image": "https://avatars.githubusercontent.com/u/124015127?v=4",
+    "sameAs": [
+      "https://github.com/thagreatjoel",
+      "https://www.instagram.com/thagreatjoel",
+      "https://www.linkedin.com/in/joeljoju"
+    ],
+    "description": "I'm Joel Joju, a 16-year-old hacker and full-stack developer from India."
+  }
+  </script>
+ <link rel="icon" href="https://avatars.githubusercontent.com/u/124015127?v=4" />  <script src="https://cdn.tailwindcss.com"></script>  
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script>
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  </script>  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+ 
+  h1, h4 {
+    font-family: 'JetBrains Mono', monospace;
+  }
+</style>
+<!-- Lucide Icons Script -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
 </head>
-<body class="antialiased bg-white text-black">
+<body class="bg-white text-zinc-900 dark:bg-zinc-900 dark:text-white transition-colors duration-300 antialiased">
+	
   <!-- Header -->
-  <header class="sticky top-0 z-10 flex flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 py-6 sm:mb-8 max-w-4xl mx-auto px-6 sm:px-4">
-    <div class="flex flex-row items-center gap-4">
-      <h1 class="text-lg font-semibold">Jonathan Bangert</h1>
-      <div class="hidden sm:flex items-center gap-3 text-zinc-500">
-        <span id="clock-icon">🕒</span>
-        <span>Copenhagen</span>
-        <span id="copenhagen-time">Loading...</span>
-      </div>
+  <header class="sticky top-0 z-50 backdrop-blur bg-white/70 dark:bg-zinc-900/70 p-4 md:px-10 flex justify-between items-center border-b dark:border-gray-700 shadow">
+    <h1 class="text-lg font-semibold tracking-tight">Thagreatjoel</h1>
+    <div class="flex gap-3 items-center">
+      <a href="mailto:joel@example.com" aria-label="Email"><i data-lucide="mail" class="w-5 h-5 hover:scale-110 transition"></i></a>
+      <a href="https://github.com/thagreatjoel" target="_blank" aria-label="GitHub"><i data-lucide="github" class="w-5 h-5 hover:scale-110 transition"></i></a>
+      <a href="https://linkedin.com/in/thagreatjoel" target="_blank" aria-label="LinkedIn"><i data-lucide="linkedin" class="w-5 h-5 hover:scale-110 transition"></i></a>
+      <a href="https://instagram.com/thagreatjoel" target="_blank" aria-label="Instagram"><i data-lucide="instagram" class="w-5 h-5 hover:scale-110 transition"></i></a>
     </div>
-    <nav class="flex gap-4 items-center text-zinc-600">
-      <a href="https://x.com/jonba_" target="_blank" class="hover:text-zinc-900 hover:scale-110 transition">X</a>
-      <a href="https://github.com/jonbng" target="_blank" class="hover:text-zinc-900 hover:scale-110 transition">GitHub</a>
-      <a href="https://linkedin.com/in/jonathan-bangert/" target="_blank" class="hidden sm:inline-flex hover:text-zinc-900 hover:scale-110 transition">LinkedIn</a>
-      <a href="mailto:contact@jonathanb.dk" class="hover:text-zinc-900 hover:scale-110 transition">Email</a>
-    </nav>
-  </header>  <!-- Hero Section -->  <section class="max-w-4xl mx-auto px-6 sm:px-4 pt-2 pb-10 mb-6 sm:mt-12">
-    <div class="flex flex-col-reverse sm:flex-row items-start gap-8 sm:gap-12 mb-5">
-      <div class="flex-1">
-        <h2 class="text-4xl font-normal tracking-tight mb-8">Hey, I'm Jonathan! 👋</h2>
-        <p class="text-xl text-zinc-600 leading-relaxed mb-4">
-          I'm a 17-year-old software engineer who cares about building high-quality, thoughtful software.
-          I co-founded <strong>Akademia</strong>. I focus on making technology that is beautiful,
-          intuitive, and genuinely useful.
+  </header>  <!-- Hero -->  <section class="py-20 px-6 md:px-10 max-w-6xl mx-auto">
+    <div class="flex flex-col-reverse md:flex-row items-center md:items-start gap-12">
+      <div class="text-center md:text-left max-w-prose">
+        <h2 class="text-4xl md:text-5xl font-bold mb-4 bg-clip-text">Hey Pops, I'm Joel Joju</h2>
+        <p class="text-lg leading-relaxed mb-6">
+          I'm a 16-year-old full-stack developer, inventor, and hacker from India. I co-lead projects at <strong>Hack Club</strong> and create cool things like <strong>SecurePass</strong>, <strong>HackaTime</strong>, and <strong>Friend Lee</strong>.
         </p>
-        <div class="flex flex-wrap gap-4 -ml-4">
-          <a href="https://x.com/jonba_" class="px-4 py-2 bg-black text-white rounded-xl hover:bg-zinc-800">Follow Me!</a>
-          <a href="#guestbook" class="px-4 py-2 border border-black rounded-xl hover:bg-black hover:text-white">Sign Guestbook!</a>
+        <div class="flex gap-4 justify-center md:justify-start flex-wrap">
+          <button onclick="window.open('https://github.com/thagreatjoel', '_blank')" class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-2 rounded-md shadow hover:scale-105 transition">Follow Me</button>
+          <button onclick="window.open('https://instagram.com/thagreatjoel')" class="border border-gray-400 dark:border-gray-600 px-6 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition">Contact Me</button>
         </div>
       </div>
-      <div class="shrink-0 w-full sm:w-auto hover:scale-105 transition-transform duration-300">
-        <img src="/pfp.jpg" alt="Jonathan Bangert" class="w-full sm:w-[210px] aspect-[3/2] sm:aspect-square object-[50%_10%] rounded-2xl object-cover" />
+      <img src="https://raw.githubusercontent.com/thagreatjoel/ThaGreatJoel/refs/heads/main/1000106024.jpg" alt="Joel" class="w-full md:w-64 h-48 md:h-80 object-cover rounded-xl shadow-lg transition hover:scale-105" />
+    </div>
+  </section>  <!-- Contributions -->  <section class="py-20 px-6 md:px-10 max-w-6xl mx-auto">
+    <h3 class="text-2xl font-semibold mb-6 tracking-tight">Community Contributions</h3>
+    <div class="p-6 border rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-xl transition-transform hover:scale-105 flex items-start gap-4">
+      <img src="https://assets.hackclub.com/icon-rounded.png" alt="Hack Club Logo" class="w-12 h-12 rounded-full" />
+      <div>
+        <span class="text-xs text-purple-600 uppercase font-semibold">Contributor</span>
+        <h4 class="text-lg font-bold mt-1 mb-1">Hack Club</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Built and shipped multiple open source projects with teen hackers worldwide.</p>
       </div>
     </div>
-  </section>  <!-- About Section -->  <section class="max-w-4xl mx-auto px-6 sm:px-4">
-    <p class="text-xl text-zinc-600 leading-relaxed mb-12">
-      I've been passionate about technology and design since I started coding at 10, hacked my school PC at 12 for admin access
-      because I didn't have my own, and haven't looked back. Over the years, I've developed a strong focus on building useful,
-      well-designed products and have contributed to countless projects along the way.
-    </p>
-  </section>  <!-- Currently Reading -->  <div class="flex items-center gap-2 mb-14 text-zinc-600 max-w-4xl mx-auto px-6 sm:px-4">
-    <span>📚</span>
-    <span>Currently reading: "The Creative Act" by Rick Rubin</span>
-  </div>  <!-- Guestbook Section -->  <section id="guestbook" class="max-w-4xl mx-auto px-6 sm:px-4 py-12">
-    <h2 class="text-2xl font-bold mb-4">Guestbook</h2>
-    <p class="text-zinc-600 mb-4">This feature is under construction. Stay tuned!</p>
-    <a href="mailto:contact@jonathanb.dk" class="text-blue-600 underline">Leave a message</a>
-  </section>  <!-- Footer -->  <footer class="mt-14 pt-10 border-t border-zinc-200 max-w-4xl mx-auto px-6 sm:px-4">
-    <div class="flex justify-between items-center">
-      <p class="text-sm text-zinc-500">
-        Designed with ❤️ by Jonathan Bangert. © <span id="year"></span> All rights reserved.
-      </p>
-      <a href="mailto:contact@jonathanb.dk" class="text-sm text-zinc-500 hover:text-black">Contact</a>
+  </section>  <!-- Projects -->  <section class="py-20 px-6 md:px-10 max-w-6xl mx-auto">
+    <h3 class="text-2xl font-semibold mb-6 tracking-tight">Selected Work</h3>
+    <div class="grid gap-6 grid-cols-1 md:grid-cols-2">
+      <div class="p-6 border rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-xl transition-transform hover:scale-105">
+        <span class="text-xs text-green-600 uppercase font-semibold">Founder</span>
+        <h4 class="text-lg font-bold mt-2 mb-1">SecurePass</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">A simple and secure password manager with API access. <span class="italic">2024 — Present</span></p>
+      </div>
+      <div class="p-6 border rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-xl transition-transform hover:scale-105">
+        <span class="text-xs text-yellow-600 uppercase font-semibold">Just for Fun </span>
+        <h4 class="text-lg font-bold mt-2 mb-1">HackaTime</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Track and visualize your coding activity with hardware + web app. <span class="italic">2024 — Present</span></p>
+      </div>
+      <div class="p-6 border rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-xl transition-transform hover:scale-105">
+        <span class="text-xs text-yellow-600 uppercase font-semibold">Just for Fun </span>
+        <h4 class="text-lg font-bold mt-2 mb-1">Friend Lee</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">A robot friend made with Raspberry Pi, speaker, OLED, and voice tech. <span class="italic">2025</span></p>
+      </div>
+      <div class="p-6 border rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-xl transition-transform hover:scale-105">
+        <span class="text-xs text-purple-600 uppercase font-semibold">Contributor</span>
+        <h4 class="text-lg font-bold mt-2 mb-1">Hack Club</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Built and shipped multiple open source projects with teen hackers worldwide.</p>
+      </div>
     </div>
-  </footer>  <!-- Time & Year Script -->  <script>
-    function updateTime() {
-      const now = new Date();
-      const options = { timeZone: "Europe/Copenhagen", hour: "numeric", minute: "2-digit", hour12: true };
-      document.getElementById("copenhagen-time").textContent = now.toLocaleTimeString("en-US", options);
+  </section>  <!-- Skills -->  <section class="py-20 px-6 md:px-10 max-w-6xl mx-auto">
+    <h3 class="text-2xl font-semibold mb-6 tracking-tight">Top Skills</h3>
+    <div class="flex flex-wrap gap-3">
+   <!-- Unified Skills Section -->
+<div class="flex flex-wrap gap-2 mt-4">
+  <!-- Languages -->
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">JavaScript</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">TypeScript</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Python</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">C/C++</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">HTML</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">CSS</span>
+
+  <!-- Frameworks -->
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Node.js</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Express.js</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">React.js</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Next.js</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Tailwind CSS</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Bootstrap</span>
+
+  <!-- APIs & Databases -->
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">REST API</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">MongoDB</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Firebase</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">MySQL</span>
+
+  <!-- Tools & Others -->
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Git & GitHub</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Replit</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Vercel</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Discord Bots</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Telegram Bots</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Arduino</span>
+  <span class="px-4 py-2 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 shadow-sm dark:bg-gray-700 dark:text-white">Raspberry Pi</span>
+</div>
+    </div>
+  </section>  <!-- Footer -->  <footer class="text-center text-sm text-gray-500 dark:text-gray-400 py-10 px-4 border-t dark:border-gray-700">
+    Designed with  by Joel • © 2025 All rights reserved.
+  </footer>  <!-- Lucide Icons & Theme Toggle -->  <script src="https://cdn.jsdelivr.net/npm/lucide@latest"></script>  <script>
+    lucide.createIcons();
+    function toggleTheme() {
+      const html = document.documentElement;
+      html.classList.toggle('dark');
+      localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
     }
-    updateTime();
-    setInterval(updateTime, 30000);
-    document.getElementById("year").textContent = new Date().getFullYear();
   </script></body>
-</html>
+  </html>

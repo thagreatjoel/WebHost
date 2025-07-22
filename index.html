@@ -46,8 +46,9 @@
   }
   </script>
  <link rel="icon" href="https://avatars.githubusercontent.com/u/124015127?v=4" />  <script src="https://cdn.tailwindcss.com"></script>  
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-<script>
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+ 
+  <script>
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
     }
@@ -56,9 +57,31 @@
       scroll-behavior: smooth;
     }
  
-  h1, h4 {
+  h5, h4 {
     font-family: 'JetBrains Mono', monospace;
   }
+
+
+  /* Global font setup */
+  body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    color: #f1f1f1; /* or your theme's text color */
+  }
+  
+  /* Headings with JetBrains Mono */
+  h1, h2, h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+  
+  /* Optional: Code blocks */
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  
 </style>
 <!-- Lucide Icons Script -->
 <script src="https://unpkg.com/lucide@latest"></script>

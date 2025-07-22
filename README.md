@@ -1,2 +1,2 @@
-# thagreatjoel.github.io
-Hosting own free webpage through GitHub pages
+# thagreatjoel.me
+My own personal website ✨

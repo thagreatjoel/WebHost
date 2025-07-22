@@ -28,6 +28,39 @@
 
   <!-- Favicon -->
   <link rel="icon" href="/favicon.ico" />
+
+
+
+
+  <script>
+    function updateTime() {
+      // Create a date object with current UTC time
+      const date = new Date();
+  
+      // Convert to IST (Asia/Kolkata timezone)
+      const options = {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour12: false
+      };
+  
+      const timeString = new Intl.DateTimeFormat('en-IN', options).format(date);
+      document.getElementById('kolkata-time').innerText = timeString;
+    }
+  
+    // Initial call
+    updateTime();
+  
+    // Update every second
+    setInterval(updateTime, 1000);
+  </script>
+
+  
   <!-- Schema Markup for Google Rich Results -->
   <script type="application/ld+json">
   {
@@ -124,6 +157,7 @@
         <div class="flex gap-4 justify-center md:justify-start flex-wrap">
           <button onclick="window.open('https://github.com/thagreatjoel', '_blank')" class="dark:bg-gray-800 border border-grey-400 text-white px-6 py-2 rounded-md shadow">Follow Me</button>
           <button onclick="window.open('https://instagram.com/thagreatjoel')" class="border border-gray-400 dark:border-gray-600 px-6 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition">Contact Me</button>
+          <h1>Time <p id="kolkata-time"></p>
         </div>
         <p class="py-8 text-left leading-relaxed mb-6"> I started coding at age of 13, using just my phone, exploring and learning without a laptop. That curiosity still drives me. Building useful well-designed projects ever since.
         </p>

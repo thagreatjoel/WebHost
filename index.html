@@ -32,34 +32,6 @@
 
 
 
-  <script>
-    function updateTime() {
-      // Create a date object with current UTC time
-      const date = new Date();
-  
-      // Convert to IST (Asia/Kolkata timezone)
-      const options = {
-        timeZone: 'Asia/Kolkata',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour12: false
-      };
-  
-      const timeString = new Intl.DateTimeFormat('en-IN', options).format(date);
-      document.getElementById('kolkata-time').innerText = timeString;
-    }
-  
-    // Initial call
-    updateTime();
-  
-    // Update every second
-    setInterval(updateTime, 1000);
-  </script>
-
   
   <!-- Schema Markup for Google Rich Results -->
   <script type="application/ld+json">
@@ -87,7 +59,9 @@
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
     }
-  </script>  <style>
+  </script> 
+
+   <style>
     html {
       scroll-behavior: smooth;
     }
@@ -108,20 +82,11 @@
     font-weight: 700;
   }
 
-  h2 {
+  h2, code, pre, p {
   	font-family: 'Ubuntu', sans-serif;
   }
 
   
-  /* Optional: Code blocks */
-  code, pre {
-    font-family: 'Ubuntu', monospace;
-  }
-
-  p {
-  	font-family: 'Ubuntu', monospace;
-  }
-
   
 </style>
 <!-- Lucide Icons Script -->
@@ -192,7 +157,7 @@
       <div class="p-6 border rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-xl transition-transform hover:scale-105">
         <span class="text-xs text-yellow-600 uppercase font-semibold">Just for Fun </span>
         <h4 class="text-lg font-bold mt-2 mb-1">HackaTime</h4>
-        <p class="text-sm text-gray-600 dark:text-gray-300">A web dashboard where users can enter their HackaTime API key and view live coding stats. Built with authentication, dark/light themes, and project breakdowns. <span class="italic">2024 — Present</span></p>
+        <p class="text-sm text-gray-600 dark:text-gray-300">A web dashboard where users can enter their HackaTime API key and view live coding stats. <span class="italic">2024 — Present</span></p>
       </div>
       <div class="p-6 border rounded-xl bg-white dark:bg-gray-800 dark:border-gray-700 hover:shadow-xl transition-transform hover:scale-105">
         <span class="text-xs text-yellow-600 uppercase font-semibold">Just for Fun </span>

@@ -60,87 +60,101 @@
       document.documentElement.classList.add('dark');
     }
 
-     function generateCalendarData() {
-       const today = new Date();
-       const startDate = new Date();
-       startDate.setDate(today.getDate() - 364);
-   
-       const weeks = [];
-       let week = [];
-   
-       while (startDate <= today) {
-         const level = Math.floor(Math.random() * 5);
-         week.push({ date: new Date(startDate), level });
-   
-         startDate.setDate(startDate.getDate() + 1);
-   
-         if (week.length === 7) {
-           weeks.push(week);
-           week = [];
-         }
-       }
-   
-       if (week.length) {
-         while (week.length < 7) {
-           week.push({ date: null, level: null });
-         }
-         weeks.push(week);
-       }
-   
-       return weeks;
-     }
-   
-     function renderCalendar() {
-       const calendar = document.getElementById("calendar");
-       const monthLabels = document.getElementById("monthLabels");
-       calendar.innerHTML = "";
-       monthLabels.innerHTML = "";
-   
-       const weeks = generateCalendarData();
-       let lastMonth = "";
-   
-       weeks.forEach((week, weekIndex) => {
-         const weekCol = document.createElement("div");
-         weekCol.classList.add("week");
-   
-         week.forEach(day => {
-           const dayEl = document.createElement("div");
-           dayEl.classList.add("day");
-           if (day.level !== null) {
-             dayEl.dataset.level = day.level;
-           }
-           weekCol.appendChild(dayEl);
-         });
-   
-         calendar.appendChild(weekCol);
-   
-         const firstDay = week[0].date;
-         if (firstDay && firstDay.getDate() <= 7) {
-           const monthName = firstDay.toLocaleDateString("en-US", { month: "short" });
-           if (monthName !== lastMonth) {
-             const label = document.createElement("div");
-             label.textContent = monthName;
-             label.style.width = "14px";
-             label.style.marginRight = "2px";
-             monthLabels.appendChild(label);
-             lastMonth = monthName;
-           }
-         } else {
-           const spacer = document.createElement("div");
-           spacer.style.width = "14px";
-           spacer.style.marginRight = "2px";
-           monthLabels.appendChild(spacer);
-         }
-       });
-     }
-   
-     document.addEventListener("DOMContentLoaded", renderCalendar);
+  async function fetchContributions(username) {
+    const token = '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'; // ⚠️ keep this secret!
+    const from = new Date();
+    from.setDate(from.getDate() - 364);
+    const query = `
+      query($userName: String!, $from: DateTime!, $to: DateTime!) {
+        user(login: $userName) {
+          contributionsCollection(from: $from, to: $to) {
+            contributionCalendar {
+              totalContributions
+              weeks {
+                contributionDays {
+                  contributionCount
+                  color
+                  date
+                }
+              }
+            }
+          }
+        }
+      }`;
+    const resp = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        Authorization: 'bearer ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query,
+        variables: {
+          userName: username,
+          from: from.toISOString(),
+          to: new Date().toISOString()
+        }
+      })
+    });
+    const json = await resp.json();
+    return json.data?.user?.contributionsCollection.contributionCalendar.weeks || [];
+  }
+
+  function renderContributionGrid(weeks, targetId, monthLabelsId) {
+    const container = document.getElementById(targetId);
+    const monthLabels = document.getElementById(monthLabelsId);
+    container.innerHTML = '';
+    monthLabels.innerHTML = '';
+
+    let prevMonth = '';
+    weeks.forEach((week, i) => {
+      const col = document.createElement('div');
+      col.className = 'week';
+      week.contributionDays.forEach(day => {
+        const d = document.createElement('div');
+        d.className = 'day';
+        d.style.backgroundColor = day.color;
+        d.title = `${day.date}: ${day.contributionCount} contributions`;
+        col.appendChild(d);
+      });
+      container.appendChild(col);
+
+      // Month label once per approximate new month
+      const firstDay = week.contributionDays[0];
+      const m = new Date(firstDay.date).toLocaleString('default', { month: 'short' });
+      if (m !== prevMonth) {
+        const label = document.createElement('span');
+        label.textContent = m;
+        label.style.width = '14px';
+        label.style.marginRight = '2px';
+        monthLabels.appendChild(label);
+        prevMonth = m;
+      } else {
+        const spacer = document.createElement('span');
+        spacer.style.width = '14px';
+        spacer.style.marginRight = '2px';
+        monthLabels.appendChild(spacer);
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const weeks = await fetchContributions('thagreatjoel');
+    renderContributionGrid(weeks, 'calendar', 'monthLabels');
+  });
    </script>
 
    <style>
     html {
       scroll-behavior: smooth;
     }
+
+    .week { display: flex; flex-direction: column; gap: 2px; }
+    .day  { width: 12px; height: 12px; border-radius: 2px; transition: transform 0.1s; }
+    .day:hover { transform: scale(1.2); }
+    
+    .dark .day { /* dark-mode fallback face bg */ }
+    .month-labels { display: flex; font-size: 0.75rem; color: #8b949e; margin-bottom: 4px; }
  
     #calendar {
       display: flex;

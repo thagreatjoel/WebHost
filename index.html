@@ -54,205 +54,74 @@
  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
 
  <script src="https://cdn.tailwindcss.com"></script>  
+ const username = "thagreatjoel";
  
-  <script>
-const token = "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"; // ⚠️ Don't expose this in public
-    const username = "thagreatjoel";
-
-    function getLevel(count) {
-      if (count === 0) return 1;
-      else if (count < 5) return 2;
-      else if (count < 10) return 3;
-      else if (count < 20) return 4;
-      else return 5;
-    }
-
-    async function loadChart() {
-      const calendar = document.getElementById("calendar");
-      const monthLabels = document.getElementById("monthLabels");
-
-      const query = `
-        {
-          user(login: "${username}") {
-            contributionsCollection {
-              contributionCalendar {
-                weeks {
-                  contributionDays {
-                    date
-                    contributionCount
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-
-      try {
-        const res = await fetch("https://api.github.com/graphql", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "bearer " + token
-          },
-          body: JSON.stringify({ query })
-        });
-
-        const json = await res.json();
-        if (!json?.data?.user) {
-          calendar.innerHTML = `<h3>User not found: ${username}</h3>`;
-          return;
-        }
-
-        const weeks = json.data.user.contributionsCollection.contributionCalendar.weeks;
-        let prevMonth = "";
-
-        weeks.forEach((week, i) => {
-          const weekCol = document.createElement("div");
-          weekCol.className = "week";
-
-          week.contributionDays.forEach(day => {
-            const level = getLevel(day.contributionCount);
-            const div = document.createElement("div");
-            div.className = `day level-${level}`;
-            div.title = `${day.date}: ${day.contributionCount} contributions`;
-            weekCol.appendChild(div);
-          });
-
-          // Month labels (approx every 4 weeks)
-          if (i % 4 === 0) {
-            const firstDay = week.contributionDays[0];
-            const month = new Date(firstDay.date).toLocaleString('default', { month: 'short' });
-
-            if (month !== prevMonth) {
-              const label = document.createElement("span");
-              label.textContent = month;
-              monthLabels.appendChild(label);
-              prevMonth = month;
-            } else {
-              const spacer = document.createElement("span");
-              spacer.innerHTML = "&nbsp;";
-              monthLabels.appendChild(spacer);
-            }
-          }
-
-          calendar.appendChild(weekCol);
-        });
-
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("graphContainer").style.display = "block";
-
-      } catch (err) {
-        calendar.innerHTML = `<h3>Error loading</h3><pre>${err.message}</pre>`;
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", loadChart);
-  </script>
+ async function loadGitHubGraph() {
+   const container = document.getElementById("graphContainer");
+   const loading = document.getElementById("loading");
+ 
+   try {
+     const res = await fetch(`https://github.com/users/${username}/contributions`, {
+       headers: {
+         'Content-Type': 'text/html'
+       }
+     });
+ 
+     const html = await res.text();
+     const parser = new DOMParser();
+     const doc = parser.parseFromString(html, 'text/html');
+     const svg = doc.querySelector('svg.js-calendar-graph-svg');
+ 
+     if (svg) {
+       container.innerHTML = "";
+       container.appendChild(svg);
+       loading.style.display = "none";
+       container.style.display = "block";
+     } else {
+       loading.textContent = "Graph not found.";
+     }
+   } catch (e) {
+     loading.innerHTML = `<pre>${e.message}</pre>`;
+   }
+ }
+ 
+ window.addEventListener("DOMContentLoaded", loadGitHubGraph);
   
    <style>
     html {
       scroll-behavior: smooth;
     }
 
-   body {
-         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-         padding: 2rem;
-         background: #0d1117;
-         color: #ffffff;
-       }
-   
-       h1 {
-         text-align: center;
-         margin-bottom: 1.5rem;
-       }
-   
-       #graphContainer {
-         overflow-x: auto;
-         padding: 10px;
-         border: 1px solid #21262d;
-         border-radius: 6px;
-       }
-   
-       .graph {
-         display: flex;
-       }
-   
-       .day-labels {
-         display: flex;
-         flex-direction: column;
-         font-size: 10px;
-         color: #8b949e;
-         margin-right: 5px;
-         justify-content: space-between;
-         padding-top: 12px;
-         padding-bottom: 12px;
-       }
-   
-       .day-labels div {
-         height: 13px;
-       }
-   
-       .month-labels {
-         display: flex;
-         font-size: 10px;
-         color: #8b949e;
-         margin-left: 25px;
-         margin-bottom: 4px;
-       }
-   
-       .month-labels span {
-         flex-shrink: 0;
-         width: 48px;
-         text-align: left;
-       }
-   
-       .calendar {
-         display: flex;
-         gap: 2px;
-       }
-   
-       .week {
-         display: flex;
-         flex-direction: column;
-         gap: 2px;
-       }
-   
-       .day {
-         width: 11px;
-         height: 11px;
-         border-radius: 2px;
-         background-color: #161b22;
-       }
-   
-       .level-1 { background-color: #161b22; } /* 0 */
-       .level-2 { background-color: #0e4429; } /* 1-4 */
-       .level-3 { background-color: #006d32; } /* 5-9 */
-       .level-4 { background-color: #26a641; } /* 10-19 */
-       .level-5 { background-color: #39d353; } /* 20+ */
-   
-       #loading {
-         text-align: center;
-         font-size: 16px;
-         color: #8b949e;
-       }
-   
-       .legend {
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         gap: 4px;
-         font-size: 12px;
-         color: #8b949e;
-         margin-top: 1rem;
-       }
-   
-       .legend-box {
-         width: 11px;
-         height: 11px;
-         border-radius: 2px;
-       }
-     
+    body {
+           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+           padding: 2rem;
+           background: #0d1117;
+           color: #ffffff;
+         }
+         
+         h1 {
+           text-align: center;
+           margin-bottom: 1.5rem;
+         }
+         
+         #graphContainer {
+           overflow-x: auto;
+           padding: 10px;
+           border: 1px solid #21262d;
+           border-radius: 6px;
+           background: #0d1117;
+         }
+         
+         svg {
+           width: 100%;
+           height: auto;
+         }
+         
+         #loading {
+           text-align: center;
+           font-size: 16px;
+           color: #8b949e;
+         }     
   /* Global font setup */
   body {
     font-family: 'Ubuntu', sans-serif;
@@ -378,17 +247,9 @@ const token = "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"; // ⚠️ Don't expose
      
 
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-calendar@latest/dist/github-calendar.min.css" />
-<div class="calendar">
-    Loading GitHub contributions...
-</div>
-<script src="https://cdn.jsdelivr.net/npm/github-calendar@latest/dist/github-calendar.min.js"></script>
-<script>
-  GitHubCalendar(".calendar", "thagreatjoel", {
-    responsive: true
-  });
-</script>
-      
+  <h1>GitHub Contributions</h1>
+  <div id="loading">Loading...</div>
+  <div id="graphContainer" style="display: none;"></div>      
       <!-- Graph Container -->
     </div>
   </section>

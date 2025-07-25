@@ -55,38 +55,37 @@
 
  <script src="https://cdn.tailwindcss.com"></script> 
  <script> 
- const username = "thagreatjoel";
- 
- async function loadGitHubGraph() {
-   const container = document.getElementById("graphContainer");
-   const loading = document.getElementById("loading");
- 
-   try {
-     const res = await fetch(`https://github.com/users/${username}/contributions`, {
-       headers: {
-         'Content-Type': 'text/html'
-       }
-     });
- 
-     const html = await res.text();
-     const parser = new DOMParser();
-     const doc = parser.parseFromString(html, 'text/html');
-     const svg = doc.querySelector('svg.js-calendar-graph-svg');
- 
-     if (svg) {
-       container.innerHTML = "";
-       container.appendChild(svg);
-       loading.style.display = "none";
-       container.style.display = "block";
-     } else {
-       loading.textContent = "Graph not found.";
-     }
-   } catch (e) {
-     loading.innerHTML = `<pre>${e.message}</pre>`;
-   }
- }
- 
- window.addEventListener("DOMContentLoaded", loadGitHubGraph);
+const username = "thagreatjoel";
+
+async function loadGitHubGraph() {
+  const container = document.getElementById("graphContainer");
+  const loading = document.getElementById("loading");
+
+  try {
+    const proxy = "https://corsproxy.io/?";
+    const url = `https://github.com/users/${username}/contributions`;
+    const res = await fetch(proxy + encodeURIComponent(url));
+
+    const html = await res.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const svg = doc.querySelector('svg.js-calendar-graph-svg');
+
+    if (svg) {
+      container.innerHTML = "";
+      container.appendChild(svg);
+      loading.style.display = "none";
+      container.style.display = "block";
+    } else {
+      loading.textContent = "Graph not found.";
+    }
+  } catch (e) {
+    loading.innerHTML = `<pre>${e.message}</pre>`;
+  }
+}
+
+window.addEventListener("DOMContentLoaded", loadGitHubGraph);
+
   </script>
    <style>
     html {

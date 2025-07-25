@@ -62,13 +62,14 @@ async function loadGitHubGraph() {
   const loading = document.getElementById("loading");
 
   try {
-    const proxy = "https://corsproxy.io/?";
     const url = `https://github.com/users/${username}/contributions`;
-    const res = await fetch(proxy + encodeURIComponent(url));
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
 
-    const html = await res.text();
+    const res = await fetch(proxy);
+    const json = await res.json(); // allorigins wraps it as { contents: "..." }
+
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    const doc = parser.parseFromString(json.contents, 'text/html');
     const svg = doc.querySelector('svg.js-calendar-graph-svg');
 
     if (svg) {
@@ -85,7 +86,6 @@ async function loadGitHubGraph() {
 }
 
 window.addEventListener("DOMContentLoaded", loadGitHubGraph);
-
   </script>
    <style>
     html {

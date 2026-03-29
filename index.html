@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>thagreatjoel · celestial launch</title>
+  <title>thagreatjoel · comet launch</title>
   <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
   <meta name="theme-color" content="#000000">
   
-  <!-- premium fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     * {
@@ -25,7 +24,18 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* ----- INTRO OVERLAY (deep space) ----- */
+    /* canvas for comet & trail (snake effect) */
+    #cometCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10001;
+    }
+
+    /* intro overlay (dark background) */
     .intro-overlay {
       position: fixed;
       inset: 0;
@@ -34,26 +44,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.4s ease-out;
+      transition: opacity 0.5s ease-out;
       pointer-events: auto;
     }
 
-    /* single glowing dot */
-    .glow-dot {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: #ffffff;
-      border-radius: 50%;
-      box-shadow: 0 0 16px 4px rgba(255, 245, 200, 0.9);
-      filter: blur(0.5px);
-      will-change: left, top;
-      transition: none;
-      pointer-events: none;
-      z-index: 10001;
-    }
-
-    /* central button (hidden initially) */
+    /* central button (hidden until comet stops) */
     .intro-button {
       position: absolute;
       top: 50%;
@@ -91,49 +86,48 @@
       box-shadow: 0 0 28px rgba(255, 235, 140, 0.6);
     }
 
-    /* black wipe circle (elegant expansion) */
-    .wipe-circle {
+    /* circular wipe container (masks the main page) */
+    .wipe-container {
       position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10010;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .wipe-circle-mask {
+      position: absolute;
       top: 50%;
       left: 50%;
       width: 0px;
       height: 0px;
-      background: #000000;
+      background: transparent;
       border-radius: 50%;
       transform: translate(-50%, -50%);
-      z-index: 10010;
-      pointer-events: none;
       transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: width, height;
+      overflow: hidden;
+      box-shadow: 0 0 0 2000px rgba(0,0,0,0.9); /* fake outside darkness */
     }
-
-    /* ---------- MAIN PAGE (clean index) ---------- */
-    .main-page {
+    /* inner content inside wipe will be the main page */
+    .wipe-inner {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       background: #f8fafd;
       overflow-y: auto;
-      overflow-x: hidden;
       opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s linear;
+      transition: opacity 0.3s;
     }
-
-    .main-page.visible {
+    .wipe-inner.visible {
       opacity: 1;
-      visibility: visible;
     }
 
-    .main-page::-webkit-scrollbar {
-      width: 5px;
-      background: #eef2f8;
-    }
-    .main-page::-webkit-scrollbar-thumb {
-      background: #b9cfdf;
-      border-radius: 10px;
-    }
-
-    /* index bridge layout (fully responsive) */
+    /* main page styling (identical to previous, but now inside wipe) */
     .index-bridge {
       max-width: 1300px;
       margin: 0 auto;
@@ -388,66 +382,71 @@
 </head>
 <body>
 
-<!-- INTRO OVERLAY with single moving dot -->
-<div class="intro-overlay" id="introOverlay">
-  <div class="glow-dot" id="glowDot"></div>
-  <button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
-</div>
+<!-- dark overlay for intro -->
+<div class="intro-overlay" id="introOverlay"></div>
 
-<!-- BLACK WIPE CIRCLE -->
-<div id="wipeCircle" class="wipe-circle"></div>
+<!-- canvas for comet & snake trail -->
+<canvas id="cometCanvas"></canvas>
 
-<!-- MAIN PAGE (index) -->
-<div class="main-page" id="mainPage">
-  <div class="index-bridge">
-    <div class="command-strip">
-      <div class="callsign">
-        <span>⛵</span> THAGREATJOEL · BRIDGE INDEX
-      </div>
-      <div class="live-badge" id="liveMeta">
-        <div class="metric-pill"><span id="repoCount">—</span> repos</div>
-        <div class="metric-pill"><span id="starTotal">—</span> stars</div>
-        <div class="metric-pill"><span id="forkTotal">—</span> forks</div>
-      </div>
-    </div>
+<!-- central button (appears after comet stops) -->
+<button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
 
-    <div class="identity-core">
-      <div class="flagship-card">
-        <div class="greeting">✧ COMMANDER PROFILE ✧</div>
-        <h1 class="name-title">Joel <span class="highlight">Joju</span></h1>
-        <div class="tagline">building tools, bots & hardware — ship mindset</div>
-        <div class="bio-text">
-          17-year-old developer from Kerala, India. I architect APIs, automation engines, embedded systems and PCB designs. 
-          Focused on meaningful tech that actually ships.
-        </div>
-        <div class="ship-stats" id="dynamicShipStats">
-          <div class="stat-ship"><strong>⚡ active vessels</strong> <span id="activeReposBadge">—</span></div>
-          <div class="stat-ship"><strong>🛠️ main stack</strong> JS/TS · Python · KiCad</div>
-          <div class="stat-ship"><strong>🌊 latest update</strong> <span id="lastPush">—</span></div>
-        </div>
-        <div class="action-row" style="display: flex; gap:1rem; align-items:center; flex-wrap:wrap;">
-          <button class="btn-launch" id="shipyardBtn">
-            <span>⟶</span> ENTER SHIPYARD
-          </button>
-          <div class="status-light">
-            <div class="pulse"></div> <span>fleet active</span>
+<!-- circular wipe container (reveals page inside) -->
+<div class="wipe-container" id="wipeContainer">
+  <div class="wipe-circle-mask" id="wipeCircleMask">
+    <div class="wipe-inner" id="wipeInner">
+      <!-- main page content -->
+      <div class="index-bridge">
+        <div class="command-strip">
+          <div class="callsign">
+            <span>⛵</span> THAGREATJOEL · BRIDGE INDEX
+          </div>
+          <div class="live-badge" id="liveMeta">
+            <div class="metric-pill"><span id="repoCount">—</span> repos</div>
+            <div class="metric-pill"><span id="starTotal">—</span> stars</div>
+            <div class="metric-pill"><span id="forkTotal">—</span> forks</div>
           </div>
         </div>
-      </div>
 
-      <div class="profile-manifesto">
-        <div class="pfp-card">
-          <img class="pfp-img" src="https://avatars.githubusercontent.com/u/124015127?v=4" alt="Joel Joju profile picture">
-          <div style="font-family: monospace; font-size:0.7rem; color:#2c5f8a;">@thagreatjoel · github</div>
-        </div>
-        <div class="manifesto-card">
-          <div class="manifesto-title">⚓ SHIP MANIFESTO</div>
-          <ul class="manifesto-list">
-            <li>#buildinpublic</li><li>API first</li><li>automation obsessed</li>
-            <li>open hardware</li><li>clean code</li><li>ship > perfect</li>
-          </ul>
-          <div style="margin-top: 1rem; font-size: 0.7rem; color:#6c86a3; font-family: monospace;">
-            github.com/thagreatjoel · live from kerala
+        <div class="identity-core">
+          <div class="flagship-card">
+            <div class="greeting">✧ COMMANDER PROFILE ✧</div>
+            <h1 class="name-title">Joel <span class="highlight">Joju</span></h1>
+            <div class="tagline">building tools, bots & hardware — ship mindset</div>
+            <div class="bio-text">
+              17-year-old developer from Kerala, India. I architect APIs, automation engines, embedded systems and PCB designs. 
+              Focused on meaningful tech that actually ships.
+            </div>
+            <div class="ship-stats" id="dynamicShipStats">
+              <div class="stat-ship"><strong>⚡ active vessels</strong> <span id="activeReposBadge">—</span></div>
+              <div class="stat-ship"><strong>🛠️ main stack</strong> JS/TS · Python · KiCad</div>
+              <div class="stat-ship"><strong>🌊 latest update</strong> <span id="lastPush">—</span></div>
+            </div>
+            <div class="action-row" style="display: flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+              <button class="btn-launch" id="shipyardBtn">
+                <span>⟶</span> ENTER SHIPYARD
+              </button>
+              <div class="status-light">
+                <div class="pulse"></div> <span>fleet active</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-manifesto">
+            <div class="pfp-card">
+              <img class="pfp-img" src="https://avatars.githubusercontent.com/u/124015127?v=4" alt="Joel Joju profile picture">
+              <div style="font-family: monospace; font-size:0.7rem; color:#2c5f8a;">@thagreatjoel · github</div>
+            </div>
+            <div class="manifesto-card">
+              <div class="manifesto-title">⚓ SHIP MANIFESTO</div>
+              <ul class="manifesto-list">
+                <li>#buildinpublic</li><li>API first</li><li>automation obsessed</li>
+                <li>open hardware</li><li>clean code</li><li>ship > perfect</li>
+              </ul>
+              <div style="margin-top: 1rem; font-size: 0.7rem; color:#6c86a3; font-family: monospace;">
+                github.com/thagreatjoel · live from kerala
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -457,175 +456,213 @@
 
 <script>
   (function() {
-    // ------------------------------
-    // CONSTANT SMOOTH MOVEMENT (Lissajous / infinity pattern)
-    // then after 3.5 seconds, transition to center, fade dot, reveal button.
-    // ------------------------------
-    const overlay = document.getElementById('introOverlay');
-    const dot = document.getElementById('glowDot');
-    const introButton = document.getElementById('introBtn');
-    const wipeCircle = document.getElementById('wipeCircle');
-    const mainPage = document.getElementById('mainPage');
-    
+    // ---------- COMET WITH SNAKE TRAIL (SPIRAL: QUICK THEN SLOW) ----------
+    const canvas = document.getElementById('cometCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
     let animationId = null;
-    let startTime = null;
-    let isMoving = true;
-    let settling = false;
-    let settleStart = null;
-    let settleDuration = 800; // ms to move to center
+    let startTimestamp = null;
+    let duration = 4000; // 4 seconds total motion: quick spin then slow, ending at center
+    let isAnimating = true;
+    let cometPos = { x: 0, y: 0 };
+    let trailPositions = []; // store recent positions for snake trail
+    const TRAIL_LENGTH = 28;
     
+    // spiral parameters: r = R * (1 - t), angle = 2pi * (fastStart + deceleration)
+    // we want quick rotation initially, then slow down. Use angle = A * (1 - exp(-k*t))? Simpler: angular speed = initialOmega * (1 - t/duration) + finalOmega, but we want smooth.
+    // We'll define t normalized 0..1.
+    // Spiral: angle = 12 * pi * t^0.5  (fast start, slow end)
+    // radius = maxRadius * (1 - t)  (shrink to 0)
+    const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.38;
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
-    // parametric movement: figure-8 / infinity shape, smooth and continuous
-    // we'll use a time variable that loops every 6 seconds, but we want it to keep moving
-    // until we decide to settle. We'll use requestAnimationFrame with a phase.
-    let globalTime = 0;
-    let lastTimestamp = null;
-    
-    // movement boundaries: 70% of screen width/height to avoid edges
-    const maxX = window.innerWidth * 0.7;
-    const minX = window.innerWidth * 0.3;
-    const maxY = window.innerHeight * 0.7;
-    const minY = window.innerHeight * 0.3;
-    const midX = window.innerWidth * 0.5;
-    const midY = window.innerHeight * 0.5;
-    
-    function computePosition(t) {
-      // t in seconds, continuous. Use two frequencies for organic looping
-      const freq1 = 0.45;
-      const freq2 = 0.73;
-      const x = midX + Math.sin(t * freq1) * (maxX - minX) * 0.5 + Math.cos(t * freq2 * 1.3) * (maxX - minX) * 0.25;
-      const y = midY + Math.cos(t * freq1 * 0.9) * (maxY - minY) * 0.5 + Math.sin(t * freq2 * 1.1) * (maxY - minY) * 0.3;
-      // clamp to safe area
-      return {
-        x: Math.min(Math.max(x, minX - 20), maxX + 20),
-        y: Math.min(Math.max(y, minY - 20), maxY + 20)
-      };
+    function getPosition(t) {
+      // t in [0,1]
+      if (t >= 1) return { x: centerX, y: centerY };
+      // angle: fast then slow: use cubic easing: angle = 14 * pi * (1 - (1-t)^2) gives fast then decel.
+      const angle = 14 * Math.PI * (1 - Math.pow(1 - t, 1.6));
+      const radius = maxRadius * (1 - t);
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
+      return { x, y };
     }
     
-    let currentX = midX, currentY = midY;
-    let settleTargetX = centerX, settleTargetY = centerY;
-    let settleProgress = 0;
+    function updateCanvasSize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
     
-    function animateMovement(timestamp) {
-      if (!isMoving) return;
+    function drawCometAndTrail(now) {
+      if (!isAnimating) return;
+      if (!startTimestamp) startTimestamp = now;
+      const elapsed = now - startTimestamp;
+      let t = Math.min(1, elapsed / duration);
+      const pos = getPosition(t);
+      cometPos = pos;
       
-      if (!lastTimestamp) {
-        lastTimestamp = timestamp;
-        requestAnimationFrame(animateMovement);
-        return;
+      // add to trail
+      trailPositions.unshift({ x: pos.x, y: pos.y, life: 1.0 });
+      if (trailPositions.length > TRAIL_LENGTH) trailPositions.pop();
+      
+      // update life for each trail particle (fade)
+      for (let i = 0; i < trailPositions.length; i++) {
+        trailPositions[i].life = 1.0 - (i / TRAIL_LENGTH) * 0.9;
       }
       
-      // delta time in seconds
-      let delta = Math.min(0.033, (timestamp - lastTimestamp) / 1000);
-      if (delta <= 0) {
-        lastTimestamp = timestamp;
-        requestAnimationFrame(animateMovement);
-        return;
-      }
-      lastTimestamp = timestamp;
+      ctx.clearRect(0, 0, width, height);
       
-      if (!settling) {
-        // normal movement: update global time
-        globalTime += delta;
-        const pos = computePosition(globalTime);
-        currentX = pos.x;
-        currentY = pos.y;
-        dot.style.left = currentX + 'px';
-        dot.style.top = currentY + 'px';
-      } else {
-        // settling phase: interpolate to center
-        settleProgress += delta / (settleDuration / 1000);
-        if (settleProgress >= 1) {
-          settleProgress = 1;
-          isMoving = false;
-          dot.style.left = centerX + 'px';
-          dot.style.top = centerY + 'px';
-          // now fade out dot and reveal button
-          dot.style.transition = 'opacity 0.4s ease';
-          dot.style.opacity = '0';
-          setTimeout(() => {
-            dot.style.display = 'none';
-            introButton.classList.add('revealed');
-          }, 400);
-          if (animationId) cancelAnimationFrame(animationId);
-          return;
+      // draw snake trail (glowing fading segments)
+      for (let i = 0; i < trailPositions.length; i++) {
+        const p = trailPositions[i];
+        const alpha = p.life * 0.7;
+        const size = 5 * (1 - i / TRAIL_LENGTH) + 2;
+        ctx.beginPath();
+        // create shell-like shape: teardrop / crescent pointing backward? Instead, draw a glowing ellipse with gradient
+        const gradient = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, size);
+        gradient.addColorStop(0, `rgba(255, 240, 180, ${alpha * 0.9})`);
+        gradient.addColorStop(0.7, `rgba(255, 200, 100, ${alpha * 0.5})`);
+        gradient.addColorStop(1, `rgba(255, 100, 50, 0)`);
+        ctx.fillStyle = gradient;
+        ctx.arc(p.x, p.y, size * 0.8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // additional streak
+        if (i < trailPositions.length - 1) {
+          const next = trailPositions[i+1];
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(next.x, next.y);
+          ctx.strokeStyle = `rgba(255, 220, 140, ${alpha * 0.6})`;
+          ctx.lineWidth = 3;
+          ctx.stroke();
         }
-        const easeOut = 1 - Math.pow(1 - settleProgress, 2);
-        const curX = currentX + (centerX - currentX) * easeOut;
-        const curY = currentY + (centerY - currentY) * easeOut;
-        dot.style.left = curX + 'px';
-        dot.style.top = curY + 'px';
       }
       
-      requestAnimationFrame(animateMovement);
-    }
-    
-    // start movement
-    dot.style.left = midX + 'px';
-    dot.style.top = midY + 'px';
-    globalTime = 2.0; // start at an interesting phase
-    lastTimestamp = null;
-    requestAnimationFrame(animateMovement);
-    
-    // after 3.5 seconds of smooth movement, begin settling to center
-    setTimeout(() => {
-      if (isMoving && !settling) {
-        settling = true;
-        settleProgress = 0;
-        settleStart = performance.now();
-        // capture current position as start for interpolation
-        const rect = dot.getBoundingClientRect();
-        currentX = rect.left;
-        currentY = rect.top;
+      // main comet head (shell shape - not a circle, a curved shell)
+      ctx.save();
+      // direction vector for orientation (from previous point to current)
+      let angleDir = 0;
+      if (trailPositions.length > 1 && trailPositions[1]) {
+        const dx = cometPos.x - trailPositions[1].x;
+        const dy = cometPos.y - trailPositions[1].y;
+        angleDir = Math.atan2(dy, dx);
+      } else {
+        angleDir = (t * 20);
       }
-    }, 3600); // 3.6 sec of flowing movement then elegantly settle
-    
-    // ------------------------------
-    // CLICK ON BUTTON → WIPE CIRCLE → REMOVE OVERLAY & SHOW PAGE
-    // ------------------------------
-    let isTransitioning = false;
-    
-    function startWipeAndReveal() {
-      if (isTransitioning) return;
-      isTransitioning = true;
+      ctx.translate(cometPos.x, cometPos.y);
+      ctx.rotate(angleDir);
+      // draw crescent / shell shape
+      ctx.beginPath();
+      // shell shape: a pointed arc
+      ctx.moveTo(8, 0);
+      ctx.quadraticCurveTo(4, -6, -3, -3);
+      ctx.quadraticCurveTo(-6, 0, -3, 3);
+      ctx.quadraticCurveTo(4, 6, 8, 0);
+      ctx.fillStyle = `rgba(255, 235, 160, 0.95)`;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#ffd966';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.restore();
       
-      const btnRect = introButton.getBoundingClientRect();
-      const centerXBtn = btnRect.left + btnRect.width / 2;
-      const centerYBtn = btnRect.top + btnRect.height / 2;
+      // additional glow dot inside
+      ctx.beginPath();
+      ctx.arc(cometPos.x, cometPos.y, 3, 0, 2*Math.PI);
+      ctx.fillStyle = `rgba(255, 255, 210, 0.9)`;
+      ctx.fill();
       
-      wipeCircle.style.left = centerXBtn + 'px';
-      wipeCircle.style.top = centerYBtn + 'px';
-      wipeCircle.style.transform = 'translate(-50%, -50%)';
-      
-      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.8;
-      wipeCircle.style.width = maxSize + 'px';
-      wipeCircle.style.height = maxSize + 'px';
-      
-      overlay.style.transition = 'opacity 0.4s ease';
-      overlay.style.opacity = '0';
-      
-      setTimeout(() => {
-        overlay.style.display = 'none';
-        mainPage.classList.add('visible');
-        wipeCircle.style.transition = 'opacity 0.6s';
-        wipeCircle.style.opacity = '0';
+      if (t >= 1) {
+        // animation finished: stop, hide canvas, reveal button, remove comet
+        isAnimating = false;
+        if (animationId) cancelAnimationFrame(animationId);
+        canvas.style.transition = 'opacity 0.5s';
+        canvas.style.opacity = '0';
         setTimeout(() => {
-          wipeCircle.style.display = 'none';
-        }, 600);
-      }, 700);
+          canvas.style.display = 'none';
+        }, 500);
+        // reveal button
+        const introBtn = document.getElementById('introBtn');
+        introBtn.classList.add('revealed');
+        return;
+      }
+      
+      animationId = requestAnimationFrame(drawCometAndTrail);
     }
     
-    introButton.addEventListener('click', (e) => {
-      if (introButton.classList.contains('revealed')) {
-        startWipeAndReveal();
+    function startComet() {
+      updateCanvasSize();
+      trailPositions = [];
+      startTimestamp = null;
+      isAnimating = true;
+      canvas.style.display = 'block';
+      canvas.style.opacity = '1';
+      animationId = requestAnimationFrame(drawCometAndTrail);
+    }
+    
+    window.addEventListener('resize', () => {
+      updateCanvasSize();
+      // reposition? not needed, animation continues but might jitter, acceptable
+    });
+    
+    // ---------- WIPE CIRCLE THAT REVEALS PAGE INSIDE ----------
+    const introOverlay = document.getElementById('introOverlay');
+    const introBtn = document.getElementById('introBtn');
+    const wipeMask = document.getElementById('wipeCircleMask');
+    const wipeInner = document.getElementById('wipeInner');
+    let wipeTransitioning = false;
+    
+    function startWipeReveal() {
+      if (wipeTransitioning) return;
+      wipeTransitioning = true;
+      
+      // get button center
+      const btnRect = introBtn.getBoundingClientRect();
+      const btnCenterX = btnRect.left + btnRect.width / 2;
+      const btnCenterY = btnRect.top + btnRect.height / 2;
+      
+      // position the mask at button center
+      wipeMask.style.left = btnCenterX + 'px';
+      wipeMask.style.top = btnCenterY + 'px';
+      wipeMask.style.transform = 'translate(-50%, -50%)';
+      
+      // start expanding the circle
+      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+      wipeMask.style.width = maxSize + 'px';
+      wipeMask.style.height = maxSize + 'px';
+      
+      // fade out the intro overlay
+      introOverlay.style.transition = 'opacity 0.4s';
+      introOverlay.style.opacity = '0';
+      
+      // make inner content visible after a tiny delay
+      setTimeout(() => {
+        wipeInner.classList.add('visible');
+      }, 150);
+      
+      // after expansion, hide intro overlay and clean up
+      setTimeout(() => {
+        introOverlay.style.display = 'none';
+        introBtn.style.display = 'none';
+        // optional: keep wipe mask but make it fully transparent? we'll remove after transition ends
+        setTimeout(() => {
+          wipeMask.style.opacity = '0';
+          setTimeout(() => {
+            wipeMask.style.display = 'none';
+          }, 400);
+        }, 200);
+      }, 800);
+    }
+    
+    introBtn.addEventListener('click', () => {
+      if (introBtn.classList.contains('revealed')) {
+        startWipeReveal();
       }
     });
     
-    // ------------------------------
-    // GITHUB STATS FETCH (live)
-    // ------------------------------
+    // ---------- GITHUB STATS ----------
     const GITHUB_USER = "thagreatjoel";
     const REPO_API = `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=50`;
     
@@ -676,11 +713,8 @@
       });
     }
     
-    // handle resize: recenter button and wipe? not needed for core function but keep dot boundaries?
-    window.addEventListener('resize', () => {
-      // reposition dot if still moving? simple: ignore, but to avoid glitch we recompute only if needed
-      // Not critical, but for perfection we could re-trigger, but it's okay.
-    });
+    // start the comet animation after page load
+    startComet();
   })();
 </script>
 </body>

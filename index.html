@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>thagreatjoel · horizon</title>
-  <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
+  <title>thagreatjoel · launch</title>
+  <meta name="description" content="Joel Joju — builder, creator, ship engineer.">
   <meta name="theme-color" content="#000000">
   
   <!-- fonts -->
@@ -25,8 +25,8 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* ----- INTRO OVERLAY (black with pattern) ----- */
-    .intro-overlay {
+    /* ----- BLACK INTRO PAGE (only username) ----- */
+    .intro-page {
       position: fixed;
       inset: 0;
       background: #000000;
@@ -34,134 +34,44 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.5s ease-out;
-      pointer-events: auto;
-      overflow: hidden;
+      cursor: pointer;
+      transition: none;
+      will-change: clip-path;
     }
 
-    /* background pattern (like Horizons) */
-    .intro-pattern {
-      position: absolute;
-      inset: -50%;
-      width: 200%;
-      height: 200%;
-      background-image: radial-gradient(circle at 25% 40%, rgba(255,245,200,0.08) 1.5px, transparent 1.5px);
-      background-size: 32px 32px;
-      pointer-events: none;
-      opacity: 0.6;
-      transform: rotate(-19.5deg);
-    }
-
-    /* content wrapper */
-    .intro-content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      max-width: 90%;
-      width: 700px;
-      padding: 2rem;
-    }
-
-    /* logo / name */
-    .intro-logo {
+    /* username centered, minimal & powerful */
+    .username {
       font-family: 'Space Grotesk', monospace;
-      font-size: clamp(2rem, 8vw, 4rem);
+      font-size: clamp(2.5rem, 12vw, 5rem);
       font-weight: 800;
       letter-spacing: -0.02em;
-      color: #fffef7;
-      margin-bottom: 1.5rem;
-      text-shadow: 0 0 12px rgba(255,245,200,0.3);
+      color: #ffffff;
+      text-align: center;
+      padding: 1rem;
+      transition: transform 0.2s ease, letter-spacing 0.2s;
     }
-    .intro-logo span {
-      color: #ffd966;
-    }
-
-    /* text wave animation (inspired by Horizons) */
-    .textwave {
-      display: inline-flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.25rem 0.5rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: clamp(0.9rem, 4vw, 1.3rem);
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      color: #e8eef2;
-      margin-bottom: 2rem;
-    }
-    .wave-word {
-      display: inline-flex;
-      flex-wrap: wrap;
-      gap: 0.1rem;
-    }
-    .wave-char {
-      display: inline-block;
-      animation: waveFloat 2s infinite ease-in-out;
-      animation-delay: var(--wave-delay, 0s);
-      animation-duration: var(--wave-duration, 2s);
-      transform: translateY(0);
-    }
-    @keyframes waveFloat {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(var(--wave-amplitude, 2px)); }
-    }
-
-    /* button (exactly from Horizons style) */
-    .boba-container {
-      display: inline-block;
-      cursor: pointer;
-      transition: transform 0.15s ease;
-    }
-    .boba-container:hover {
+    .intro-page:hover .username {
       transform: scale(1.02);
-    }
-    .btn-svg {
-      width: auto;
-      height: 54px;
-      overflow: visible;
-    }
-    .btn-svg text {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 600;
-      font-size: 28px;
       letter-spacing: 0.02em;
     }
-    .btn-shadow {
-      stroke: #000000;
-      stroke-width: 22;
-      stroke-linejoin: round;
-      paint-order: stroke;
-    }
-    .btn-front {
-      fill: #000000;
-      stroke: #F9F3EB;
-      stroke-width: 15;
-      stroke-linejoin: round;
-      paint-order: stroke;
-      transition: stroke 0.15s ease;
-    }
-    .boba-container:hover .btn-front {
-      stroke: #ffffff;
-    }
 
-    /* BLACK HOLE WIPE */
-    .black-hole {
-      position: fixed;
-      top: 50%;
+    /* subtle glow on hover */
+    .username::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
       left: 50%;
-      width: 0px;
-      height: 0px;
-      background: #000000;
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10010;
-      pointer-events: none;
-      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: width, height;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+      transform: translateX(-50%);
+      width: 0%;
+      height: 2px;
+      background: rgba(255,255,255,0.3);
+      transition: width 0.3s ease;
+    }
+    .intro-page:hover .username::after {
+      width: 60%;
     }
 
-    /* ---------- MAIN PAGE (clean index) ---------- */
+    /* ----- MAIN PAGE (portfolio, hidden initially) ----- */
     .main-page {
       width: 100%;
       height: 100%;
@@ -185,7 +95,7 @@
       border-radius: 10px;
     }
 
-    /* index bridge layout */
+    /* index bridge layout (same as before) */
     .index-bridge {
       max-width: 1300px;
       margin: 0 auto;
@@ -405,66 +315,17 @@
       .command-strip { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
       .identity-core { flex-direction: column; }
       .pfp-img { width: 110px; height: 110px; }
-      .btn-svg { height: 44px; }
-      .btn-svg text { font-size: 20px; }
     }
   </style>
 </head>
 <body>
 
-<!-- INTRO OVERLAY (black with pattern + text wave + button) -->
-<div class="intro-overlay" id="introOverlay">
-  <div class="intro-pattern"></div>
-  <div class="intro-content">
-    <div class="intro-logo">
-      <span>~/</span>thagreatjoel
-    </div>
-    <div class="textwave" id="waveText">
-      <!-- animated words: builder · creator · ship engineer -->
-      <span class="wave-word">
-        <span class="wave-char" style="--wave-delay:0s; --wave-duration:2s; --wave-amplitude:3px">B</span>
-        <span class="wave-char" style="--wave-delay:0.04s; --wave-duration:2s; --wave-amplitude:3px">U</span>
-        <span class="wave-char" style="--wave-delay:0.08s; --wave-duration:2s; --wave-amplitude:3px">I</span>
-        <span class="wave-char" style="--wave-delay:0.12s; --wave-duration:2s; --wave-amplitude:3px">L</span>
-        <span class="wave-char" style="--wave-delay:0.16s; --wave-duration:2s; --wave-amplitude:3px">D</span>
-        <span class="wave-char" style="--wave-delay:0.2s; --wave-duration:2s; --wave-amplitude:3px">E</span>
-        <span class="wave-char" style="--wave-delay:0.24s; --wave-duration:2s; --wave-amplitude:3px">R</span>
-      </span>
-      <span class="wave-word" style="margin:0 0.4rem;">·</span>
-      <span class="wave-word">
-        <span class="wave-char" style="--wave-delay:0.32s; --wave-duration:2s; --wave-amplitude:3px">C</span>
-        <span class="wave-char" style="--wave-delay:0.36s; --wave-duration:2s; --wave-amplitude:3px">R</span>
-        <span class="wave-char" style="--wave-delay:0.4s; --wave-duration:2s; --wave-amplitude:3px">E</span>
-        <span class="wave-char" style="--wave-delay:0.44s; --wave-duration:2s; --wave-amplitude:3px">A</span>
-        <span class="wave-char" style="--wave-delay:0.48s; --wave-duration:2s; --wave-amplitude:3px">T</span>
-        <span class="wave-char" style="--wave-delay:0.52s; --wave-duration:2s; --wave-amplitude:3px">O</span>
-        <span class="wave-char" style="--wave-delay:0.56s; --wave-duration:2s; --wave-amplitude:3px">R</span>
-      </span>
-      <span class="wave-word" style="margin:0 0.4rem;">·</span>
-      <span class="wave-word">
-        <span class="wave-char" style="--wave-delay:0.64s; --wave-duration:2s; --wave-amplitude:3px">S</span>
-        <span class="wave-char" style="--wave-delay:0.68s; --wave-duration:2s; --wave-amplitude:3px">H</span>
-        <span class="wave-char" style="--wave-delay:0.72s; --wave-duration:2s; --wave-amplitude:3px">I</span>
-        <span class="wave-char" style="--wave-delay:0.76s; --wave-duration:2s; --wave-amplitude:3px">P</span>
-      </span>
-    </div>
-    <div class="boba-container" id="introBtn">
-      <svg class="btn-svg" width="auto" height="54" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <text class="btn-shadow" stroke="#000000" stroke-width="22" stroke-linejoin="round" paint-order="stroke" xml:space="preserve" font-size="28" font-weight="600" letter-spacing="0.02em" font-family="'JetBrains Mono', monospace">
-          <tspan x="5" y="32">> ENTER FLEET</tspan>
-        </text>
-        <text class="btn-front" fill="#000000" stroke="#F9F3EB" stroke-width="15" stroke-linejoin="round" paint-order="stroke" xml:space="preserve" font-size="28" font-weight="600" letter-spacing="0.02em" font-family="'JetBrains Mono', monospace">
-          <tspan x="5" y="32">> ENTER FLEET</tspan>
-        </text>
-      </svg>
-    </div>
-  </div>
+<!-- BLACK INTRO PAGE (only username, click anywhere) -->
+<div class="intro-page" id="introPage">
+  <div class="username">thagreatjoel</div>
 </div>
 
-<!-- BLACK HOLE WIPE -->
-<div id="blackHole" class="black-hole"></div>
-
-<!-- MAIN PAGE (portfolio index) -->
+<!-- MAIN PAGE (portfolio content, initially hidden) -->
 <div class="main-page" id="mainPage">
   <div class="index-bridge">
     <div class="command-strip">
@@ -522,53 +383,64 @@
 
 <script>
   (function() {
-    // Intro elements
-    const overlay = document.getElementById('introOverlay');
-    const introBtn = document.getElementById('introBtn');
-    const blackHole = document.getElementById('blackHole');
+    const introPage = document.getElementById('introPage');
     const mainPage = document.getElementById('mainPage');
-
-    let isTransitioning = false;
-
-    function startBlackHoleWipe() {
-      if (isTransitioning) return;
-      isTransitioning = true;
-
-      // get button center
-      const btnRect = introBtn.getBoundingClientRect();
-      const centerX = btnRect.left + btnRect.width / 2;
-      const centerY = btnRect.top + btnRect.height / 2;
-
-      blackHole.style.left = centerX + 'px';
-      blackHole.style.top = centerY + 'px';
-      blackHole.style.transform = 'translate(-50%, -50%)';
-
-      // expand black hole
-      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.8;
-      blackHole.style.width = maxSize + 'px';
-      blackHole.style.height = maxSize + 'px';
-
-      // fade out overlay
-      overlay.style.transition = 'opacity 0.5s ease';
-      overlay.style.opacity = '0';
-
-      setTimeout(() => {
-        overlay.style.display = 'none';
-        mainPage.classList.add('visible');
-        blackHole.style.transition = 'opacity 0.5s ease';
-        blackHole.style.opacity = '0';
-        setTimeout(() => {
-          blackHole.style.display = 'none';
-        }, 500);
-      }, 750);
+    
+    // Ensure main page is ready but hidden (visibility hidden, opacity 0)
+    // The intro page is fully black with username.
+    
+    // Function to perform transparent wipe (clip-path circle mask)
+    function startWipeAndReveal(clickX, clickY) {
+      // Set clip-path origin at click point, start from 0%
+      introPage.style.clipPath = `circle(0% at ${clickX}px ${clickY}px)`;
+      introPage.style.transition = 'clip-path 0.9s cubic-bezier(0.4, 0, 0.2, 1)';
+      
+      // Force reflow then animate to large circle covering entire screen
+      requestAnimationFrame(() => {
+        // Calculate needed radius (diagonal from click to farthest corner)
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const dx = Math.max(clickX, w - clickX);
+        const dy = Math.max(clickY, h - clickY);
+        const radius = Math.hypot(dx, dy) * 1.2; // extra margin
+        introPage.style.clipPath = `circle(${radius}px at ${clickX}px ${clickY}px)`;
+      });
+      
+      // After transition ends, remove intro page and show main page fully
+      introPage.addEventListener('transitionend', function onEnd(e) {
+        if (e.propertyName === 'clip-path') {
+          introPage.style.display = 'none';
+          mainPage.classList.add('visible');
+          introPage.removeEventListener('transitionend', onEnd);
+        }
+      });
     }
-
-    introBtn.addEventListener('click', startBlackHoleWipe);
-
-    // ----- GitHub stats fetch -----
+    
+    // On click anywhere on intro page, get coordinates and start wipe
+    introPage.addEventListener('click', (e) => {
+      // Get click position relative to viewport
+      const x = e.clientX;
+      const y = e.clientY;
+      startWipeAndReveal(x, y);
+    });
+    
+    // Also allow keyboard 'Enter' or space? optional but nice
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        if (introPage.style.display !== 'none') {
+          // get center of screen as default click point
+          const x = window.innerWidth / 2;
+          const y = window.innerHeight / 2;
+          startWipeAndReveal(x, y);
+          e.preventDefault();
+        }
+      }
+    });
+    
+    // ----- GitHub stats fetch (same as before) -----
     const GITHUB_USER = "thagreatjoel";
     const REPO_API = `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=50`;
-
+    
     async function fetchRepos() {
       try {
         const res = await fetch(REPO_API, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
@@ -578,7 +450,7 @@
         return null;
       }
     }
-
+    
     async function updateStats() {
       const repos = await fetchRepos();
       if (!repos || !Array.isArray(repos)) {
@@ -608,7 +480,7 @@
     }
     updateStats();
     setInterval(updateStats, 300000);
-
+    
     const shipyardBtn = document.getElementById('shipyardBtn');
     if (shipyardBtn) {
       shipyardBtn.addEventListener('click', () => {

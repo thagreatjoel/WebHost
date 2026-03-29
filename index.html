@@ -25,21 +25,26 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* ----- BLACK INTRO PAGE (only username) ----- */
+    /* ----- BLACK INTRO PAGE (only username, click to wipe) ----- */
     .intro-page {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: #000000;
       z-index: 10000;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: none;
+      /* start with no clip-path (fully visible) */
+      clip-path: circle(150% at 50% 50%);
+      transition: clip-path 0.9s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: clip-path;
     }
 
-    /* username centered, minimal & powerful */
+    /* animated username */
     .username {
       font-family: 'Space Grotesk', monospace;
       font-size: clamp(2.5rem, 12vw, 5rem);
@@ -48,14 +53,24 @@
       color: #ffffff;
       text-align: center;
       padding: 1rem;
-      transition: transform 0.2s ease, letter-spacing 0.2s;
+      animation: subtleGlow 2.5s ease-in-out infinite;
+      transition: transform 0.2s ease;
     }
     .intro-page:hover .username {
       transform: scale(1.02);
-      letter-spacing: 0.02em;
     }
 
-    /* subtle glow on hover */
+    /* glow animation */
+    @keyframes subtleGlow {
+      0%, 100% {
+        text-shadow: 0 0 0px rgba(255,255,255,0.2);
+      }
+      50% {
+        text-shadow: 0 0 20px rgba(255,255,255,0.6), 0 0 8px rgba(255,245,200,0.4);
+      }
+    }
+
+    /* optional underline effect on hover */
     .username::after {
       content: '';
       position: absolute;
@@ -64,28 +79,24 @@
       transform: translateX(-50%);
       width: 0%;
       height: 2px;
-      background: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.4);
       transition: width 0.3s ease;
     }
     .intro-page:hover .username::after {
-      width: 60%;
+      width: 40%;
     }
 
-    /* ----- MAIN PAGE (portfolio, hidden initially) ----- */
+    /* ----- MAIN PAGE (portfolio, hidden behind intro) ----- */
     .main-page {
       width: 100%;
       height: 100%;
       background: #f8fafd;
       overflow-y: auto;
       overflow-x: hidden;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.2s linear;
+      position: relative;
+      z-index: 1; /* behind intro */
     }
-    .main-page.visible {
-      opacity: 1;
-      visibility: visible;
-    }
+    /* main page content is always present but covered by intro until wipe */
     .main-page::-webkit-scrollbar {
       width: 5px;
       background: #eef2f8;
@@ -95,7 +106,7 @@
       border-radius: 10px;
     }
 
-    /* index bridge layout (same as before) */
+    /* index bridge layout */
     .index-bridge {
       max-width: 1300px;
       margin: 0 auto;
@@ -320,12 +331,7 @@
 </head>
 <body>
 
-<!-- BLACK INTRO PAGE (only username, click anywhere) -->
-<div class="intro-page" id="introPage">
-  <div class="username">thagreatjoel</div>
-</div>
-
-<!-- MAIN PAGE (portfolio content, initially hidden) -->
+<!-- MAIN PAGE (portfolio, always exists behind intro) -->
 <div class="main-page" id="mainPage">
   <div class="index-bridge">
     <div class="command-strip">
@@ -381,63 +387,89 @@
   </div>
 </div>
 
+<!-- BLACK INTRO PAGE (overlay, click to wipe circle) -->
+<div class="intro-page" id="introPage">
+  <div class="username">thagreatjoel</div>
+</div>
+
 <script>
   (function() {
     const introPage = document.getElementById('introPage');
     const mainPage = document.getElementById('mainPage');
     
-    // Ensure main page is ready but hidden (visibility hidden, opacity 0)
-    // The intro page is fully black with username.
+    // Ensure main page is behind and visible (but covered by intro)
+    // Intro starts with clip-path: circle(150% at 50% 50%) — fully covering
     
-    // Function to perform transparent wipe (clip-path circle mask)
-    function startWipeAndReveal(clickX, clickY) {
-      // Set clip-path origin at click point, start from 0%
-      introPage.style.clipPath = `circle(0% at ${clickX}px ${clickY}px)`;
+    // On click anywhere on intro, perform circular wipe from click point
+    function startWipe(e) {
+      // Get click coordinates relative to viewport
+      let x, y;
+      if (e.touches) {
+        // touch event
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+        e.preventDefault();
+      } else {
+        x = e.clientX;
+        y = e.clientY;
+      }
+      
+      // Set clip-path origin at click point, shrink to 0% radius (wipe closed)
+      // Actually we want to "open" a hole: from full cover to a circle that expands from click.
+      // But clip-path: circle(0% at x y) would hide everything. We need to start from full cover and then reveal.
+      // Better: set initial clip-path to circle(150% at 50% 50%) (fully covering). Then on click, transition to circle(0% at clickX clickY) to "wipe" to nothing? No, that would cover the screen.
+      // We want to reveal the content: so we transition from large circle (covering) to small circle (revealing). Actually we want the opposite: the intro should "peel away" from click point.
+      // Correct approach: intro page starts with clip-path: circle(150% at 50% 50%) (full coverage). Then on click, we change clip-path to circle(0% at clickX clickY) — that would make a tiny hole at click, revealing content behind. But then the rest of intro remains. Not good.
+      // Instead, we want the intro to "dissolve" outward from click: starting from full cover, then expanding a hole that grows. But clip-path can't do that easily.
+      // Better: set initial clip-path to circle(0% at clickX clickY) and expand to large circle? That would reveal content progressively. But we need to know click position before transition.
+      // Simpler: use a different approach: set clip-path to circle(0% at clickX clickY) (fully hidden), then transition to circle(150% at clickX clickY) — that would "grow" a circle that reveals the content? Actually no, the element itself is being clipped; if clip-path is small, only that small part of intro is visible. We want the opposite: we want the intro to disappear outward.
+      // The standard wipe effect: have the intro element clip-path start as circle(150% at clickX clickY) (fully visible) and transition to circle(0% at clickX clickY) (fully hidden), so the element shrinks to nothing. That reveals the content behind.
+      // So on click, we set clip-path origin to click, then animate from current (150% radius) to 0% radius.
+      
+      // First, set the clip-path origin to click position and set current radius large
+      introPage.style.clipPath = `circle(150% at ${x}px ${y}px)`;
+      // Force reflow
+      introPage.offsetHeight;
+      // Then transition to radius 0%
       introPage.style.transition = 'clip-path 0.9s cubic-bezier(0.4, 0, 0.2, 1)';
+      introPage.style.clipPath = `circle(0% at ${x}px ${y}px)`;
       
-      // Force reflow then animate to large circle covering entire screen
-      requestAnimationFrame(() => {
-        // Calculate needed radius (diagonal from click to farthest corner)
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        const dx = Math.max(clickX, w - clickX);
-        const dy = Math.max(clickY, h - clickY);
-        const radius = Math.hypot(dx, dy) * 1.2; // extra margin
-        introPage.style.clipPath = `circle(${radius}px at ${clickX}px ${clickY}px)`;
-      });
-      
-      // After transition ends, remove intro page and show main page fully
+      // After transition, hide intro page completely
       introPage.addEventListener('transitionend', function onEnd(e) {
         if (e.propertyName === 'clip-path') {
           introPage.style.display = 'none';
-          mainPage.classList.add('visible');
           introPage.removeEventListener('transitionend', onEnd);
         }
       });
     }
     
-    // On click anywhere on intro page, get coordinates and start wipe
-    introPage.addEventListener('click', (e) => {
-      // Get click position relative to viewport
-      const x = e.clientX;
-      const y = e.clientY;
-      startWipeAndReveal(x, y);
-    });
+    // Attach click and touch events
+    introPage.addEventListener('click', startWipe);
+    introPage.addEventListener('touchstart', startWipe);
     
-    // Also allow keyboard 'Enter' or space? optional but nice
+    // Also allow Enter/Space key to trigger wipe from center
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         if (introPage.style.display !== 'none') {
-          // get center of screen as default click point
           const x = window.innerWidth / 2;
           const y = window.innerHeight / 2;
-          startWipeAndReveal(x, y);
+          // manually trigger wipe
+          introPage.style.clipPath = `circle(150% at ${x}px ${y}px)`;
+          introPage.offsetHeight;
+          introPage.style.transition = 'clip-path 0.9s cubic-bezier(0.4, 0, 0.2, 1)';
+          introPage.style.clipPath = `circle(0% at ${x}px ${y}px)`;
+          introPage.addEventListener('transitionend', function onEnd(e) {
+            if (e.propertyName === 'clip-path') {
+              introPage.style.display = 'none';
+              introPage.removeEventListener('transitionend', onEnd);
+            }
+          });
           e.preventDefault();
         }
       }
     });
     
-    // ----- GitHub stats fetch (same as before) -----
+    // ----- GitHub stats fetch -----
     const GITHUB_USER = "thagreatjoel";
     const REPO_API = `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=50`;
     

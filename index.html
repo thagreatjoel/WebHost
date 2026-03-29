@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>thagreatjoel · black hole launch</title>
+  <title>thagreatjoel · shooting star black hole</title>
   <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
   <meta name="theme-color" content="#000000">
   
@@ -25,7 +25,7 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* ----- INTRO OVERLAY (pitch black) ----- */
+    /* ----- INTRO OVERLAY (pitch black + shooting stars) ----- */
     .intro-overlay {
       position: fixed;
       inset: 0;
@@ -36,43 +36,145 @@
       justify-content: center;
       transition: opacity 0.5s ease-out;
       pointer-events: auto;
+      overflow: hidden;
     }
 
-    /* shooting star container */
-    .star-container {
+    /* shooting stars container (from user snippet) */
+    .stars-container {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      overflow: hidden;
+      z-index: 1;
     }
 
-    /* the elegant shooting star */
-    .shooting-star {
+    /* each star + trail effect */
+    .star {
       position: absolute;
-      width: 5px;
-      height: 5px;
-      background: radial-gradient(circle, #ffffff, #fff5e0);
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 4px;
+      background: #fff;
       border-radius: 50%;
-      box-shadow: 0 0 18px 4px rgba(255, 245, 200, 0.95);
-      opacity: 0;
-      filter: blur(0.6px);
-      transition: none;
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 0 0 8px rgba(255, 255, 255, 0.1), 0 0 20px rgba(255, 255, 255, 1);
+      animation: animateShooting 3s linear infinite;
     }
 
-    /* star trail (graceful) */
-    .star-trail {
+    .star::before {
+      content: '';
       position: absolute;
-      height: 3px;
-      background: linear-gradient(90deg, rgba(255, 245, 210, 0.9), rgba(255, 220, 150, 0.3), transparent);
-      border-radius: 4px;
-      filter: blur(2px);
-      opacity: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 300px;
+      height: 1px;
+      background: linear-gradient(90deg, #fff, transparent);
     }
 
-    /* central button (appears after star lands) */
+    @keyframes animateShooting {
+      0% {
+        transform: rotate(315deg) translateX(0);
+        opacity: 1;
+      }
+      70% {
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(315deg) translateX(-1500px);
+        opacity: 0;
+      }
+    }
+
+    /* custom positions for each star (same as user snippet) */
+    .star:nth-child(1) {
+      top: 0;
+      right: 0;
+      left: initial;
+      animation-delay: 0;
+      animation-duration: 1s;
+    }
+    .star:nth-child(2) {
+      top: 0;
+      right: 80px;
+      left: initial;
+      animation-delay: 0.2s;
+      animation-duration: 3s;
+    }
+    .star:nth-child(3) {
+      top: 80px;
+      right: 0px;
+      left: initial;
+      animation-delay: 0.4s;
+      animation-duration: 2s;
+    }
+    .star:nth-child(4) {
+      top: 0;
+      right: 180px;
+      left: initial;
+      animation-delay: 0.6s;
+      animation-duration: 1.5s;
+    }
+    .star:nth-child(5) {
+      top: 0;
+      right: 400px;
+      left: initial;
+      animation-delay: 0.8s;
+      animation-duration: 2.5s;
+    }
+    .star:nth-child(6) {
+      top: 0;
+      right: 600px;
+      left: initial;
+      animation-delay: 1s;
+      animation-duration: 3s;
+    }
+    .star:nth-child(7) {
+      top: 300px;
+      right: 0px;
+      left: initial;
+      animation-delay: 1s;
+      animation-duration: 1.75s;
+    }
+    .star:nth-child(8) {
+      top: 0px;
+      right: 700px;
+      left: initial;
+      animation-delay: 1.4s;
+      animation-duration: 1.25s;
+    }
+    .star:nth-child(9) {
+      top: 0px;
+      right: 1000px;
+      left: initial;
+      animation-delay: 0.75s;
+      animation-duration: 2.25s;
+    }
+    .star:nth-child(10) {
+      top: 0px;
+      right: 1000px;
+      left: initial;
+      animation-delay: 2.75s;
+      animation-duration: 2.25s;
+    }
+    /* extra stars for richer effect */
+    .star:nth-child(11) {
+      top: 150px;
+      right: 300px;
+      left: initial;
+      animation-delay: 1.2s;
+      animation-duration: 2.8s;
+    }
+    .star:nth-child(12) {
+      top: 500px;
+      right: 200px;
+      left: initial;
+      animation-delay: 0.9s;
+      animation-duration: 2.2s;
+    }
+
+    /* central button (appears after a short delay) */
     .intro-button {
       position: absolute;
       top: 50%;
@@ -90,7 +192,7 @@
       color: #fffef7;
       cursor: pointer;
       opacity: 0;
-      transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2), box-shadow 0.2s;
+      transition: opacity 0.5s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2), box-shadow 0.2s;
       z-index: 10002;
       white-space: nowrap;
       box-shadow: 0 0 16px rgba(255, 235, 160, 0.4);
@@ -413,16 +515,27 @@
 </head>
 <body>
 
-<!-- INTRO OVERLAY (pitch black) -->
+<!-- INTRO OVERLAY with shooting stars -->
 <div class="intro-overlay" id="introOverlay">
-  <div class="star-container" id="starContainer">
-    <div class="shooting-star" id="shootingStar"></div>
-    <div class="star-trail" id="starTrail"></div>
+  <div class="stars-container" id="starsContainer">
+    <!-- 12 shooting stars (matching user's effect + extras) -->
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
   </div>
   <button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
 </div>
 
-<!-- BLACK HOLE WIPE (expands from button center) -->
+<!-- BLACK HOLE WIPE (expands from button) -->
 <div id="blackHole" class="black-hole"></div>
 
 <!-- MAIN PAGE (index content) -->
@@ -486,82 +599,18 @@
 <script>
   (function() {
     // ------------------------------
-    // SHOOTING STAR (smooth arc → center)
+    // SHOOTING STARS ARE ALREADY ACTIVE VIA CSS
+    // BUTTON APPEARS AFTER DELAY
     // ------------------------------
     const overlay = document.getElementById('introOverlay');
-    const star = document.getElementById('shootingStar');
-    const trail = document.getElementById('starTrail');
     const introButton = document.getElementById('introBtn');
     const blackHole = document.getElementById('blackHole');
     const mainPage = document.getElementById('mainPage');
     
-    const viewW = window.innerWidth;
-    const viewH = window.innerHeight;
-    
-    // start from top-left corner (off-screen elegance)
-    const startX = -60;
-    const startY = -50;
-    const endX = viewW / 2;
-    const endY = viewH / 2;
-    
-    star.style.left = startX + 'px';
-    star.style.top = startY + 'px';
-    star.style.opacity = '1';
-    trail.style.opacity = '0';
-    
-    let startTime = null;
-    const duration = 2500; // 2.5 seconds graceful flight
-    
-    function easeOutCubic(t) {
-      return 1 - Math.pow(1 - t, 3);
-    }
-    
-    function animateStar(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      let progress = Math.min(1, elapsed / duration);
-      const eased = easeOutCubic(progress);
-      
-      // parabolic arc for shooting star effect
-      const currentX = startX + (endX - startX) * eased;
-      const arcY = Math.sin(progress * Math.PI) * 80;
-      const currentY = startY + (endY - startY) * eased - arcY * (1 - progress);
-      
-      star.style.left = currentX + 'px';
-      star.style.top = currentY + 'px';
-      
-      // dynamic trail
-      if (progress > 0.08) {
-        trail.style.opacity = '0.85';
-        trail.style.left = (currentX - 34) + 'px';
-        trail.style.top = (currentY - 2) + 'px';
-        trail.style.width = Math.min(100, 45 + progress * 70) + 'px';
-      }
-      
-      // glow pulse
-      const intensity = 0.7 + Math.sin(progress * Math.PI * 5) * 0.3;
-      star.style.boxShadow = `0 0 ${14 + intensity * 14}px 5px rgba(255,240,180,0.95)`;
-      
-      if (progress < 1) {
-        requestAnimationFrame(animateStar);
-      } else {
-        // star reaches center → fade star & reveal button
-        star.style.transition = 'opacity 0.4s ease';
-        star.style.opacity = '0';
-        trail.style.transition = 'opacity 0.4s';
-        trail.style.opacity = '0';
-        
-        setTimeout(() => {
-          introButton.classList.add('revealed');
-          if (star.parentNode) star.style.display = 'none';
-          if (trail.parentNode) trail.style.display = 'none';
-        }, 350);
-      }
-    }
-    
+    // reveal button after 2 seconds (while stars are shooting)
     setTimeout(() => {
-      requestAnimationFrame(animateStar);
-    }, 120);
+      introButton.classList.add('revealed');
+    }, 2000);
     
     // ------------------------------
     // BUTTON CLICK → FADE BUTTON + BLACK HOLE WIPE

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>thagreatjoel · comet launch</title>
+  <title>thagreatjoel · star comet launch</title>
   <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
   <meta name="theme-color" content="#000000">
   
@@ -24,7 +24,7 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* canvas for comet & trail (snake effect) */
+    /* canvas for comet & trail */
     #cometCanvas {
       position: fixed;
       top: 0;
@@ -48,15 +48,15 @@
       pointer-events: auto;
     }
 
-    /* central button (hidden until comet stops) */
+    /* central button with heartbeat glow */
     .intro-button {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.92);
-      background: rgba(15, 25, 35, 0.75);
+      background: rgba(15, 25, 35, 0.85);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 245, 200, 0.5);
+      border: 1px solid rgba(255, 235, 160, 0.6);
       padding: 0.9rem 2.4rem;
       border-radius: 60px;
       font-family: 'Space Grotesk', monospace;
@@ -66,10 +66,9 @@
       color: #fffef7;
       cursor: pointer;
       opacity: 0;
-      transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2), box-shadow 0.2s;
+      transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
       z-index: 10002;
       white-space: nowrap;
-      box-shadow: 0 0 12px rgba(255, 235, 160, 0.3);
       pointer-events: none;
     }
 
@@ -77,16 +76,22 @@
       opacity: 1;
       transform: translate(-50%, -50%) scale(1);
       pointer-events: auto;
+      animation: heartbeat 1.4s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0% { box-shadow: 0 0 0 0 rgba(255, 235, 160, 0.4), 0 0 0 0 rgba(255, 220, 120, 0.3); border-color: rgba(255, 245, 180, 0.6); }
+      30% { box-shadow: 0 0 0 8px rgba(255, 235, 160, 0.3), 0 0 0 16px rgba(255, 220, 120, 0.2); border-color: rgba(255, 245, 180, 0.9); }
+      70% { box-shadow: 0 0 0 4px rgba(255, 235, 160, 0.2), 0 0 0 8px rgba(255, 220, 120, 0.1); border-color: rgba(255, 245, 180, 0.7); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 235, 160, 0), 0 0 0 0 rgba(255, 220, 120, 0); border-color: rgba(255, 245, 180, 0.6); }
     }
 
     .intro-button:hover {
       transform: translate(-50%, -50%) scale(1.03);
-      background: rgba(25, 40, 55, 0.85);
-      border-color: rgba(255, 245, 180, 0.9);
-      box-shadow: 0 0 28px rgba(255, 235, 140, 0.6);
+      background: rgba(25, 40, 55, 0.9);
     }
 
-    /* circular wipe container (masks the main page) */
+    /* circular wipe container */
     .wipe-container {
       position: fixed;
       top: 0;
@@ -109,9 +114,8 @@
       transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: width, height;
       overflow: hidden;
-      box-shadow: 0 0 0 2000px rgba(0,0,0,0.9); /* fake outside darkness */
+      box-shadow: 0 0 0 2000px rgba(0,0,0,0.95);
     }
-    /* inner content inside wipe will be the main page */
     .wipe-inner {
       position: absolute;
       top: 0;
@@ -127,7 +131,7 @@
       opacity: 1;
     }
 
-    /* main page styling (identical to previous, but now inside wipe) */
+    /* main page styling */
     .index-bridge {
       max-width: 1300px;
       margin: 0 auto;
@@ -382,20 +386,13 @@
 </head>
 <body>
 
-<!-- dark overlay for intro -->
 <div class="intro-overlay" id="introOverlay"></div>
-
-<!-- canvas for comet & snake trail -->
 <canvas id="cometCanvas"></canvas>
-
-<!-- central button (appears after comet stops) -->
 <button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
 
-<!-- circular wipe container (reveals page inside) -->
 <div class="wipe-container" id="wipeContainer">
   <div class="wipe-circle-mask" id="wipeCircleMask">
     <div class="wipe-inner" id="wipeInner">
-      <!-- main page content -->
       <div class="index-bridge">
         <div class="command-strip">
           <div class="callsign">
@@ -456,32 +453,26 @@
 
 <script>
   (function() {
-    // ---------- COMET WITH SNAKE TRAIL (SPIRAL: QUICK THEN SLOW) ----------
+    // ---------- GLOWING STAR COMET WITH SNAKE TRAIL (SPIRAL: FAST THEN SLOW) ----------
     const canvas = document.getElementById('cometCanvas');
     const ctx = canvas.getContext('2d');
     let width, height;
     let animationId = null;
     let startTimestamp = null;
-    let duration = 4000; // 4 seconds total motion: quick spin then slow, ending at center
+    const duration = 3800; // ms: quick spin then slow settle
     let isAnimating = true;
     let cometPos = { x: 0, y: 0 };
-    let trailPositions = []; // store recent positions for snake trail
-    const TRAIL_LENGTH = 28;
+    let trailPositions = [];
+    const TRAIL_LENGTH = 32;
     
-    // spiral parameters: r = R * (1 - t), angle = 2pi * (fastStart + deceleration)
-    // we want quick rotation initially, then slow down. Use angle = A * (1 - exp(-k*t))? Simpler: angular speed = initialOmega * (1 - t/duration) + finalOmega, but we want smooth.
-    // We'll define t normalized 0..1.
-    // Spiral: angle = 12 * pi * t^0.5  (fast start, slow end)
-    // radius = maxRadius * (1 - t)  (shrink to 0)
-    const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.38;
+    const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.4;
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
     function getPosition(t) {
-      // t in [0,1]
       if (t >= 1) return { x: centerX, y: centerY };
-      // angle: fast then slow: use cubic easing: angle = 14 * pi * (1 - (1-t)^2) gives fast then decel.
-      const angle = 14 * Math.PI * (1 - Math.pow(1 - t, 1.6));
+      // angle: fast then slow: 16 pi * (1 - (1-t)^1.6) gives rapid spin then gentle
+      const angle = 16 * Math.PI * (1 - Math.pow(1 - t, 1.5));
       const radius = maxRadius * (1 - t);
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
@@ -495,6 +486,36 @@
       canvas.height = height;
     }
     
+    // draw a glowing star shape (radiant)
+    function drawGlowingStar(x, y, size, intensity) {
+      ctx.save();
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = '#ffcc66';
+      // main bright core
+      const gradient = ctx.createRadialGradient(x, y, 2, x, y, size);
+      gradient.addColorStop(0, `rgba(255, 255, 210, ${intensity})`);
+      gradient.addColorStop(0.6, `rgba(255, 200, 80, ${intensity * 0.7})`);
+      gradient.addColorStop(1, `rgba(255, 100, 30, 0)`);
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // star spikes
+      for (let i = 0; i < 5; i++) {
+        const angle = (Date.now() / 300 + i * 72) * Math.PI / 180;
+        const dx = Math.cos(angle) * size * 1.2;
+        const dy = Math.sin(angle) * size * 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + dx, y + dy);
+        ctx.lineTo(x + dx * 0.6, y + dy * 0.6);
+        ctx.fillStyle = `rgba(255, 220, 100, ${intensity * 0.5})`;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    
     function drawCometAndTrail(now) {
       if (!isAnimating) return;
       if (!startTimestamp) startTimestamp = now;
@@ -503,79 +524,45 @@
       const pos = getPosition(t);
       cometPos = pos;
       
-      // add to trail
+      // store trail
       trailPositions.unshift({ x: pos.x, y: pos.y, life: 1.0 });
       if (trailPositions.length > TRAIL_LENGTH) trailPositions.pop();
       
-      // update life for each trail particle (fade)
       for (let i = 0; i < trailPositions.length; i++) {
-        trailPositions[i].life = 1.0 - (i / TRAIL_LENGTH) * 0.9;
+        trailPositions[i].life = 1.0 - (i / TRAIL_LENGTH) * 0.92;
       }
       
       ctx.clearRect(0, 0, width, height);
       
-      // draw snake trail (glowing fading segments)
+      // draw snake trail (glowing segments)
       for (let i = 0; i < trailPositions.length; i++) {
         const p = trailPositions[i];
-        const alpha = p.life * 0.7;
-        const size = 5 * (1 - i / TRAIL_LENGTH) + 2;
+        const alpha = p.life * 0.65;
+        const size = 6 * (1 - i / TRAIL_LENGTH) + 3;
+        const grad = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, size);
+        grad.addColorStop(0, `rgba(255, 220, 130, ${alpha})`);
+        grad.addColorStop(0.8, `rgba(255, 140, 60, ${alpha * 0.5})`);
+        ctx.fillStyle = grad;
         ctx.beginPath();
-        // create shell-like shape: teardrop / crescent pointing backward? Instead, draw a glowing ellipse with gradient
-        const gradient = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, size);
-        gradient.addColorStop(0, `rgba(255, 240, 180, ${alpha * 0.9})`);
-        gradient.addColorStop(0.7, `rgba(255, 200, 100, ${alpha * 0.5})`);
-        gradient.addColorStop(1, `rgba(255, 100, 50, 0)`);
-        ctx.fillStyle = gradient;
         ctx.arc(p.x, p.y, size * 0.8, 0, Math.PI * 2);
         ctx.fill();
         
-        // additional streak
         if (i < trailPositions.length - 1) {
           const next = trailPositions[i+1];
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(next.x, next.y);
-          ctx.strokeStyle = `rgba(255, 220, 140, ${alpha * 0.6})`;
-          ctx.lineWidth = 3;
+          ctx.strokeStyle = `rgba(255, 200, 100, ${alpha * 0.8})`;
+          ctx.lineWidth = 3.5;
           ctx.stroke();
         }
       }
       
-      // main comet head (shell shape - not a circle, a curved shell)
-      ctx.save();
-      // direction vector for orientation (from previous point to current)
-      let angleDir = 0;
-      if (trailPositions.length > 1 && trailPositions[1]) {
-        const dx = cometPos.x - trailPositions[1].x;
-        const dy = cometPos.y - trailPositions[1].y;
-        angleDir = Math.atan2(dy, dx);
-      } else {
-        angleDir = (t * 20);
-      }
-      ctx.translate(cometPos.x, cometPos.y);
-      ctx.rotate(angleDir);
-      // draw crescent / shell shape
-      ctx.beginPath();
-      // shell shape: a pointed arc
-      ctx.moveTo(8, 0);
-      ctx.quadraticCurveTo(4, -6, -3, -3);
-      ctx.quadraticCurveTo(-6, 0, -3, 3);
-      ctx.quadraticCurveTo(4, 6, 8, 0);
-      ctx.fillStyle = `rgba(255, 235, 160, 0.95)`;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#ffd966';
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.restore();
-      
-      // additional glow dot inside
-      ctx.beginPath();
-      ctx.arc(cometPos.x, cometPos.y, 3, 0, 2*Math.PI);
-      ctx.fillStyle = `rgba(255, 255, 210, 0.9)`;
-      ctx.fill();
+      // main comet: glowing star (real star look)
+      const intensity = 0.9 + Math.sin(Date.now() * 0.015) * 0.2;
+      drawGlowingStar(cometPos.x, cometPos.y, 12, intensity);
       
       if (t >= 1) {
-        // animation finished: stop, hide canvas, reveal button, remove comet
         isAnimating = false;
         if (animationId) cancelAnimationFrame(animationId);
         canvas.style.transition = 'opacity 0.5s';
@@ -583,7 +570,7 @@
         setTimeout(() => {
           canvas.style.display = 'none';
         }, 500);
-        // reveal button
+        // reveal button with heartbeat
         const introBtn = document.getElementById('introBtn');
         introBtn.classList.add('revealed');
         return;
@@ -604,10 +591,9 @@
     
     window.addEventListener('resize', () => {
       updateCanvasSize();
-      // reposition? not needed, animation continues but might jitter, acceptable
     });
     
-    // ---------- WIPE CIRCLE THAT REVEALS PAGE INSIDE ----------
+    // ---------- WIPE CIRCLE REVEAL (PAGE INSIDE) ----------
     const introOverlay = document.getElementById('introOverlay');
     const introBtn = document.getElementById('introBtn');
     const wipeMask = document.getElementById('wipeCircleMask');
@@ -618,35 +604,28 @@
       if (wipeTransitioning) return;
       wipeTransitioning = true;
       
-      // get button center
       const btnRect = introBtn.getBoundingClientRect();
       const btnCenterX = btnRect.left + btnRect.width / 2;
       const btnCenterY = btnRect.top + btnRect.height / 2;
       
-      // position the mask at button center
       wipeMask.style.left = btnCenterX + 'px';
       wipeMask.style.top = btnCenterY + 'px';
       wipeMask.style.transform = 'translate(-50%, -50%)';
       
-      // start expanding the circle
-      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.5;
+      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.6;
       wipeMask.style.width = maxSize + 'px';
       wipeMask.style.height = maxSize + 'px';
       
-      // fade out the intro overlay
       introOverlay.style.transition = 'opacity 0.4s';
       introOverlay.style.opacity = '0';
       
-      // make inner content visible after a tiny delay
       setTimeout(() => {
         wipeInner.classList.add('visible');
       }, 150);
       
-      // after expansion, hide intro overlay and clean up
       setTimeout(() => {
         introOverlay.style.display = 'none';
         introBtn.style.display = 'none';
-        // optional: keep wipe mask but make it fully transparent? we'll remove after transition ends
         setTimeout(() => {
           wipeMask.style.opacity = '0';
           setTimeout(() => {
@@ -713,7 +692,6 @@
       });
     }
     
-    // start the comet animation after page load
     startComet();
   })();
 </script>

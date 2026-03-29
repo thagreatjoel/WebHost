@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Test Resume</title>
+    <title>Sraya U - Resume | Tech Flow Company</title>
     <style>
         * {
             margin: 0;
@@ -21,7 +21,6 @@
             min-height: 100vh;
         }
 
-        /* refined color palette: deep navy, soft gray, warm accents */
         :root {
             --primary-dark: #1a2c3e;
             --primary-accent: #2c5f8a;
@@ -40,10 +39,8 @@
             border-radius: 20px;
             box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            transition: all 0.2s;
         }
 
-        /* Header with subtle elegance */
         .header {
             background: var(--primary-dark);
             padding: 34px 42px;
@@ -55,8 +52,6 @@
             font-weight: 600;
             letter-spacing: -0.3px;
             margin-bottom: 8px;
-            line-height: 1.2;
-            font-family: 'Inter', 'Segoe UI', sans-serif;
         }
 
         .tagline {
@@ -66,7 +61,6 @@
             border-left: 3px solid var(--secondary-accent);
             padding-left: 16px;
             margin-top: 10px;
-            letter-spacing: 0.2px;
         }
 
         .contact-row {
@@ -82,13 +76,6 @@
             width: fit-content;
         }
 
-        .contact-row span {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Two column layout */
         .resume-content {
             display: flex;
             flex-wrap: wrap;
@@ -107,7 +94,6 @@
             background: white;
         }
 
-        /* Section styling */
         .section {
             margin-bottom: 30px;
         }
@@ -124,12 +110,6 @@
             margin-bottom: 18px;
         }
 
-        .sidebar .section-title {
-            color: var(--primary-accent);
-            border-bottom-color: var(--secondary-accent);
-        }
-
-        /* Skills styling - minimal, clean */
         .skill-list {
             display: flex;
             flex-wrap: wrap;
@@ -145,10 +125,8 @@
             font-size: 0.8rem;
             font-weight: 500;
             color: var(--text-dark);
-            transition: all 0.1s;
         }
 
-        /* language items refined */
         .lang-item {
             display: flex;
             justify-content: space-between;
@@ -185,7 +163,6 @@
             padding: 14px 16px;
             border-radius: 16px;
             margin: 14px 0 6px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
         .job-badge {
@@ -232,13 +209,6 @@
             line-height: 1.5;
         }
 
-        hr {
-            margin: 16px 0;
-            border: 0;
-            height: 1px;
-            background: var(--border-light);
-        }
-
         .job-fit-box {
             background: #f6f9fe;
             padding: 14px 18px;
@@ -246,11 +216,6 @@
             border: 1px solid #e2ebf3;
         }
 
-        .job-fit-box .info-text {
-            margin-top: 4px;
-        }
-
-        /* Responsive */
         @media (max-width: 760px) {
             .sidebar, .main {
                 width: 100%;
@@ -273,7 +238,6 @@
             }
         }
 
-        /* Print / PDF styles */
         @media print {
             body {
                 background: white;
@@ -283,7 +247,6 @@
             .resume {
                 box-shadow: none;
                 border-radius: 0;
-                max-width: 100%;
             }
             .sidebar {
                 background: #f8fafd;
@@ -293,21 +256,7 @@
             .header {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                background: #1a2c3e;
             }
-            .skill-badge, .lang-level, .job-badge {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-        }
-
-        .pdf-note {
-            text-align: center;
-            margin-top: 16px;
-            margin-bottom: 8px;
-            font-size: 0.7rem;
-            color: #7c8b9f;
-            letter-spacing: 0.3px;
         }
 
         strong {
@@ -318,7 +267,6 @@
 </head>
 <body>
 <div class="resume">
-    <!-- Header section - minimal, professional -->
     <div class="header">
         <div class="name">Sraya U</div>
         <div class="tagline">Office Operations | Data Management | Customer Support</div>
@@ -330,9 +278,8 @@
     </div>
 
     <div class="resume-content">
-        <!-- Sidebar: Skills, Languages, Personal -->
+        <!-- Sidebar -->
         <div class="sidebar">
-            <!-- Core Skills -->
             <div class="section">
                 <div class="section-title">Core Competencies</div>
                 <div class="skill-list">
@@ -344,7 +291,6 @@
                 </div>
             </div>
 
-            <!-- Language Proficiency -->
             <div class="section">
                 <div class="section-title">Languages</div>
                 <div class="lang-item">
@@ -353,7 +299,7 @@
                 </div>
                 <div class="lang-item">
                     <span class="lang-name">Malayalam</span>
-                    <span class="lang-level">Native </span>
+                    <span class="lang-level">Native</span>
                 </div>
                 <div class="lang-item">
                     <span class="lang-name">Kannada</span>
@@ -361,14 +307,13 @@
                 </div>
                 <div class="lang-item">
                     <span class="lang-name">Hindi</span>
-                    <span class="lang-level">Conversational (Medium)</span>
+                    <span class="lang-level">Conversational</span>
                 </div>
                 <div class="info-text" style="margin-top: 12px;">
                     Ideal for front desk, chat, and customer-facing positions in Bangalore.
                 </div>
             </div>
 
-            <!-- Preferred Roles (matching job profiles) -->
             <div class="section">
                 <div class="section-title">Target Roles</div>
                 <div class="job-preference">
@@ -382,76 +327,61 @@
                 </div>
             </div>
 
-            <!-- Personal Details -->
-          
+            <div class="section">
+                <div class="section-title">Personal Overview</div>
+                <div class="info-text"><strong>Availability:</strong> Ready to work from office (BTM Layout) or hybrid.</div>
+                <div class="info-text"><strong>Experience:</strong> Fresher with strong adaptability and quick learning.</div>
+                <div class="info-text"><strong>Technical Aptitude:</strong> Computer literate, familiar with CRM tools and chat interfaces.</div>
+            </div>
+        </div>
 
-        <!-- Main content: Summary, Strengths, Education, Fit Highlights -->
+        <!-- Main Content -->
         <div class="main">
-            <!-- Professional Summary -->
             <div class="section">
                 <div class="section-title">Professional Summary</div>
                 <div class="fresher-note">
-                    A detail-oriented and proactive professional with excellent communication skills in English, Malayalam, Kannada, and basic Hindi. Eager to start a career in Data Entry, Back Office, Chat Process, or Front Office. Possesses high typing speed and accuracy (above 35 wpm), knowledge of MS Office applications, and a customer-centric attitude. Willing to work in a work-from-home environment and in-office, with a focus on precision and perfection
+                    A detail-oriented and proactive professional with excellent communication skills in English, Malayalam, Kannada, and basic Hindi. Eager to start a career in Data Entry, Back Office, Chat Process, or Front Office. Possesses high typing speed and accuracy (35+ wpm), knowledge of MS Office applications, and a customer-centric attitude. Willing to work in a work-from-home environment and in-office, with a focus on precision and perfection.
                 </div>
             </div>
 
-            <!-- Key Strengths -->
             <div class="section">
                 <div class="section-title">Key Strengths</div>
                 <ul class="highlight-list">
-                    <li><strong>Communication:</strong> Proficient in English, Malayalam, Kannada, and Hindi (medium),Ideal for front desk coordination, voice processing, and chat support.</li>
-                    <li><strong>Typing & Data Accuracy:</strong>High precision and a steady typing speed of more than 35words per minute make it perfect for tasks involving data entry and document verification.</li>
-                    <li><strong>MS Office:</strong> Skilled in email drafting, and basic data management tools.</li>
-                    <li><strong>Customer Service :</strong> Excellent interpersonal skills, a professional manner, and the capacity to effectively answer questions.</li>
-                    <li><strong>Abilities:</strong> Able to multitask, keep records, and provide meticulous support for back-office operations.</li>
+                    <li><strong>Communication:</strong> Proficient in English, Malayalam, Kannada, and Hindi (medium), ideal for front desk coordination, voice processing, and chat support.</li>
+                    <li><strong>Typing & Data Accuracy:</strong> High precision and a steady typing speed of more than 35 words per minute, suitable for data entry and document verification.</li>
+                    <li><strong>MS Office:</strong> Skilled in email drafting and basic data management tools.</li>
+                    <li><strong>Customer Service:</strong> Excellent interpersonal skills, a professional manner, and the capacity to effectively answer questions.</li>
+                    <li><strong>Organizational Abilities:</strong> Able to multitask, keep records, and provide meticulous support for back-office operations.</li>
                 </ul>
             </div>
 
-            <!-- Education & Certifications -->
-            <!-- Education Section -->
-<div class="section">
-    <div class="section-title">Education</div>
-    <div class="info-text" style="margin-bottom: 8px;">
-        <strong>St. Patrick's Academy</strong><br>
-        Bangalore, Karnataka | LKG – 10th Standard<br>
-        Year of Completion: 2024<br>
-        <span style="font-size:0.85rem; color:#5a6e8a;">Recognized State Board, Karnataka</span>
-    </div>
-    <!-- Higher Secondary (12th) -->
-    <div class="info-text" style="margin-bottom: 18px;">
-        <strong>Seventh-day Higher Secondary School</strong><br>
-        Pathanamthitta, Kerala | 11th & 12th (Science Stream)<br>
-        Year of Completion: 2026<br>
-        <span style="font-size:0.85rem; color:#5a6e8a;">Relevant coursework: Computer Science, Business Studies, English Communication</span>
-    </div>
-    
-    <!-- Secondary (10th) -->
-    
-</div>
-    
+            <!-- Education Section (corrected) -->
+            <div class="section">
+                <div class="section-title">Education</div>
+                <div class="info-text" style="margin-bottom: 16px;">
+                    <strong>St. Patrick's Academy</strong><br>
+                    Bangalore, Karnataka | LKG – 10th Standard<br>
+                    Year of Completion: 2024<br>
+                    <span style="font-size:0.85rem; color:#5a6e8a;">Recognized State Board, Karnataka</span>
+                </div>
+                <div class="info-text">
+                    <strong>Seventh-day Higher Secondary School</strong><br>
+                    Pathanamthitta, Kerala | 11th & 12th (Science Stream)<br>
+                    Year of Completion: 2026<br>
+                    <span style="font-size:0.85rem; color:#5a6e8a;">Relevant coursework: Computer Science, Business Studies, English Communication</span>
+                </div>
             </div>
 
-          
-
-
-
-
-
-                
-            </div>
-
-            <!-- Job Fit Highlights - Aligned with Tech Flow Company -->
             <div class="section">
                 <div class="section-title">Alignment with Opportunity</div>
                 <div class="job-fit-box">
                     <div class="info-text"><strong>Work Preference:</strong> Fully open for Work From Office or Work From Home as per company requirement.</div>
                     <div class="info-text" style="margin-top: 10px;"><strong>Salary Expectation:</strong> Open to discussion within range (14k–45k) - motivated by growth and skill development.</div>
-                    <div class="info-text" style="margin-top: 10px;"><strong>Availability:</strong> Immediate joiner; available for interview </div>
+                    <div class="info-text" style="margin-top: 10px;"><strong>Availability:</strong> Immediate joiner; available for interview.</div>
                     <div class="info-text" style="margin-top: 10px;"><strong>Documents Ready:</strong> Educational certificates, ID proof, and resume available for verification process.</div>
                 </div>
             </div>
 
-            <!-- Declaration -->
             <div class="section">
                 <div class="section-title">Declaration</div>
                 <div class="info-text" style="font-style: normal; font-size: 0.86rem;">
@@ -459,13 +389,12 @@
                 </div>
                 <div style="margin-top: 24px; border-top: 1px solid var(--border-light); padding-top: 18px; display: flex; justify-content: space-between; flex-wrap: wrap;">
                     <span><strong>Sraya U</strong></span>
-                    <span style="color: var(--primary-accent);">Date: 16 March 2026</span>
+                    <span style="color: var(--primary-accent);">Date: 29 March 2026</span>
                     <span>Bangalore</span>
                 </div>
             </div>
         </div>
     </div>
-    
 </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>thagreatjoel · shooting star launch</title>
+  <title>thagreatjoel · celestial launch</title>
   <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
   <meta name="theme-color" content="#000000">
   
@@ -38,48 +38,28 @@
       pointer-events: auto;
     }
 
-    /* shooting star container */
-    .star-container {
+    /* single glowing dot */
+    .glow-dot {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      overflow: hidden;
-    }
-
-    /* the shooting star — smooth, elegant trail */
-    .shooting-star {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: radial-gradient(circle, #ffffff, #fff8e7);
+      width: 8px;
+      height: 8px;
+      background: #ffffff;
       border-radius: 50%;
-      box-shadow: 0 0 12px 2px rgba(255, 245, 200, 0.9);
-      opacity: 0;
+      box-shadow: 0 0 16px 4px rgba(255, 245, 200, 0.9);
       filter: blur(0.5px);
+      will-change: left, top;
       transition: none;
+      pointer-events: none;
+      z-index: 10001;
     }
 
-    /* star trail effect (after glow) */
-    .star-trail {
-      position: absolute;
-      width: 80px;
-      height: 2px;
-      background: linear-gradient(90deg, rgba(255,245,200,0.8), transparent);
-      border-radius: 4px;
-      filter: blur(2px);
-      opacity: 0;
-    }
-
-    /* central button (appears after star converges) */
+    /* central button (hidden initially) */
     .intro-button {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) scale(0.92);
-      background: rgba(15, 25, 35, 0.65);
+      background: rgba(15, 25, 35, 0.75);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 245, 200, 0.5);
       padding: 0.9rem 2.4rem;
@@ -106,7 +86,7 @@
 
     .intro-button:hover {
       transform: translate(-50%, -50%) scale(1.03);
-      background: rgba(25, 40, 55, 0.8);
+      background: rgba(25, 40, 55, 0.85);
       border-color: rgba(255, 245, 180, 0.9);
       box-shadow: 0 0 28px rgba(255, 235, 140, 0.6);
     }
@@ -408,12 +388,9 @@
 </head>
 <body>
 
-<!-- INTRO OVERLAY with shooting star -->
+<!-- INTRO OVERLAY with single moving dot -->
 <div class="intro-overlay" id="introOverlay">
-  <div class="star-container" id="starContainer">
-    <div class="shooting-star" id="shootingStar"></div>
-    <div class="star-trail" id="starTrail"></div>
-  </div>
+  <div class="glow-dot" id="glowDot"></div>
   <button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
 </div>
 
@@ -481,97 +458,129 @@
 <script>
   (function() {
     // ------------------------------
-    // SHOOTING STAR SMOOTH ANIMATION (elegant bezier curve)
+    // CONSTANT SMOOTH MOVEMENT (Lissajous / infinity pattern)
+    // then after 3.5 seconds, transition to center, fade dot, reveal button.
     // ------------------------------
     const overlay = document.getElementById('introOverlay');
-    const star = document.getElementById('shootingStar');
-    const trail = document.getElementById('starTrail');
+    const dot = document.getElementById('glowDot');
     const introButton = document.getElementById('introBtn');
     const wipeCircle = document.getElementById('wipeCircle');
     const mainPage = document.getElementById('mainPage');
     
-    // get random start & end positions (smooth arc)
-    const viewW = window.innerWidth;
-    const viewH = window.innerHeight;
-    
-    // start from top-left-ish or right? we pick a dramatic diagonal: from top-left to center-right, but final stop at exact center.
-    // better: start from top-left corner (or random edge) and glide to center smoothly.
-    const startX = -40;
-    const startY = -40;
-    const endX = viewW / 2;
-    const endY = viewH / 2;
-    
-    // set initial position off-screen top-left
-    star.style.left = startX + 'px';
-    star.style.top = startY + 'px';
-    star.style.opacity = '1';
-    trail.style.opacity = '0';
-    
-    // animate using requestAnimationFrame for smooth curve (bezier)
+    let animationId = null;
     let startTime = null;
-    const duration = 2400; // 2.4 sec elegant flight
+    let isMoving = true;
+    let settling = false;
+    let settleStart = null;
+    let settleDuration = 800; // ms to move to center
     
-    // easeOutCubic + slight curve
-    function easeOutCubic(t) {
-      return 1 - Math.pow(1 - t, 3);
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // parametric movement: figure-8 / infinity shape, smooth and continuous
+    // we'll use a time variable that loops every 6 seconds, but we want it to keep moving
+    // until we decide to settle. We'll use requestAnimationFrame with a phase.
+    let globalTime = 0;
+    let lastTimestamp = null;
+    
+    // movement boundaries: 70% of screen width/height to avoid edges
+    const maxX = window.innerWidth * 0.7;
+    const minX = window.innerWidth * 0.3;
+    const maxY = window.innerHeight * 0.7;
+    const minY = window.innerHeight * 0.3;
+    const midX = window.innerWidth * 0.5;
+    const midY = window.innerHeight * 0.5;
+    
+    function computePosition(t) {
+      // t in seconds, continuous. Use two frequencies for organic looping
+      const freq1 = 0.45;
+      const freq2 = 0.73;
+      const x = midX + Math.sin(t * freq1) * (maxX - minX) * 0.5 + Math.cos(t * freq2 * 1.3) * (maxX - minX) * 0.25;
+      const y = midY + Math.cos(t * freq1 * 0.9) * (maxY - minY) * 0.5 + Math.sin(t * freq2 * 1.1) * (maxY - minY) * 0.3;
+      // clamp to safe area
+      return {
+        x: Math.min(Math.max(x, minX - 20), maxX + 20),
+        y: Math.min(Math.max(y, minY - 20), maxY + 20)
+      };
     }
     
-    function animateStar(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      let progress = Math.min(1, elapsed / duration);
-      const eased = easeOutCubic(progress);
+    let currentX = midX, currentY = midY;
+    let settleTargetX = centerX, settleTargetY = centerY;
+    let settleProgress = 0;
+    
+    function animateMovement(timestamp) {
+      if (!isMoving) return;
       
-      // position interpolation with a gentle arc: add y offset based on sin
-      const currentX = startX + (endX - startX) * eased;
-      // add slight parabolic arc for star-like trajectory
-      const arcY = Math.sin(progress * Math.PI) * 70;
-      const currentY = startY + (endY - startY) * eased - arcY * (1 - progress);
-      
-      star.style.left = currentX + 'px';
-      star.style.top = currentY + 'px';
-      
-      // trail effect: behind the star
-      if (progress > 0.05) {
-        trail.style.opacity = '0.75';
-        trail.style.left = (currentX - 28) + 'px';
-        trail.style.top = (currentY - 2) + 'px';
-        trail.style.width = Math.min(90, 40 + progress * 60) + 'px';
+      if (!lastTimestamp) {
+        lastTimestamp = timestamp;
+        requestAnimationFrame(animateMovement);
+        return;
       }
       
-      // star glow pulsing
-      const intensity = 0.7 + Math.sin(progress * Math.PI * 4) * 0.3;
-      star.style.boxShadow = `0 0 ${12 + intensity * 12}px 3px rgba(255,240,180,0.9)`;
+      // delta time in seconds
+      let delta = Math.min(0.033, (timestamp - lastTimestamp) / 1000);
+      if (delta <= 0) {
+        lastTimestamp = timestamp;
+        requestAnimationFrame(animateMovement);
+        return;
+      }
+      lastTimestamp = timestamp;
       
-      if (progress < 1) {
-        requestAnimationFrame(animateStar);
+      if (!settling) {
+        // normal movement: update global time
+        globalTime += delta;
+        const pos = computePosition(globalTime);
+        currentX = pos.x;
+        currentY = pos.y;
+        dot.style.left = currentX + 'px';
+        dot.style.top = currentY + 'px';
       } else {
-        // reached center: transform star into button
-        finishStarConverge();
+        // settling phase: interpolate to center
+        settleProgress += delta / (settleDuration / 1000);
+        if (settleProgress >= 1) {
+          settleProgress = 1;
+          isMoving = false;
+          dot.style.left = centerX + 'px';
+          dot.style.top = centerY + 'px';
+          // now fade out dot and reveal button
+          dot.style.transition = 'opacity 0.4s ease';
+          dot.style.opacity = '0';
+          setTimeout(() => {
+            dot.style.display = 'none';
+            introButton.classList.add('revealed');
+          }, 400);
+          if (animationId) cancelAnimationFrame(animationId);
+          return;
+        }
+        const easeOut = 1 - Math.pow(1 - settleProgress, 2);
+        const curX = currentX + (centerX - currentX) * easeOut;
+        const curY = currentY + (centerY - currentY) * easeOut;
+        dot.style.left = curX + 'px';
+        dot.style.top = curY + 'px';
       }
+      
+      requestAnimationFrame(animateMovement);
     }
     
-    function finishStarConverge() {
-      // make star fade out and remove
-      star.style.transition = 'opacity 0.3s ease';
-      star.style.opacity = '0';
-      trail.style.transition = 'opacity 0.3s';
-      trail.style.opacity = '0';
-      
-      // reveal button with elegant pop
-      introButton.classList.add('revealed');
-      
-      // remove star elements after fade
-      setTimeout(() => {
-        if (star.parentNode) star.style.display = 'none';
-        if (trail.parentNode) trail.style.display = 'none';
-      }, 300);
-    }
+    // start movement
+    dot.style.left = midX + 'px';
+    dot.style.top = midY + 'px';
+    globalTime = 2.0; // start at an interesting phase
+    lastTimestamp = null;
+    requestAnimationFrame(animateMovement);
     
-    // start animation after a tiny delay (for paint)
+    // after 3.5 seconds of smooth movement, begin settling to center
     setTimeout(() => {
-      requestAnimationFrame(animateStar);
-    }, 100);
+      if (isMoving && !settling) {
+        settling = true;
+        settleProgress = 0;
+        settleStart = performance.now();
+        // capture current position as start for interpolation
+        const rect = dot.getBoundingClientRect();
+        currentX = rect.left;
+        currentY = rect.top;
+      }
+    }, 3600); // 3.6 sec of flowing movement then elegantly settle
     
     // ------------------------------
     // CLICK ON BUTTON → WIPE CIRCLE → REMOVE OVERLAY & SHOW PAGE
@@ -583,11 +592,11 @@
       isTransitioning = true;
       
       const btnRect = introButton.getBoundingClientRect();
-      const centerX = btnRect.left + btnRect.width / 2;
-      const centerY = btnRect.top + btnRect.height / 2;
+      const centerXBtn = btnRect.left + btnRect.width / 2;
+      const centerYBtn = btnRect.top + btnRect.height / 2;
       
-      wipeCircle.style.left = centerX + 'px';
-      wipeCircle.style.top = centerY + 'px';
+      wipeCircle.style.left = centerXBtn + 'px';
+      wipeCircle.style.top = centerYBtn + 'px';
       wipeCircle.style.transform = 'translate(-50%, -50%)';
       
       const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.8;
@@ -666,6 +675,12 @@
         alert('⚓ SHIPYARD: full project fleet will be added in next version. Stay tuned.');
       });
     }
+    
+    // handle resize: recenter button and wipe? not needed for core function but keep dot boundaries?
+    window.addEventListener('resize', () => {
+      // reposition dot if still moving? simple: ignore, but to avoid glitch we recompute only if needed
+      // Not critical, but for perfection we could re-trigger, but it's okay.
+    });
   })();
 </script>
 </body>

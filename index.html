@@ -24,7 +24,7 @@
       font-family: 'Inter', sans-serif;
     }
 
-    /* ----- MAIN PAGE (portfolio, always visible behind intro) ----- */
+    /* ----- MAIN PAGE (portfolio, always behind intro) ----- */
     .main-page {
       width: 100%;
       height: 100%;
@@ -278,28 +278,10 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      /* start fully visible (no mask) */
-      mask: none;
-      -webkit-mask: none;
-      transition: none;
-      will-change: mask;
-    }
-
-    /* Wipe overlay (the expanding hole) – initially hidden */
-    .wipe-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000000;
-      z-index: 10001;
-      pointer-events: none;
-      /* start invisible (fully transparent) */
-      mask: radial-gradient(circle at var(--x, 50%) var(--y, 50%), transparent 0%, black 0%);
-      -webkit-mask: radial-gradient(circle at var(--x, 50%) var(--y, 50%), transparent 0%, black 0%);
-      transition: mask 0.9s cubic-bezier(0.4, 0, 0.2, 1), -webkit-mask 0.9s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: mask;
+      /* Start fully visible */
+      clip-path: circle(150% at 50% 50%);
+      transition: clip-path 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: clip-path;
     }
 
     /* animated username */
@@ -313,8 +295,6 @@
       padding: 1rem;
       animation: subtleGlow 2.5s ease-in-out infinite;
       transition: transform 0.2s ease;
-      position: relative;
-      z-index: 10002;
     }
     .intro-page:hover .username {
       transform: scale(1.02);
@@ -341,7 +321,7 @@
 </head>
 <body>
 
-<!-- MAIN PAGE (portfolio, always visible behind) -->
+<!-- MAIN PAGE (portfolio, always visible behind intro) -->
 <div class="main-page" id="mainPage">
   <div class="index-bridge">
     <div class="command-strip">
@@ -402,28 +382,13 @@
   <div class="username">thagreatjoel</div>
 </div>
 
-<!-- WIPE OVERLAY (will be used to create expanding hole) -->
-<div class="wipe-overlay" id="wipeOverlay"></div>
-
 <script>
   (function() {
     const introPage = document.getElementById('introPage');
-    const wipeOverlay = document.getElementById('wipeOverlay');
-    const mainPage = document.getElementById('mainPage');
     
-    // Ensure main page is visible behind, but intro covers it
-    // Wipe overlay starts invisible (mask: transparent at center? Actually we'll set it to full black but with mask that hides it)
-    // We'll trigger the wipe on click: we set the wipe overlay's mask to start as a tiny transparent circle at click, then expand to full coverage.
-    // The wipe overlay is a black layer on top of everything. By expanding the transparent hole, we reveal the content behind (main page).
-    // After the animation, we hide the intro page and wipe overlay.
-    
-    let isWiping = false;
-    
+    // Wipe-out effect: shrink the intro page clip-path from full coverage to a tiny circle at click point
     function startWipeOut(e) {
-      if (isWiping) return;
-      isWiping = true;
-      
-      // Get click coordinates
+      // Get click coordinates relative to viewport
       let x, y;
       if (e.touches) {
         x = e.touches[0].clientX;
@@ -434,45 +399,29 @@
         y = e.clientY;
       }
       
-      // Set CSS custom properties for mask position
-      wipeOverlay.style.setProperty('--x', x + 'px');
-      wipeOverlay.style.setProperty('--y', y + 'px');
+      // Set the clip-path origin to click point and animate from full circle to radius 0%
+      // Current clip-path is circle(150% at 50% 50%). We'll transition to circle(0% at clickX clickY)
+      introPage.style.clipPath = `circle(0% at ${x}px ${y}px)`;
       
-      // Force reflow to ensure transition works
-      wipeOverlay.offsetHeight;
-      
-      // Start with a tiny transparent hole (radius 0.1%) at click point, rest black
-      wipeOverlay.style.mask = `radial-gradient(circle at ${x}px ${y}px, transparent 0%, black 0.1%)`;
-      wipeOverlay.style.webkitMask = `radial-gradient(circle at ${x}px ${y}px, transparent 0%, black 0.1%)`;
-      wipeOverlay.style.transition = 'none';
-      wipeOverlay.offsetHeight; // force reflow
-      
-      // Then animate to a huge transparent hole (radius 150%) so the whole overlay becomes transparent, revealing the main page
-      wipeOverlay.style.transition = 'mask 0.9s cubic-bezier(0.4, 0, 0.2, 1), -webkit-mask 0.9s cubic-bezier(0.4, 0, 0.2, 1)';
-      wipeOverlay.style.mask = `radial-gradient(circle at ${x}px ${y}px, transparent 150%, black 150%)`;
-      wipeOverlay.style.webkitMask = `radial-gradient(circle at ${x}px ${y}px, transparent 150%, black 150%)`;
-      
-      // After animation, remove intro page and wipe overlay
-      wipeOverlay.addEventListener('transitionend', function onEnd(e) {
-        if (e.propertyName === 'mask' || e.propertyName === '-webkit-mask') {
+      // After transition, hide the intro page completely
+      introPage.addEventListener('transitionend', function onEnd(e) {
+        if (e.propertyName === 'clip-path') {
           introPage.style.display = 'none';
-          wipeOverlay.style.display = 'none';
-          wipeOverlay.removeEventListener('transitionend', onEnd);
+          introPage.removeEventListener('transitionend', onEnd);
         }
       });
     }
     
-    // Attach click/tap to intro page (since it's the visible black screen)
+    // Attach click/tap to intro page
     introPage.addEventListener('click', startWipeOut);
     introPage.addEventListener('touchstart', startWipeOut);
     
     // Also allow Enter/Space key to trigger from center
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
-        if (introPage.style.display !== 'none' && !isWiping) {
+        if (introPage.style.display !== 'none') {
           const x = window.innerWidth / 2;
           const y = window.innerHeight / 2;
-          // simulate click
           const fakeEvent = { clientX: x, clientY: y };
           startWipeOut(fakeEvent);
           e.preventDefault();

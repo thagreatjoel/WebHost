@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>thagreatjoel · star comet launch</title>
+  <title>thagreatjoel · white star launch</title>
   <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
   <meta name="theme-color" content="#000000">
   
@@ -56,14 +56,14 @@
       transform: translate(-50%, -50%) scale(0.92);
       background: rgba(15, 25, 35, 0.85);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 235, 160, 0.6);
+      border: 1px solid rgba(255, 245, 200, 0.6);
       padding: 0.9rem 2.4rem;
       border-radius: 60px;
       font-family: 'Space Grotesk', monospace;
       font-weight: 600;
       font-size: 1rem;
       letter-spacing: 0.12em;
-      color: #fffef7;
+      color: #ffffff;
       cursor: pointer;
       opacity: 0;
       transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
@@ -80,10 +80,10 @@
     }
 
     @keyframes heartbeat {
-      0% { box-shadow: 0 0 0 0 rgba(255, 235, 160, 0.4), 0 0 0 0 rgba(255, 220, 120, 0.3); border-color: rgba(255, 245, 180, 0.6); }
-      30% { box-shadow: 0 0 0 8px rgba(255, 235, 160, 0.3), 0 0 0 16px rgba(255, 220, 120, 0.2); border-color: rgba(255, 245, 180, 0.9); }
-      70% { box-shadow: 0 0 0 4px rgba(255, 235, 160, 0.2), 0 0 0 8px rgba(255, 220, 120, 0.1); border-color: rgba(255, 245, 180, 0.7); }
-      100% { box-shadow: 0 0 0 0 rgba(255, 235, 160, 0), 0 0 0 0 rgba(255, 220, 120, 0); border-color: rgba(255, 245, 180, 0.6); }
+      0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 0 0 0 rgba(255, 255, 200, 0.2); border-color: rgba(255, 255, 255, 0.6); }
+      30% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.3), 0 0 0 20px rgba(255, 255, 200, 0.15); border-color: rgba(255, 255, 255, 0.9); }
+      70% { box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2), 0 0 0 10px rgba(255, 255, 200, 0.1); border-color: rgba(255, 255, 255, 0.7); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 0 0 rgba(255, 255, 200, 0); border-color: rgba(255, 255, 255, 0.6); }
     }
 
     .intro-button:hover {
@@ -91,7 +91,7 @@
       background: rgba(25, 40, 55, 0.9);
     }
 
-    /* circular wipe container */
+    /* circular wipe container - clean reveal, no black outside */
     .wipe-container {
       position: fixed;
       top: 0;
@@ -108,13 +108,12 @@
       left: 50%;
       width: 0px;
       height: 0px;
-      background: transparent;
+      background: #f8fafd;  /* same as page background */
       border-radius: 50%;
       transform: translate(-50%, -50%);
       transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: width, height;
       overflow: hidden;
-      box-shadow: 0 0 0 2000px rgba(0,0,0,0.95);
     }
     .wipe-inner {
       position: absolute;
@@ -125,13 +124,13 @@
       background: #f8fafd;
       overflow-y: auto;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity 0.3s ease;
     }
     .wipe-inner.visible {
       opacity: 1;
     }
 
-    /* main page styling */
+    /* main page styling (classic white) */
     .index-bridge {
       max-width: 1300px;
       margin: 0 auto;
@@ -453,26 +452,26 @@
 
 <script>
   (function() {
-    // ---------- GLOWING STAR COMET WITH SNAKE TRAIL (SPIRAL: FAST THEN SLOW) ----------
+    // ---------- SMOOTH WHITE GLOWING STAR WITH SNAKE TRAIL (SPIRAL: FAST THEN SLOW) ----------
     const canvas = document.getElementById('cometCanvas');
     const ctx = canvas.getContext('2d');
     let width, height;
     let animationId = null;
     let startTimestamp = null;
-    const duration = 3800; // ms: quick spin then slow settle
+    const duration = 3800; // 3.8 sec: quick spin then slow settle
     let isAnimating = true;
     let cometPos = { x: 0, y: 0 };
     let trailPositions = [];
-    const TRAIL_LENGTH = 32;
+    const TRAIL_LENGTH = 34;
     
-    const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.4;
+    const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.42;
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
     function getPosition(t) {
       if (t >= 1) return { x: centerX, y: centerY };
-      // angle: fast then slow: 16 pi * (1 - (1-t)^1.6) gives rapid spin then gentle
-      const angle = 16 * Math.PI * (1 - Math.pow(1 - t, 1.5));
+      // angle: fast then slow: 18 pi * (1 - (1-t)^1.5) gives rapid spin then gentle
+      const angle = 18 * Math.PI * (1 - Math.pow(1 - t, 1.5));
       const radius = maxRadius * (1 - t);
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
@@ -486,33 +485,27 @@
       canvas.height = height;
     }
     
-    // draw a glowing star shape (radiant)
-    function drawGlowingStar(x, y, size, intensity) {
+    // draw a smooth white glowing star (no spikes, soft radiance)
+    function drawSmoothStar(x, y, size, intensity) {
       ctx.save();
-      ctx.shadowBlur = 18;
-      ctx.shadowColor = '#ffcc66';
-      // main bright core
+      ctx.shadowBlur = 22;
+      ctx.shadowColor = '#ffffffcc';
+      // main bright core - pure white gradient
       const gradient = ctx.createRadialGradient(x, y, 2, x, y, size);
-      gradient.addColorStop(0, `rgba(255, 255, 210, ${intensity})`);
-      gradient.addColorStop(0.6, `rgba(255, 200, 80, ${intensity * 0.7})`);
-      gradient.addColorStop(1, `rgba(255, 100, 30, 0)`);
+      gradient.addColorStop(0, `rgba(255, 255, 255, ${intensity})`);
+      gradient.addColorStop(0.5, `rgba(255, 255, 240, ${intensity * 0.8})`);
+      gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
       ctx.fillStyle = gradient;
       ctx.beginPath();
       ctx.arc(x, y, size, 0, Math.PI * 2);
       ctx.fill();
       
-      // star spikes
-      for (let i = 0; i < 5; i++) {
-        const angle = (Date.now() / 300 + i * 72) * Math.PI / 180;
-        const dx = Math.cos(angle) * size * 1.2;
-        const dy = Math.sin(angle) * size * 1.2;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + dx, y + dy);
-        ctx.lineTo(x + dx * 0.6, y + dy * 0.6);
-        ctx.fillStyle = `rgba(255, 220, 100, ${intensity * 0.5})`;
-        ctx.fill();
-      }
+      // extra outer glow
+      ctx.shadowBlur = 28;
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${intensity * 0.4})`;
+      ctx.fill();
       ctx.restore();
     }
     
@@ -524,7 +517,7 @@
       const pos = getPosition(t);
       cometPos = pos;
       
-      // store trail
+      // store trail positions
       trailPositions.unshift({ x: pos.x, y: pos.y, life: 1.0 });
       if (trailPositions.length > TRAIL_LENGTH) trailPositions.pop();
       
@@ -534,43 +527,45 @@
       
       ctx.clearRect(0, 0, width, height);
       
-      // draw snake trail (glowing segments)
+      // draw snake trail (fading white/gold streaks)
       for (let i = 0; i < trailPositions.length; i++) {
         const p = trailPositions[i];
-        const alpha = p.life * 0.65;
-        const size = 6 * (1 - i / TRAIL_LENGTH) + 3;
+        const alpha = p.life * 0.7;
+        const size = 7 * (1 - i / TRAIL_LENGTH) + 2;
         const grad = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, size);
-        grad.addColorStop(0, `rgba(255, 220, 130, ${alpha})`);
-        grad.addColorStop(0.8, `rgba(255, 140, 60, ${alpha * 0.5})`);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+        grad.addColorStop(0.7, `rgba(255, 240, 180, ${alpha * 0.6})`);
+        grad.addColorStop(1, `rgba(255, 200, 100, 0)`);
         ctx.fillStyle = grad;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, size * 0.8, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, size * 0.7, 0, Math.PI * 2);
         ctx.fill();
         
+        // connecting line for snake effect
         if (i < trailPositions.length - 1) {
           const next = trailPositions[i+1];
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(next.x, next.y);
-          ctx.strokeStyle = `rgba(255, 200, 100, ${alpha * 0.8})`;
-          ctx.lineWidth = 3.5;
+          ctx.strokeStyle = `rgba(255, 255, 220, ${alpha * 0.9})`;
+          ctx.lineWidth = 3;
           ctx.stroke();
         }
       }
       
-      // main comet: glowing star (real star look)
-      const intensity = 0.9 + Math.sin(Date.now() * 0.015) * 0.2;
-      drawGlowingStar(cometPos.x, cometPos.y, 12, intensity);
+      // main star: white, smooth, radiant
+      const intensity = 0.95 + Math.sin(Date.now() * 0.012) * 0.1;
+      drawSmoothStar(cometPos.x, cometPos.y, 13, intensity);
       
       if (t >= 1) {
         isAnimating = false;
         if (animationId) cancelAnimationFrame(animationId);
-        canvas.style.transition = 'opacity 0.5s';
+        canvas.style.transition = 'opacity 0.5s ease';
         canvas.style.opacity = '0';
         setTimeout(() => {
           canvas.style.display = 'none';
         }, 500);
-        // reveal button with heartbeat
+        // reveal button with heartbeat glow
         const introBtn = document.getElementById('introBtn');
         introBtn.classList.add('revealed');
         return;
@@ -591,9 +586,10 @@
     
     window.addEventListener('resize', () => {
       updateCanvasSize();
+      // optional: reposition if needed but not critical
     });
     
-    // ---------- WIPE CIRCLE REVEAL (PAGE INSIDE) ----------
+    // ---------- WIPE CIRCLE REVEAL (CLEAN, NO BLACK SCREEN) ----------
     const introOverlay = document.getElementById('introOverlay');
     const introBtn = document.getElementById('introBtn');
     const wipeMask = document.getElementById('wipeCircleMask');
@@ -608,31 +604,37 @@
       const btnCenterX = btnRect.left + btnRect.width / 2;
       const btnCenterY = btnRect.top + btnRect.height / 2;
       
+      // position the wipe mask at button center
       wipeMask.style.left = btnCenterX + 'px';
       wipeMask.style.top = btnCenterY + 'px';
       wipeMask.style.transform = 'translate(-50%, -50%)';
       
-      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.6;
+      // expand to full screen
+      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.8;
       wipeMask.style.width = maxSize + 'px';
       wipeMask.style.height = maxSize + 'px';
       
-      introOverlay.style.transition = 'opacity 0.4s';
+      // fade out intro overlay and hide canvas/button
+      introOverlay.style.transition = 'opacity 0.4s ease';
       introOverlay.style.opacity = '0';
-      
-      setTimeout(() => {
-        wipeInner.classList.add('visible');
-      }, 150);
       
       setTimeout(() => {
         introOverlay.style.display = 'none';
         introBtn.style.display = 'none';
-        setTimeout(() => {
-          wipeMask.style.opacity = '0';
-          setTimeout(() => {
-            wipeMask.style.display = 'none';
-          }, 400);
-        }, 200);
-      }, 800);
+        // ensure canvas is hidden
+        if (canvas) canvas.style.display = 'none';
+      }, 400);
+      
+      // reveal inner content after wipe starts
+      setTimeout(() => {
+        wipeInner.classList.add('visible');
+      }, 200);
+      
+      // after full expansion, no need to hide mask (it becomes the page background)
+      setTimeout(() => {
+        // ensure the mask's background matches the page and remains visible
+        wipeMask.style.transition = 'none';
+      }, 1300);
     }
     
     introBtn.addEventListener('click', () => {
@@ -641,7 +643,7 @@
       }
     });
     
-    // ---------- GITHUB STATS ----------
+    // ---------- GITHUB STATS (LIVE) ----------
     const GITHUB_USER = "thagreatjoel";
     const REPO_API = `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=50`;
     

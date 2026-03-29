@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>thagreatjoel · index | ship bridge</title>
-  <meta name="description" content="Joel Joju — builder, creator, ship engineer. command deck.">
-  <meta name="theme-color" content="#f5f7fc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>thagreatjoel · the launch</title>
+  <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
+  <meta name="theme-color" content="#000000">
   
-  <!-- fonts: clean, modern, slight tech edge -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- fonts: bold + clean -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     * {
@@ -17,44 +17,131 @@
       box-sizing: border-box;
     }
 
-    body {
-      background: #f8fafd;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      color: #0a1927;
-      position: relative;
-    }
-
-    /* minimal noise texture */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
+    /* ---------- GLOBAL RESET ---------- */
+    body, html {
       width: 100%;
       height: 100%;
-      background-image: radial-gradient(#e2e8f0 0.5px, transparent 0.5px);
-      background-size: 20px 20px;
-      opacity: 0.3;
-      pointer-events: none;
-      z-index: 0;
+      overflow: hidden;
+      background: #000000;
+      font-family: 'Inter', sans-serif;
     }
 
-    /* main bridge container — no scroll, full viewport */
-    .index-bridge {
-      height: 100vh;
+    /* ----- INTRO OVERLAY (dark + glowing dot) ----- */
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
+      will-change: opacity;
+      pointer-events: auto;
+    }
+
+    /* glowing dot that moves randomly */
+    .glow-dot {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 20px 6px rgba(255,255,240,0.9), 0 0 40px 12px rgba(255,255,200,0.5);
+      filter: blur(0px);
+      transition: none;
+      will-change: left, top;
+      pointer-events: none;
+      z-index: 10001;
+      opacity: 0;
+    }
+
+    /* central button (hidden initially) */
+    .intro-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: rgba(20, 20, 30, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 0.9rem 2.2rem;
+      border-radius: 60px;
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      color: white;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.3s;
+      z-index: 10002;
+      white-space: nowrap;
+      box-shadow: 0 0 8px rgba(255,255,210,0.3);
+    }
+
+    .intro-button:hover {
+      transform: translate(-50%, -50%) scale(1);
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,200,0.6);
+      box-shadow: 0 0 32px rgba(255,255,200,0.5);
+    }
+
+    /* black wipe circle animation */
+    .wipe-circle {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 0px;
+      height: 0px;
+      background: #000000;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10010;
+      pointer-events: none;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: width, height;
+    }
+
+    /* ---------- MAIN PAGE (hidden until wipe ends) ---------- */
+    .main-page {
       width: 100%;
+      height: 100%;
+      background: #f8fafd;
+      overflow-y: auto;
+      overflow-x: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s linear;
+      position: relative;
+    }
+
+    .main-page.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* custom scroll for main */
+    .main-page::-webkit-scrollbar {
+      width: 5px;
+      background: #eef2f8;
+    }
+    .main-page::-webkit-scrollbar-thumb {
+      background: #b9cfdf;
+      border-radius: 10px;
+    }
+
+    /* index bridge (same as before, polished) */
+    .index-bridge {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 1.8rem 2rem 2rem 2rem;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      position: relative;
-      z-index: 2;
-      overflow: hidden;
-      padding: 2rem 2.2rem 1.8rem 2.2rem;
     }
 
-    /* top bar — call sign + live stats */
+    /* command strip */
     .command-strip {
       display: flex;
       justify-content: space-between;
@@ -81,7 +168,8 @@
 
     .live-badge {
       display: flex;
-      gap: 1.2rem;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
     .metric-pill {
@@ -100,49 +188,26 @@
       margin-right: 0.3rem;
     }
 
-    /* main content — identity card + ship manifesto (no project list) */
+    /* identity core grid: 2 cols on desktop, 1 on mobile */
     .identity-core {
-      flex: 1;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      flex-wrap: wrap;
       gap: 2rem;
-      max-height: calc(100vh - 140px);
-      overflow-y: auto;
-      padding: 0.5rem 0;
+      align-items: center;
+      justify-content: center;
+      margin: 1rem 0 2rem;
     }
 
-    /* custom scroll only if needed (but design fits one screen) */
-    .identity-core::-webkit-scrollbar {
-      width: 3px;
-    }
-    .identity-core::-webkit-scrollbar-track {
-      background: #eef2f8;
-      border-radius: 10px;
-    }
-    .identity-core::-webkit-scrollbar-thumb {
-      background: #cbdbe0;
-      border-radius: 10px;
-    }
-
-    /* MAIN animated card — flagship */
+    /* left card (flagship) */
     .flagship-card {
+      flex: 1.2;
+      min-width: 280px;
       background: #ffffff;
       border-radius: 48px;
       border: 1px solid #eef2fc;
-      padding: 2rem 2.2rem;
-      max-width: 580px;
-      width: 100%;
-      transition: all 0.3s ease;
-      animation: floatRise 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+      padding: 2rem 2rem;
+      transition: transform 0.2s, box-shadow 0.2s;
       box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.04);
-    }
-
-    .flagship-card:hover {
-      transform: translateY(-4px);
-      border-color: #cfdfed;
-      box-shadow: 0 24px 36px -16px rgba(0, 0, 0, 0.08);
     }
 
     .greeting {
@@ -154,12 +219,13 @@
     }
 
     .name-title {
-      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
       font-weight: 800;
       letter-spacing: -0.02em;
       line-height: 1.2;
       margin-bottom: 0.75rem;
       color: #0a1927;
+      font-family: 'Space Grotesk', sans-serif;
     }
     .name-title .highlight {
       background: linear-gradient(120deg, #1f5e7e, #133c52);
@@ -171,7 +237,7 @@
     .tagline {
       font-size: 1rem;
       color: #2e4a6b;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
       border-left: 3px solid #e6b13c;
       padding-left: 1rem;
       font-weight: 450;
@@ -181,15 +247,14 @@
       font-size: 0.9rem;
       color: #334e68;
       line-height: 1.6;
-      margin-bottom: 1.8rem;
+      margin-bottom: 1.5rem;
     }
 
-    /* ship stats inline */
     .ship-stats {
       display: flex;
-      gap: 1.5rem;
-      margin: 1rem 0 1.4rem;
+      gap: 1rem;
       flex-wrap: wrap;
+      margin: 1rem 0 1.5rem;
     }
     .stat-ship {
       background: #f3f9fe;
@@ -202,50 +267,37 @@
     }
     .stat-ship strong {
       font-weight: 800;
-      color: #0f2f44;
-    }
-
-    /* small card row — vibe / launch button + status */
-    .action-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 0.5rem;
     }
 
     .btn-launch {
       background: #0c1825;
       color: white;
       border: none;
-      padding: 0.6rem 1.6rem;
+      padding: 0.7rem 1.8rem;
       border-radius: 60px;
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      font-size: 0.8rem;
-      letter-spacing: 0.01em;
+      font-size: 0.85rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 0.6rem;
-      transition: all 0.25s ease;
+      transition: all 0.25s;
     }
     .btn-launch:hover {
       background: #1a3a50;
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.15);
     }
 
     .status-light {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      font-family: 'JetBrains Mono', monospace;
+      gap: 0.5rem;
+      font-family: monospace;
       font-size: 0.7rem;
       color: #2f6b47;
       background: #eaf7ef;
-      padding: 0.3rem 0.9rem;
+      padding: 0.3rem 1rem;
       border-radius: 60px;
     }
     .pulse {
@@ -256,20 +308,36 @@
       animation: pulseGlow 1.4s infinite;
     }
 
-    /* second card: fleet manifesto (quick glance) */
+    /* right side: profile + manifesto */
+    .profile-manifesto {
+      flex: 0.8;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .pfp-card {
+      background: white;
+      border-radius: 32px;
+      border: 1px solid #eef2fc;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .pfp-img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1rem;
+      border: 3px solid #eef2fc;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
     .manifesto-card {
       background: #ffffffec;
-      backdrop-filter: blur(0px);
       border-radius: 32px;
       border: 1px solid #eef2fa;
-      padding: 1.2rem 1.8rem;
-      max-width: 580px;
-      width: 100%;
-      animation: floatRise 0.6s 0.1s backwards;
-      transition: all 0.2s;
-    }
-    .manifesto-card:hover {
-      border-color: #cfe0ef;
+      padding: 1.2rem 1.5rem;
     }
     .manifesto-title {
       font-weight: 700;
@@ -293,222 +361,305 @@
       color: #1e3a5f;
     }
 
-    @keyframes floatRise {
-      0% {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     @keyframes pulseGlow {
       0% { opacity: 0.5; transform: scale(0.8);}
       100% { opacity: 1; transform: scale(1.2);}
     }
 
-    /* responsiveness — always no scroll */
-    @media (max-width: 680px) {
+    /* responsive */
+    @media (max-width: 780px) {
       .index-bridge {
-        padding: 1.2rem 1.2rem;
+        padding: 1rem 1.2rem;
       }
-      .flagship-card, .manifesto-card {
-        padding: 1.4rem;
+      .flagship-card, .pfp-card, .manifesto-card {
+        padding: 1.3rem;
       }
       .command-strip {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
       }
-    }
-
-    /* hide global scroll */
-    html, body {
-      overflow: hidden;
-      position: fixed;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* GitHub stats injector */
-    .repo-stats-mini {
-      font-size: 0.75rem;
-      font-family: monospace;
-      color: #2c5f8a;
-      background: #eef2fa;
-      padding: 0.2rem 0.8rem;
-      border-radius: 24px;
-      display: inline-block;
+      .identity-core {
+        flex-direction: column;
+      }
+      .pfp-img {
+        width: 110px;
+        height: 110px;
+      }
     }
   </style>
 </head>
 <body>
-<div class="index-bridge">
-  <!-- top command strip with live GitHub stats (non-project) -->
-  <div class="command-strip">
-    <div class="callsign">
-      <span>⛵</span> THAGREATJOEL · BRIDGE INDEX
-    </div>
-    <div class="live-badge" id="liveMeta">
-      <div class="metric-pill"><span id="repoCount">—</span> repos</div>
-      <div class="metric-pill"><span id="starTotal">—</span> stars</div>
-      <div class="metric-pill"><span id="forkTotal">—</span> forks</div>
-    </div>
-  </div>
 
-  <!-- main identity area: flagship card + manifesto (NO project cards) -->
-  <div class="identity-core">
-    <!-- flagship identity card -->
-    <div class="flagship-card">
-      <div class="greeting">✧ COMMANDER PROFILE ✧</div>
-      <h1 class="name-title">Joel <span class="highlight">Joju</span></h1>
-      <div class="tagline">building tools, bots & hardware — ship mindset</div>
-      <div class="bio-text">
-        17-year-old developer from Kerala, India. I architect APIs, automation engines, embedded systems and PCB designs. 
-        Focused on meaningful tech that actually ships.
+<!-- INTRO OVERLAY (dark + moving dot + button) -->
+<div class="intro-overlay" id="introOverlay">
+  <div class="glow-dot" id="glowDot"></div>
+  <button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
+</div>
+
+<!-- BLACK WIPE CIRCLE (animation after click) -->
+<div id="wipeCircle" class="wipe-circle"></div>
+
+<!-- MAIN PAGE (the index you designed) -->
+<div class="main-page" id="mainPage">
+  <div class="index-bridge">
+    <!-- command strip -->
+    <div class="command-strip">
+      <div class="callsign">
+        <span>⛵</span> THAGREATJOEL · BRIDGE INDEX
       </div>
-      <div class="ship-stats" id="dynamicShipStats">
-        <div class="stat-ship"><strong>⚡ active vessels</strong> <span id="activeReposBadge">—</span></div>
-        <div class="stat-ship"><strong>🛠️ main stack</strong> JS/TS · Python · KiCad</div>
-        <div class="stat-ship"><strong>🌊 latest update</strong> <span id="lastPush">—</span></div>
+      <div class="live-badge" id="liveMeta">
+        <div class="metric-pill"><span id="repoCount">—</span> repos</div>
+        <div class="metric-pill"><span id="starTotal">—</span> stars</div>
+        <div class="metric-pill"><span id="forkTotal">—</span> forks</div>
       </div>
-      <div class="action-row">
-        <button class="btn-launch" id="shipyardBtn">
-          <span>⟶</span> ENTER SHIPYARD
-        </button>
-        <div class="status-light">
-          <div class="pulse"></div> <span>fleet active · ready to launch</span>
+    </div>
+
+    <!-- identity core with pfp -->
+    <div class="identity-core">
+      <!-- left flagship card -->
+      <div class="flagship-card">
+        <div class="greeting">✧ COMMANDER PROFILE ✧</div>
+        <h1 class="name-title">Joel <span class="highlight">Joju</span></h1>
+        <div class="tagline">building tools, bots & hardware — ship mindset</div>
+        <div class="bio-text">
+          17-year-old developer from Kerala, India. I architect APIs, automation engines, embedded systems and PCB designs. 
+          Focused on meaningful tech that actually ships.
+        </div>
+        <div class="ship-stats" id="dynamicShipStats">
+          <div class="stat-ship"><strong>⚡ active vessels</strong> <span id="activeReposBadge">—</span></div>
+          <div class="stat-ship"><strong>🛠️ main stack</strong> JS/TS · Python · KiCad</div>
+          <div class="stat-ship"><strong>🌊 latest update</strong> <span id="lastPush">—</span></div>
+        </div>
+        <div class="action-row" style="display: flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+          <button class="btn-launch" id="shipyardBtn">
+            <span>⟶</span> ENTER SHIPYARD
+          </button>
+          <div class="status-light">
+            <div class="pulse"></div> <span>fleet active</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- manifesto card / quick ethos (no project details) -->
-    <div class="manifesto-card">
-      <div class="manifesto-title">⚓ SHIP MANIFESTO</div>
-      <ul class="manifesto-list">
-        <li>#buildinpublic</li>
-        <li>API first</li>
-        <li>automation obsessed</li>
-        <li>open hardware</li>
-        <li>clean code</li>
-        <li>ship > perfect</li>
-      </ul>
-      <div style="margin-top: 1rem; font-size: 0.7rem; color:#6c86a3; font-family: monospace;">
-        github.com/thagreatjoel · live from kerala
+      <!-- right side: pfp + manifesto -->
+      <div class="profile-manifesto">
+        <div class="pfp-card">
+          <img class="pfp-img" src="https://avatars.githubusercontent.com/u/124015127?v=4" alt="Joel Joju profile picture">
+          <div style="font-family: monospace; font-size:0.7rem; color:#2c5f8a;">@thagreatjoel · github</div>
+        </div>
+        <div class="manifesto-card">
+          <div class="manifesto-title">⚓ SHIP MANIFESTO</div>
+          <ul class="manifesto-list">
+            <li>#buildinpublic</li><li>API first</li><li>automation obsessed</li>
+            <li>open hardware</li><li>clean code</li><li>ship > perfect</li>
+          </ul>
+          <div style="margin-top: 1rem; font-size: 0.7rem; color:#6c86a3; font-family: monospace;">
+            github.com/thagreatjoel · live from kerala
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // GitHub username
-  const GITHUB_USER = "thagreatjoel";
-  const REPO_API = `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=50`;
+  (function() {
+    // ------------------------------
+    // 1. RANDOM DOT ANIMATION (dark screen)
+    // ------------------------------
+    const overlay = document.getElementById('introOverlay');
+    const dot = document.getElementById('glowDot');
+    const introButton = document.getElementById('introBtn');
+    const wipeCircle = document.getElementById('wipeCircle');
+    const mainPage = document.getElementById('mainPage');
 
-  // Helper: fetch repos
-  async function fetchRepos() {
-    try {
-      const res = await fetch(REPO_API, {
-        headers: { 'Accept': 'application/vnd.github.v3+json' }
-      });
-      if (!res.ok) throw new Error(`API error ${res.status}`);
-      const data = await res.json();
-      return Array.isArray(data) ? data : [];
-    } catch (err) {
-      console.warn(err);
-      return null;
-    }
-  }
+    let dotInterval = null;
+    let animationActive = true;
+    let buttonRevealed = false;
 
-  // compute total stars/forks and find latest push
-  function computeStats(repos) {
-    let totalStars = 0, totalForks = 0;
-    let lastUpdated = null;
-    let activeCount = 0;
-    const now = new Date();
-    for (let repo of repos) {
-      totalStars += repo.stargazers_count || 0;
-      totalForks += repo.forks_count || 0;
-      const updatedDate = new Date(repo.updated_at);
-      if (!lastUpdated || updatedDate > lastUpdated) lastUpdated = updatedDate;
-      // active if updated in last 90 days
-      const daysSinceUpdate = (now - updatedDate) / (1000 * 3600 * 24);
-      if (daysSinceUpdate < 90) activeCount++;
-    }
-    return {
-      totalStars,
-      totalForks,
-      repoCount: repos.length,
-      activeCount,
-      lastPush: lastUpdated
-    };
-  }
-
-  function formatDate(date) {
-    if (!date) return 'unknown';
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  }
-
-  async function updateDashboard() {
-    // show loading indicators
-    document.getElementById('repoCount').innerText = '⋯';
-    document.getElementById('starTotal').innerText = '⋯';
-    document.getElementById('forkTotal').innerText = '⋯';
-    const activeSpan = document.getElementById('activeReposBadge');
-    if (activeSpan) activeSpan.innerText = '⋯';
-    const lastPushSpan = document.getElementById('lastPush');
-    if (lastPushSpan) lastPushSpan.innerText = 'fetching...';
-
-    const repos = await fetchRepos();
-    if (!repos || repos.length === 0) {
-      document.getElementById('repoCount').innerText = '?';
-      document.getElementById('starTotal').innerText = '?';
-      document.getElementById('forkTotal').innerText = '?';
-      if (activeSpan) activeSpan.innerText = '0';
-      if (lastPushSpan) lastPushSpan.innerText = 'unreachable';
-      return;
+    // helper to get random position inside viewport (avoid edges)
+    function randomPosition() {
+      const margin = 60;
+      const x = Math.random() * (window.innerWidth - margin * 2) + margin;
+      const y = Math.random() * (window.innerHeight - margin * 2) + margin;
+      return { x, y };
     }
 
-    const stats = computeStats(repos);
-    document.getElementById('repoCount').innerText = stats.repoCount;
-    document.getElementById('starTotal').innerText = stats.totalStars;
-    document.getElementById('forkTotal').innerText = stats.totalForks;
-    if (activeSpan) activeSpan.innerText = stats.activeCount;
-    if (lastPushSpan) lastPushSpan.innerText = formatDate(stats.lastPush);
-  }
+    // move dot to random position smoothly
+    function moveDotRandomly() {
+      if (!animationActive) return;
+      const { x, y } = randomPosition();
+      dot.style.transition = 'left 0.9s cubic-bezier(0.2, 0.9, 0.4, 1.2), top 0.9s cubic-bezier(0.2, 0.9, 0.4, 1.2)';
+      dot.style.left = x + 'px';
+      dot.style.top = y + 'px';
+      dot.style.opacity = '1';
+    }
 
-  // call on load
-  updateDashboard();
+    // start random movement (every 1.2 sec)
+    function startRandomMovement() {
+      if (dotInterval) clearInterval(dotInterval);
+      moveDotRandomly();
+      dotInterval = setInterval(() => {
+        if (animationActive) moveDotRandomly();
+      }, 1300);
+    }
 
-  // Button action (placeholder for next page - index stays as is)
-  const shipyardBtn = document.getElementById('shipyardBtn');
-  if (shipyardBtn) {
-    shipyardBtn.addEventListener('click', () => {
-      // For now simple alert, later you can redirect to your projects page
-      alert('⚓ SHIPYARD: full project fleet will appear here on next page. Index remains clean.');
-      // future: window.location.href = "/projects";
+    // after some random moves, converge dot to center and show button
+    let convergeTimeout = null;
+    function scheduleConverge() {
+      convergeTimeout = setTimeout(() => {
+        if (!animationActive) return;
+        // converge dot to center
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        dot.style.transition = 'left 0.9s cubic-bezier(0.2, 0.8, 0.3, 1), top 0.9s cubic-bezier(0.2, 0.8, 0.3, 1)';
+        dot.style.left = centerX + 'px';
+        dot.style.top = centerY + 'px';
+        
+        // after dot reaches center, make it glow bigger & reveal button
+        setTimeout(() => {
+          if (!animationActive) return;
+          dot.style.width = '40px';
+          dot.style.height = '40px';
+          dot.style.boxShadow = '0 0 48px 16px rgba(255,255,210,0.9)';
+          dot.style.background = '#fffbe3';
+          // reveal button
+          introButton.style.opacity = '1';
+          introButton.style.transform = 'translate(-50%, -50%) scale(1)';
+          buttonRevealed = true;
+          // add infinite subtle glow to button
+          introButton.style.animation = 'softGlow 1.8s infinite';
+        }, 480);
+      }, 2800); // after 2.8 sec of random moves, converge
+    }
+
+    // inject keyframe for button glow
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `
+      @keyframes softGlow {
+        0% { box-shadow: 0 0 5px rgba(255,255,200,0.3); border-color: rgba(255,255,255,0.3);}
+        50% { box-shadow: 0 0 28px rgba(255,255,200,0.8); border-color: rgba(255,255,210,0.9);}
+        100% { box-shadow: 0 0 5px rgba(255,255,200,0.3); border-color: rgba(255,255,255,0.3);}
+      }
+    `;
+    document.head.appendChild(styleSheet);
+
+    // start experience
+    startRandomMovement();
+    scheduleConverge();
+
+    // ------------------------------
+    // 2. CLICK ON BUTTON → BLACK WIPE CIRCLE → REVEAL PAGE
+    // ------------------------------
+    let isTransitioning = false;
+
+    function startWipeAndReveal() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      // get button position (center)
+      const btnRect = introButton.getBoundingClientRect();
+      const centerX = btnRect.left + btnRect.width / 2;
+      const centerY = btnRect.top + btnRect.height / 2;
+      
+      // position the wipe circle at exact button center
+      wipeCircle.style.left = centerX + 'px';
+      wipeCircle.style.top = centerY + 'px';
+      wipeCircle.style.transform = 'translate(-50%, -50%)';
+      
+      // start wipe: expand to huge radius
+      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.8;
+      wipeCircle.style.width = maxSize + 'px';
+      wipeCircle.style.height = maxSize + 'px';
+      
+      // fade out overlay quickly
+      overlay.style.transition = 'opacity 0.35s ease';
+      overlay.style.opacity = '0';
+      
+      // after wipe covers screen, hide overlay and show main page
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        // make main page visible
+        mainPage.classList.add('visible');
+        // ensure wipe circle fades out
+        wipeCircle.style.transition = 'opacity 0.5s';
+        wipeCircle.style.opacity = '0';
+        setTimeout(() => {
+          wipeCircle.style.display = 'none';
+        }, 500);
+      }, 700);
+    }
+
+    introButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!buttonRevealed) return;
+      startWipeAndReveal();
     });
-  }
 
-  // Optional: refresh stats every 5 minutes, but no heavy load
-  setInterval(() => {
-    updateDashboard();
-  }, 300000);
+    // fallback: if somehow button not revealed but user clicks? prevent
+    // also stop random moves after click
+    introButton.addEventListener('click', () => {
+      if (animationActive) {
+        animationActive = false;
+        if (dotInterval) clearInterval(dotInterval);
+        if (convergeTimeout) clearTimeout(convergeTimeout);
+      }
+    });
+
+    // ------------------------------
+    // 3. FETCH GITHUB STATS (same as before)
+    // ------------------------------
+    const GITHUB_USER = "thagreatjoel";
+    const REPO_API = `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=50`;
+
+    async function fetchRepos() {
+      try {
+        const res = await fetch(REPO_API, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
+        if (!res.ok) throw new Error();
+        return await res.json();
+      } catch (err) {
+        return null;
+      }
+    }
+
+    async function updateStats() {
+      const repos = await fetchRepos();
+      if (!repos || !Array.isArray(repos)) {
+        document.getElementById('repoCount').innerText = '?';
+        document.getElementById('starTotal').innerText = '?';
+        document.getElementById('forkTotal').innerText = '?';
+        document.getElementById('activeReposBadge').innerText = '?';
+        document.getElementById('lastPush').innerText = 'unreachable';
+        return;
+      }
+      let totalStars = 0, totalForks = 0, activeCount = 0;
+      let lastUpdated = null;
+      const now = new Date();
+      for (let repo of repos) {
+        totalStars += repo.stargazers_count || 0;
+        totalForks += repo.forks_count || 0;
+        const upd = new Date(repo.updated_at);
+        if (!lastUpdated || upd > lastUpdated) lastUpdated = upd;
+        const daysDiff = (now - upd) / (1000 * 3600 * 24);
+        if (daysDiff < 90) activeCount++;
+      }
+      document.getElementById('repoCount').innerText = repos.length;
+      document.getElementById('starTotal').innerText = totalStars;
+      document.getElementById('forkTotal').innerText = totalForks;
+      document.getElementById('activeReposBadge').innerText = activeCount;
+      document.getElementById('lastPush').innerText = lastUpdated ? lastUpdated.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'unknown';
+    }
+    updateStats();
+    setInterval(updateStats, 300000);
+
+    // shipyard button on main page
+    const shipyardBtn = document.getElementById('shipyardBtn');
+    if (shipyardBtn) {
+      shipyardBtn.addEventListener('click', () => {
+        alert('⚓ SHIPYARD: full project fleet will be added in next version. Stay tuned.');
+      });
+    }
+  })();
 </script>
-
-<!-- ensure body never scrolls -->
-<style>
-  body, html {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-  }
-  .identity-core {
-    scrollbar-width: thin;
-  }
-</style>
 </body>
 </html>

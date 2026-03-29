@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>thagreatjoel · white star launch</title>
+  <title>thagreatjoel · star wipe</title>
   <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
   <meta name="theme-color" content="#000000">
   
@@ -20,117 +20,21 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #000000;
       font-family: 'Inter', sans-serif;
     }
 
-    /* canvas for comet & trail */
-    #cometCanvas {
+    /* MAIN PAGE (always present, behind overlay) */
+    .main-page {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 10001;
-    }
-
-    /* intro overlay (dark background) */
-    .intro-overlay {
-      position: fixed;
-      inset: 0;
-      background: #000000;
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.5s ease-out;
-      pointer-events: auto;
-    }
-
-    /* central button with heartbeat glow */
-    .intro-button {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.92);
-      background: rgba(15, 25, 35, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 245, 200, 0.6);
-      padding: 0.9rem 2.4rem;
-      border-radius: 60px;
-      font-family: 'Space Grotesk', monospace;
-      font-weight: 600;
-      font-size: 1rem;
-      letter-spacing: 0.12em;
-      color: #ffffff;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
-      z-index: 10002;
-      white-space: nowrap;
-      pointer-events: none;
-    }
-
-    .intro-button.revealed {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-      pointer-events: auto;
-      animation: heartbeat 1.4s ease-in-out infinite;
-    }
-
-    @keyframes heartbeat {
-      0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 0 0 0 rgba(255, 255, 200, 0.2); border-color: rgba(255, 255, 255, 0.6); }
-      30% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.3), 0 0 0 20px rgba(255, 255, 200, 0.15); border-color: rgba(255, 255, 255, 0.9); }
-      70% { box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2), 0 0 0 10px rgba(255, 255, 200, 0.1); border-color: rgba(255, 255, 255, 0.7); }
-      100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 0 0 rgba(255, 255, 200, 0); border-color: rgba(255, 255, 255, 0.6); }
-    }
-
-    .intro-button:hover {
-      transform: translate(-50%, -50%) scale(1.03);
-      background: rgba(25, 40, 55, 0.9);
-    }
-
-    /* circular wipe container - clean reveal, no black outside */
-    .wipe-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 10010;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .wipe-circle-mask {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0px;
-      height: 0px;
-      background: #f8fafd;  /* same as page background */
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: width, height;
-      overflow: hidden;
-    }
-    .wipe-inner {
-      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: #f8fafd;
       overflow-y: auto;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    .wipe-inner.visible {
-      opacity: 1;
+      z-index: 1;
     }
 
-    /* main page styling (classic white) */
     .index-bridge {
       max-width: 1300px;
       margin: 0 auto;
@@ -381,74 +285,134 @@
         height: 110px;
       }
     }
+
+    /* ---------- INTRO OVERLAY (BLACK, WILL BE WIPED) ---------- */
+    .intro-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      z-index: 100;
+      transition: none; /* clip-path handles reveal */
+      will-change: clip-path;
+    }
+
+    /* canvas for star & trail */
+    #cometCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 101;
+    }
+
+    /* central button */
+    .intro-button {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      background: rgba(15, 25, 35, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      padding: 0.9rem 2.4rem;
+      border-radius: 60px;
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      color: #ffffff;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+      z-index: 102;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .intro-button.revealed {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+      animation: heartbeat 1.4s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 0 0 0 rgba(255, 255, 200, 0.2); border-color: rgba(255, 255, 255, 0.6); }
+      30% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.3), 0 0 0 20px rgba(255, 255, 200, 0.15); border-color: rgba(255, 255, 255, 0.9); }
+      70% { box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2), 0 0 0 10px rgba(255, 255, 200, 0.1); border-color: rgba(255, 255, 255, 0.7); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 0 0 rgba(255, 255, 200, 0); border-color: rgba(255, 255, 255, 0.6); }
+    }
   </style>
 </head>
 <body>
 
-<div class="intro-overlay" id="introOverlay"></div>
-<canvas id="cometCanvas"></canvas>
-<button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
+<!-- MAIN PAGE (visible behind overlay) -->
+<div class="main-page">
+  <div class="index-bridge">
+    <div class="command-strip">
+      <div class="callsign">
+        <span>⛵</span> THAGREATJOEL · BRIDGE INDEX
+      </div>
+      <div class="live-badge" id="liveMeta">
+        <div class="metric-pill"><span id="repoCount">—</span> repos</div>
+        <div class="metric-pill"><span id="starTotal">—</span> stars</div>
+        <div class="metric-pill"><span id="forkTotal">—</span> forks</div>
+      </div>
+    </div>
 
-<div class="wipe-container" id="wipeContainer">
-  <div class="wipe-circle-mask" id="wipeCircleMask">
-    <div class="wipe-inner" id="wipeInner">
-      <div class="index-bridge">
-        <div class="command-strip">
-          <div class="callsign">
-            <span>⛵</span> THAGREATJOEL · BRIDGE INDEX
-          </div>
-          <div class="live-badge" id="liveMeta">
-            <div class="metric-pill"><span id="repoCount">—</span> repos</div>
-            <div class="metric-pill"><span id="starTotal">—</span> stars</div>
-            <div class="metric-pill"><span id="forkTotal">—</span> forks</div>
+    <div class="identity-core">
+      <div class="flagship-card">
+        <div class="greeting">✧ COMMANDER PROFILE ✧</div>
+        <h1 class="name-title">Joel <span class="highlight">Joju</span></h1>
+        <div class="tagline">building tools, bots & hardware — ship mindset</div>
+        <div class="bio-text">
+          17-year-old developer from Kerala, India. I architect APIs, automation engines, embedded systems and PCB designs. 
+          Focused on meaningful tech that actually ships.
+        </div>
+        <div class="ship-stats" id="dynamicShipStats">
+          <div class="stat-ship"><strong>⚡ active vessels</strong> <span id="activeReposBadge">—</span></div>
+          <div class="stat-ship"><strong>🛠️ main stack</strong> JS/TS · Python · KiCad</div>
+          <div class="stat-ship"><strong>🌊 latest update</strong> <span id="lastPush">—</span></div>
+        </div>
+        <div class="action-row" style="display: flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+          <button class="btn-launch" id="shipyardBtn">
+            <span>⟶</span> ENTER SHIPYARD
+          </button>
+          <div class="status-light">
+            <div class="pulse"></div> <span>fleet active</span>
           </div>
         </div>
+      </div>
 
-        <div class="identity-core">
-          <div class="flagship-card">
-            <div class="greeting">✧ COMMANDER PROFILE ✧</div>
-            <h1 class="name-title">Joel <span class="highlight">Joju</span></h1>
-            <div class="tagline">building tools, bots & hardware — ship mindset</div>
-            <div class="bio-text">
-              17-year-old developer from Kerala, India. I architect APIs, automation engines, embedded systems and PCB designs. 
-              Focused on meaningful tech that actually ships.
-            </div>
-            <div class="ship-stats" id="dynamicShipStats">
-              <div class="stat-ship"><strong>⚡ active vessels</strong> <span id="activeReposBadge">—</span></div>
-              <div class="stat-ship"><strong>🛠️ main stack</strong> JS/TS · Python · KiCad</div>
-              <div class="stat-ship"><strong>🌊 latest update</strong> <span id="lastPush">—</span></div>
-            </div>
-            <div class="action-row" style="display: flex; gap:1rem; align-items:center; flex-wrap:wrap;">
-              <button class="btn-launch" id="shipyardBtn">
-                <span>⟶</span> ENTER SHIPYARD
-              </button>
-              <div class="status-light">
-                <div class="pulse"></div> <span>fleet active</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="profile-manifesto">
-            <div class="pfp-card">
-              <img class="pfp-img" src="https://avatars.githubusercontent.com/u/124015127?v=4" alt="Joel Joju profile picture">
-              <div style="font-family: monospace; font-size:0.7rem; color:#2c5f8a;">@thagreatjoel · github</div>
-            </div>
-            <div class="manifesto-card">
-              <div class="manifesto-title">⚓ SHIP MANIFESTO</div>
-              <ul class="manifesto-list">
-                <li>#buildinpublic</li><li>API first</li><li>automation obsessed</li>
-                <li>open hardware</li><li>clean code</li><li>ship > perfect</li>
-              </ul>
-              <div style="margin-top: 1rem; font-size: 0.7rem; color:#6c86a3; font-family: monospace;">
-                github.com/thagreatjoel · live from kerala
-              </div>
-            </div>
+      <div class="profile-manifesto">
+        <div class="pfp-card">
+          <img class="pfp-img" src="https://avatars.githubusercontent.com/u/124015127?v=4" alt="Joel Joju profile picture">
+          <div style="font-family: monospace; font-size:0.7rem; color:#2c5f8a;">@thagreatjoel · github</div>
+        </div>
+        <div class="manifesto-card">
+          <div class="manifesto-title">⚓ SHIP MANIFESTO</div>
+          <ul class="manifesto-list">
+            <li>#buildinpublic</li><li>API first</li><li>automation obsessed</li>
+            <li>open hardware</li><li>clean code</li><li>ship > perfect</li>
+          </ul>
+          <div style="margin-top: 1rem; font-size: 0.7rem; color:#6c86a3; font-family: monospace;">
+            github.com/thagreatjoel · live from kerala
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- INTRO OVERLAY (black) with star & button -->
+<div class="intro-overlay" id="introOverlay"></div>
+<canvas id="cometCanvas"></canvas>
+<button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
 
 <script>
   (function() {
@@ -470,9 +434,10 @@
     
     function getPosition(t) {
       if (t >= 1) return { x: centerX, y: centerY };
-      // angle: fast then slow: 18 pi * (1 - (1-t)^1.5) gives rapid spin then gentle
-      const angle = 18 * Math.PI * (1 - Math.pow(1 - t, 1.5));
-      const radius = maxRadius * (1 - t);
+      // smooth spiral: angle eases from fast to slow using cubic bezier-like
+      // use custom easing for angle: fast start, slow end
+      const angle = 16 * Math.PI * (1 - Math.pow(1 - t, 1.55));
+      const radius = maxRadius * (1 - Math.pow(t, 1.2)); // gentle radius shrink
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
       return { x, y };
@@ -485,26 +450,24 @@
       canvas.height = height;
     }
     
-    // draw a smooth white glowing star (no spikes, soft radiance)
+    // draw smooth white star (soft radiance)
     function drawSmoothStar(x, y, size, intensity) {
       ctx.save();
-      ctx.shadowBlur = 22;
-      ctx.shadowColor = '#ffffffcc';
-      // main bright core - pure white gradient
+      ctx.shadowBlur = 24;
+      ctx.shadowColor = '#ffffffdd';
       const gradient = ctx.createRadialGradient(x, y, 2, x, y, size);
       gradient.addColorStop(0, `rgba(255, 255, 255, ${intensity})`);
-      gradient.addColorStop(0.5, `rgba(255, 255, 240, ${intensity * 0.8})`);
+      gradient.addColorStop(0.6, `rgba(255, 255, 240, ${intensity * 0.7})`);
       gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
       ctx.fillStyle = gradient;
       ctx.beginPath();
       ctx.arc(x, y, size, 0, Math.PI * 2);
       ctx.fill();
       
-      // extra outer glow
-      ctx.shadowBlur = 28;
+      ctx.shadowBlur = 32;
       ctx.beginPath();
-      ctx.arc(x, y, size * 0.8, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${intensity * 0.4})`;
+      ctx.arc(x, y, size * 0.7, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${intensity * 0.5})`;
       ctx.fill();
       ctx.restore();
     }
@@ -517,7 +480,6 @@
       const pos = getPosition(t);
       cometPos = pos;
       
-      // store trail positions
       trailPositions.unshift({ x: pos.x, y: pos.y, life: 1.0 });
       if (trailPositions.length > TRAIL_LENGTH) trailPositions.pop();
       
@@ -541,7 +503,6 @@
         ctx.arc(p.x, p.y, size * 0.7, 0, Math.PI * 2);
         ctx.fill();
         
-        // connecting line for snake effect
         if (i < trailPositions.length - 1) {
           const next = trailPositions[i+1];
           ctx.beginPath();
@@ -553,7 +514,6 @@
         }
       }
       
-      // main star: white, smooth, radiant
       const intensity = 0.95 + Math.sin(Date.now() * 0.012) * 0.1;
       drawSmoothStar(cometPos.x, cometPos.y, 13, intensity);
       
@@ -565,7 +525,7 @@
         setTimeout(() => {
           canvas.style.display = 'none';
         }, 500);
-        // reveal button with heartbeat glow
+        // reveal button with heartbeat
         const introBtn = document.getElementById('introBtn');
         introBtn.classList.add('revealed');
         return;
@@ -586,60 +546,41 @@
     
     window.addEventListener('resize', () => {
       updateCanvasSize();
-      // optional: reposition if needed but not critical
     });
     
-    // ---------- WIPE CIRCLE REVEAL (CLEAN, NO BLACK SCREEN) ----------
+    // ---------- WIPE ANIMATION: ONLY THE BLACK OVERLAY (CIRCLE CLIP-PATH) ----------
     const introOverlay = document.getElementById('introOverlay');
     const introBtn = document.getElementById('introBtn');
-    const wipeMask = document.getElementById('wipeCircleMask');
-    const wipeInner = document.getElementById('wipeInner');
-    let wipeTransitioning = false;
     
-    function startWipeReveal() {
-      if (wipeTransitioning) return;
-      wipeTransitioning = true;
-      
+    function startWipe() {
+      // get button center
       const btnRect = introBtn.getBoundingClientRect();
-      const btnCenterX = btnRect.left + btnRect.width / 2;
-      const btnCenterY = btnRect.top + btnRect.height / 2;
+      const centerXBtn = btnRect.left + btnRect.width / 2;
+      const centerYBtn = btnRect.top + btnRect.height / 2;
       
-      // position the wipe mask at button center
-      wipeMask.style.left = btnCenterX + 'px';
-      wipeMask.style.top = btnCenterY + 'px';
-      wipeMask.style.transform = 'translate(-50%, -50%)';
+      // set clip-path origin to button center
+      introOverlay.style.clipPath = `circle(0% at ${centerXBtn}px ${centerYBtn}px)`;
+      introOverlay.style.transition = 'clip-path 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
       
-      // expand to full screen
-      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.8;
-      wipeMask.style.width = maxSize + 'px';
-      wipeMask.style.height = maxSize + 'px';
+      // force reflow
+      void introOverlay.offsetHeight;
       
-      // fade out intro overlay and hide canvas/button
-      introOverlay.style.transition = 'opacity 0.4s ease';
-      introOverlay.style.opacity = '0';
+      // expand circle to cover entire screen
+      const maxRadius = Math.hypot(window.innerWidth, window.innerHeight) * 1.5;
+      introOverlay.style.clipPath = `circle(${maxRadius}px at ${centerXBtn}px ${centerYBtn}px)`;
       
+      // after animation, hide overlay and button
       setTimeout(() => {
         introOverlay.style.display = 'none';
         introBtn.style.display = 'none';
-        // ensure canvas is hidden
+        // also hide canvas if not already hidden
         if (canvas) canvas.style.display = 'none';
-      }, 400);
-      
-      // reveal inner content after wipe starts
-      setTimeout(() => {
-        wipeInner.classList.add('visible');
-      }, 200);
-      
-      // after full expansion, no need to hide mask (it becomes the page background)
-      setTimeout(() => {
-        // ensure the mask's background matches the page and remains visible
-        wipeMask.style.transition = 'none';
       }, 1300);
     }
     
     introBtn.addEventListener('click', () => {
       if (introBtn.classList.contains('revealed')) {
-        startWipeReveal();
+        startWipe();
       }
     });
     

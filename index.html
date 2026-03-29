@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-  <title>thagreatjoel · star wipe</title>
+  <title>thagreatjoel · black hole launch</title>
   <meta name="description" content="Joel Joju — builder, creator, ship engineer. enter the fleet.">
   <meta name="theme-color" content="#000000">
   
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- premium fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     * {
@@ -20,21 +21,139 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+      background: #000000;
       font-family: 'Inter', sans-serif;
     }
 
-    /* MAIN PAGE (always present, behind overlay) */
-    .main-page {
+    /* ----- INTRO OVERLAY (pitch black) ----- */
+    .intro-overlay {
       position: fixed;
+      inset: 0;
+      background: #000000;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease-out;
+      pointer-events: auto;
+    }
+
+    /* shooting star container */
+    .star-container {
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: #f8fafd;
-      overflow-y: auto;
-      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
     }
 
+    /* the elegant shooting star */
+    .shooting-star {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      background: radial-gradient(circle, #ffffff, #fff5e0);
+      border-radius: 50%;
+      box-shadow: 0 0 18px 4px rgba(255, 245, 200, 0.95);
+      opacity: 0;
+      filter: blur(0.6px);
+      transition: none;
+    }
+
+    /* star trail (graceful) */
+    .star-trail {
+      position: absolute;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255, 245, 210, 0.9), rgba(255, 220, 150, 0.3), transparent);
+      border-radius: 4px;
+      filter: blur(2px);
+      opacity: 0;
+    }
+
+    /* central button (appears after star lands) */
+    .intro-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      background: rgba(10, 18, 28, 0.7);
+      backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(255, 245, 200, 0.65);
+      padding: 0.9rem 2.4rem;
+      border-radius: 80px;
+      font-family: 'Space Grotesk', monospace;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      color: #fffef7;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2), box-shadow 0.2s;
+      z-index: 10002;
+      white-space: nowrap;
+      box-shadow: 0 0 16px rgba(255, 235, 160, 0.4);
+      pointer-events: none;
+    }
+
+    .intro-button.revealed {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+
+    .intro-button:hover {
+      transform: translate(-50%, -50%) scale(1.03);
+      background: rgba(20, 35, 55, 0.85);
+      border-color: rgba(255, 245, 180, 0.9);
+      box-shadow: 0 0 32px rgba(255, 235, 140, 0.7);
+    }
+
+    /* BLACK HOLE WIPE (expands from button center) */
+    .black-hole {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 0px;
+      height: 0px;
+      background: #000000;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10010;
+      pointer-events: none;
+      transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1), height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: width, height;
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    }
+
+    /* ---------- MAIN PAGE (clean index, appears after hole) ---------- */
+    .main-page {
+      width: 100%;
+      height: 100%;
+      background: #f8fafd;
+      overflow-y: auto;
+      overflow-x: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s linear;
+    }
+
+    .main-page.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .main-page::-webkit-scrollbar {
+      width: 5px;
+      background: #eef2f8;
+    }
+    .main-page::-webkit-scrollbar-thumb {
+      background: #b9cfdf;
+      border-radius: 10px;
+    }
+
+    /* index bridge layout (fully responsive) */
     .index-bridge {
       max-width: 1300px;
       margin: 0 auto;
@@ -284,75 +403,30 @@
         width: 110px;
         height: 110px;
       }
-    }
-
-    /* ---------- INTRO OVERLAY (BLACK, WILL BE WIPED) ---------- */
-    .intro-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000000;
-      z-index: 100;
-      transition: none; /* clip-path handles reveal */
-      will-change: clip-path;
-    }
-
-    /* canvas for star & trail */
-    #cometCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 101;
-    }
-
-    /* central button */
-    .intro-button {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.92);
-      background: rgba(15, 25, 35, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      padding: 0.9rem 2.4rem;
-      border-radius: 60px;
-      font-family: 'Space Grotesk', monospace;
-      font-weight: 600;
-      font-size: 1rem;
-      letter-spacing: 0.12em;
-      color: #ffffff;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.4s ease, transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
-      z-index: 102;
-      white-space: nowrap;
-      pointer-events: none;
-    }
-
-    .intro-button.revealed {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-      pointer-events: auto;
-      animation: heartbeat 1.4s ease-in-out infinite;
-    }
-
-    @keyframes heartbeat {
-      0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4), 0 0 0 0 rgba(255, 255, 200, 0.2); border-color: rgba(255, 255, 255, 0.6); }
-      30% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.3), 0 0 0 20px rgba(255, 255, 200, 0.15); border-color: rgba(255, 255, 255, 0.9); }
-      70% { box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.2), 0 0 0 10px rgba(255, 255, 200, 0.1); border-color: rgba(255, 255, 255, 0.7); }
-      100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0), 0 0 0 0 rgba(255, 255, 200, 0); border-color: rgba(255, 255, 255, 0.6); }
+      .intro-button {
+        font-size: 0.8rem;
+        padding: 0.7rem 1.6rem;
+        white-space: nowrap;
+      }
     }
   </style>
 </head>
 <body>
 
-<!-- MAIN PAGE (visible behind overlay) -->
-<div class="main-page">
+<!-- INTRO OVERLAY (pitch black) -->
+<div class="intro-overlay" id="introOverlay">
+  <div class="star-container" id="starContainer">
+    <div class="shooting-star" id="shootingStar"></div>
+    <div class="star-trail" id="starTrail"></div>
+  </div>
+  <button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
+</div>
+
+<!-- BLACK HOLE WIPE (expands from button center) -->
+<div id="blackHole" class="black-hole"></div>
+
+<!-- MAIN PAGE (index content) -->
+<div class="main-page" id="mainPage">
   <div class="index-bridge">
     <div class="command-strip">
       <div class="callsign">
@@ -409,182 +483,141 @@
   </div>
 </div>
 
-<!-- INTRO OVERLAY (black) with star & button -->
-<div class="intro-overlay" id="introOverlay"></div>
-<canvas id="cometCanvas"></canvas>
-<button class="intro-button" id="introBtn">✦ ENTER FLEET ✦</button>
-
 <script>
   (function() {
-    // ---------- SMOOTH WHITE GLOWING STAR WITH SNAKE TRAIL (SPIRAL: FAST THEN SLOW) ----------
-    const canvas = document.getElementById('cometCanvas');
-    const ctx = canvas.getContext('2d');
-    let width, height;
-    let animationId = null;
-    let startTimestamp = null;
-    const duration = 3800; // 3.8 sec: quick spin then slow settle
-    let isAnimating = true;
-    let cometPos = { x: 0, y: 0 };
-    let trailPositions = [];
-    const TRAIL_LENGTH = 34;
+    // ------------------------------
+    // SHOOTING STAR (smooth arc → center)
+    // ------------------------------
+    const overlay = document.getElementById('introOverlay');
+    const star = document.getElementById('shootingStar');
+    const trail = document.getElementById('starTrail');
+    const introButton = document.getElementById('introBtn');
+    const blackHole = document.getElementById('blackHole');
+    const mainPage = document.getElementById('mainPage');
     
-    const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.42;
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
+    const viewW = window.innerWidth;
+    const viewH = window.innerHeight;
     
-    function getPosition(t) {
-      if (t >= 1) return { x: centerX, y: centerY };
-      // smooth spiral: angle eases from fast to slow using cubic bezier-like
-      // use custom easing for angle: fast start, slow end
-      const angle = 16 * Math.PI * (1 - Math.pow(1 - t, 1.55));
-      const radius = maxRadius * (1 - Math.pow(t, 1.2)); // gentle radius shrink
-      const x = centerX + Math.cos(angle) * radius;
-      const y = centerY + Math.sin(angle) * radius;
-      return { x, y };
+    // start from top-left corner (off-screen elegance)
+    const startX = -60;
+    const startY = -50;
+    const endX = viewW / 2;
+    const endY = viewH / 2;
+    
+    star.style.left = startX + 'px';
+    star.style.top = startY + 'px';
+    star.style.opacity = '1';
+    trail.style.opacity = '0';
+    
+    let startTime = null;
+    const duration = 2500; // 2.5 seconds graceful flight
+    
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
     }
     
-    function updateCanvasSize() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    }
-    
-    // draw smooth white star (soft radiance)
-    function drawSmoothStar(x, y, size, intensity) {
-      ctx.save();
-      ctx.shadowBlur = 24;
-      ctx.shadowColor = '#ffffffdd';
-      const gradient = ctx.createRadialGradient(x, y, 2, x, y, size);
-      gradient.addColorStop(0, `rgba(255, 255, 255, ${intensity})`);
-      gradient.addColorStop(0.6, `rgba(255, 255, 240, ${intensity * 0.7})`);
-      gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fill();
+    function animateStar(timestamp) {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      let progress = Math.min(1, elapsed / duration);
+      const eased = easeOutCubic(progress);
       
-      ctx.shadowBlur = 32;
-      ctx.beginPath();
-      ctx.arc(x, y, size * 0.7, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${intensity * 0.5})`;
-      ctx.fill();
-      ctx.restore();
-    }
-    
-    function drawCometAndTrail(now) {
-      if (!isAnimating) return;
-      if (!startTimestamp) startTimestamp = now;
-      const elapsed = now - startTimestamp;
-      let t = Math.min(1, elapsed / duration);
-      const pos = getPosition(t);
-      cometPos = pos;
+      // parabolic arc for shooting star effect
+      const currentX = startX + (endX - startX) * eased;
+      const arcY = Math.sin(progress * Math.PI) * 80;
+      const currentY = startY + (endY - startY) * eased - arcY * (1 - progress);
       
-      trailPositions.unshift({ x: pos.x, y: pos.y, life: 1.0 });
-      if (trailPositions.length > TRAIL_LENGTH) trailPositions.pop();
+      star.style.left = currentX + 'px';
+      star.style.top = currentY + 'px';
       
-      for (let i = 0; i < trailPositions.length; i++) {
-        trailPositions[i].life = 1.0 - (i / TRAIL_LENGTH) * 0.92;
+      // dynamic trail
+      if (progress > 0.08) {
+        trail.style.opacity = '0.85';
+        trail.style.left = (currentX - 34) + 'px';
+        trail.style.top = (currentY - 2) + 'px';
+        trail.style.width = Math.min(100, 45 + progress * 70) + 'px';
       }
       
-      ctx.clearRect(0, 0, width, height);
+      // glow pulse
+      const intensity = 0.7 + Math.sin(progress * Math.PI * 5) * 0.3;
+      star.style.boxShadow = `0 0 ${14 + intensity * 14}px 5px rgba(255,240,180,0.95)`;
       
-      // draw snake trail (fading white/gold streaks)
-      for (let i = 0; i < trailPositions.length; i++) {
-        const p = trailPositions[i];
-        const alpha = p.life * 0.7;
-        const size = 7 * (1 - i / TRAIL_LENGTH) + 2;
-        const grad = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, size);
-        grad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
-        grad.addColorStop(0.7, `rgba(255, 240, 180, ${alpha * 0.6})`);
-        grad.addColorStop(1, `rgba(255, 200, 100, 0)`);
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, size * 0.7, 0, Math.PI * 2);
-        ctx.fill();
+      if (progress < 1) {
+        requestAnimationFrame(animateStar);
+      } else {
+        // star reaches center → fade star & reveal button
+        star.style.transition = 'opacity 0.4s ease';
+        star.style.opacity = '0';
+        trail.style.transition = 'opacity 0.4s';
+        trail.style.opacity = '0';
         
-        if (i < trailPositions.length - 1) {
-          const next = trailPositions[i+1];
-          ctx.beginPath();
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(next.x, next.y);
-          ctx.strokeStyle = `rgba(255, 255, 220, ${alpha * 0.9})`;
-          ctx.lineWidth = 3;
-          ctx.stroke();
-        }
-      }
-      
-      const intensity = 0.95 + Math.sin(Date.now() * 0.012) * 0.1;
-      drawSmoothStar(cometPos.x, cometPos.y, 13, intensity);
-      
-      if (t >= 1) {
-        isAnimating = false;
-        if (animationId) cancelAnimationFrame(animationId);
-        canvas.style.transition = 'opacity 0.5s ease';
-        canvas.style.opacity = '0';
         setTimeout(() => {
-          canvas.style.display = 'none';
-        }, 500);
-        // reveal button with heartbeat
-        const introBtn = document.getElementById('introBtn');
-        introBtn.classList.add('revealed');
-        return;
+          introButton.classList.add('revealed');
+          if (star.parentNode) star.style.display = 'none';
+          if (trail.parentNode) trail.style.display = 'none';
+        }, 350);
       }
-      
-      animationId = requestAnimationFrame(drawCometAndTrail);
     }
     
-    function startComet() {
-      updateCanvasSize();
-      trailPositions = [];
-      startTimestamp = null;
-      isAnimating = true;
-      canvas.style.display = 'block';
-      canvas.style.opacity = '1';
-      animationId = requestAnimationFrame(drawCometAndTrail);
-    }
+    setTimeout(() => {
+      requestAnimationFrame(animateStar);
+    }, 120);
     
-    window.addEventListener('resize', () => {
-      updateCanvasSize();
-    });
+    // ------------------------------
+    // BUTTON CLICK → FADE BUTTON + BLACK HOLE WIPE
+    // ------------------------------
+    let isTransitioning = false;
     
-    // ---------- WIPE ANIMATION: ONLY THE BLACK OVERLAY (CIRCLE CLIP-PATH) ----------
-    const introOverlay = document.getElementById('introOverlay');
-    const introBtn = document.getElementById('introBtn');
-    
-    function startWipe() {
-      // get button center
-      const btnRect = introBtn.getBoundingClientRect();
-      const centerXBtn = btnRect.left + btnRect.width / 2;
-      const centerYBtn = btnRect.top + btnRect.height / 2;
+    function startBlackHoleWipe() {
+      if (isTransitioning) return;
+      isTransitioning = true;
       
-      // set clip-path origin to button center
-      introOverlay.style.clipPath = `circle(0% at ${centerXBtn}px ${centerYBtn}px)`;
-      introOverlay.style.transition = 'clip-path 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
+      // get exact button center
+      const btnRect = introButton.getBoundingClientRect();
+      const centerX = btnRect.left + btnRect.width / 2;
+      const centerY = btnRect.top + btnRect.height / 2;
       
-      // force reflow
-      void introOverlay.offsetHeight;
+      // position black hole at button center
+      blackHole.style.left = centerX + 'px';
+      blackHole.style.top = centerY + 'px';
+      blackHole.style.transform = 'translate(-50%, -50%)';
       
-      // expand circle to cover entire screen
-      const maxRadius = Math.hypot(window.innerWidth, window.innerHeight) * 1.5;
-      introOverlay.style.clipPath = `circle(${maxRadius}px at ${centerXBtn}px ${centerYBtn}px)`;
+      // FADE OUT BUTTON (smoothly)
+      introButton.style.transition = 'opacity 0.3s ease-out';
+      introButton.style.opacity = '0';
+      introButton.style.pointerEvents = 'none';
       
-      // after animation, hide overlay and button
+      // Expand black hole to cover whole screen
+      const maxSize = Math.max(window.innerWidth, window.innerHeight) * 1.8;
+      blackHole.style.width = maxSize + 'px';
+      blackHole.style.height = maxSize + 'px';
+      
+      // Fade out overlay (black background) simultaneously
+      overlay.style.transition = 'opacity 0.5s ease';
+      overlay.style.opacity = '0';
+      
+      // After hole covers everything, hide overlay and reveal main page
       setTimeout(() => {
-        introOverlay.style.display = 'none';
-        introBtn.style.display = 'none';
-        // also hide canvas if not already hidden
-        if (canvas) canvas.style.display = 'none';
-      }, 1300);
+        overlay.style.display = 'none';
+        mainPage.classList.add('visible');
+        // fade out black hole gently
+        blackHole.style.transition = 'opacity 0.5s ease';
+        blackHole.style.opacity = '0';
+        setTimeout(() => {
+          blackHole.style.display = 'none';
+        }, 500);
+      }, 750);
     }
     
-    introBtn.addEventListener('click', () => {
-      if (introBtn.classList.contains('revealed')) {
-        startWipe();
+    introButton.addEventListener('click', (e) => {
+      if (introButton.classList.contains('revealed')) {
+        startBlackHoleWipe();
       }
     });
     
-    // ---------- GITHUB STATS (LIVE) ----------
+    // ------------------------------
+    // GITHUB STATS FETCH (live data)
+    // ------------------------------
     const GITHUB_USER = "thagreatjoel";
     const REPO_API = `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=50`;
     
@@ -634,8 +667,6 @@
         alert('⚓ SHIPYARD: full project fleet will be added in next version. Stay tuned.');
       });
     }
-    
-    startComet();
   })();
 </script>
 </body>

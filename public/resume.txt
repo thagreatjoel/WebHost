@@ -1,0 +1,20 @@
+Joel Joju
+Embedded Systems • UAV Development • PCB Design • IoT
+
+Skills:
+ESP32, STM32, Arduino, Embedded Systems, IoT, PCB Design, EasyEDA, UART, I2C, SPI, Git, GitHub, 3D Modeling, 3D Printing, Soldering
+
+Experience:
+- Hardware Project Contributor, Hack Club
+- 3D Modeling Contributor, Hack Club
+- PCB Design Contributor, Hack Club
+
+Projects:
+- VTOL UAV Development
+- RGB LED Matrix
+- Custom PCB Projects
+- Embedded Systems Projects
+
+Contact:
+Email: joeljonah06@gmail.com
+GitHub: https://github.com/ThaGreatJoel

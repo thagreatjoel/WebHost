@@ -5,6 +5,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [flash, setFlash] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
+  const [shake, setShake] = useState(false);
 
   useEffect(() => {
     const preventZoom = (e) => {
@@ -33,15 +34,20 @@ export default function Home() {
         else window.addEventListener('load', resolve);
       });
 
-      // ─── FLASH (200ms total) ───
+      // ─── FLASH ───
       setTimeout(() => {
         setFlash(true);
-        // Keep flash visible for 200ms, then hide
         setTimeout(() => {
           setFlash(false);
           setShowGrid(true);
-        }, 200);
+        }, 250);
       }, 500);
+
+      // ─── SHAKE: starts at 800ms (exactly when zoom begins) ───
+      setTimeout(() => {
+        setShake(true);
+        setTimeout(() => setShake(false), 400);
+      }, 900);
 
       const start = Date.now();
       const elapsed = Date.now() - start;
@@ -93,9 +99,11 @@ export default function Home() {
       {/* ─── LOADING SCREEN ─── */}
       <div className={`loading-overlay ${!isLoading ? 'fade-out' : ''}`}>
         <div className="loading-content">
-          <div className={`welcome-grid ${showGrid ? 'visible' : ''}`} />
-          <h1 className="loading-title">Welcome</h1>
-          <div className={`flash-overlay ${flash ? 'active' : ''}`} />
+          <div className={`shake-wrapper ${shake ? 'shake' : ''}`}>
+            <div className={`welcome-grid ${showGrid ? 'visible' : ''}`} />
+            <h1 className="loading-title">Welcome</h1>
+            <div className={`flash-overlay ${flash ? 'active' : ''}`} />
+          </div>
         </div>
       </div>
 
@@ -162,12 +170,11 @@ export default function Home() {
 
         .loading-content {
           position: relative;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
           width: 100%;
           height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           animation: floatScreen 6s ease-in-out infinite;
         }
 
@@ -184,6 +191,41 @@ export default function Home() {
           }
           75% {
             transform: translate(2px, -4px) rotate(0.08deg);
+          }
+        }
+
+        .shake-wrapper {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .shake-wrapper.shake {
+          animation: screenShake 0.4s ease-out forwards;
+        }
+
+        @keyframes screenShake {
+          0% {
+            transform: translate(0, 0) rotate(0deg);
+          }
+          20% {
+            transform: translate(-8px, 5px) rotate(-0.4deg);
+          }
+          40% {
+            transform: translate(6px, -4px) rotate(0.3deg);
+          }
+          60% {
+            transform: translate(-4px, 3px) rotate(-0.2deg);
+          }
+          80% {
+            transform: translate(2px, -1px) rotate(0.1deg);
+          }
+          100% {
+            transform: translate(0, 0) rotate(0deg);
           }
         }
 
@@ -218,7 +260,7 @@ export default function Home() {
           opacity: 1;
         }
 
-        /* ─── FLASH (200ms) ─── */
+        /* ─── FLASH with fade-out ─── */
         .flash-overlay {
           position: fixed;
           inset: 0;
@@ -226,29 +268,12 @@ export default function Home() {
           z-index: 10000;
           pointer-events: none;
           opacity: 0;
+          transition: opacity 0.2s ease-out;
         }
 
         .flash-overlay.active {
-          animation: flashSnap 0.2s ease-out forwards;
-        }
-
-        @keyframes flashSnap {
-          0% {
-            opacity: 1;
-            transform: scale(0.98);
-          }
-          30% {
-            opacity: 1;
-            transform: scale(1.02);
-          }
-          70% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          100% {
-            opacity: 0;
-            transform: scale(1);
-          }
+          opacity: 1;
+          transition: none;
         }
 
         /* ─── "Welcome" – BIG, 0° → 3° tilt ─── */
@@ -268,7 +293,7 @@ export default function Home() {
           transform-origin: center center;
 
           animation: linearFastZoom 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          animation-delay: 0.7s; /* starts after flash ends (500+200=700ms) */
+          animation-delay: 0.8s;
         }
 
         @keyframes linearFastZoom {

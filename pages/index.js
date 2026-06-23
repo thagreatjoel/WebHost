@@ -82,7 +82,7 @@ export default function Home() {
       chars.forEach((el, index) => {
         if (!el || el.textContent === '\u00A0' || el.textContent === ' ') return;
 
-        const delay = index * 100; // 100ms per character (smoother)
+        const delay = index * 100;
 
         setTimeout(() => {
           if (el) {
@@ -91,7 +91,6 @@ export default function Home() {
           }
         }, delay);
 
-        // Reset after a short hold
         setTimeout(() => {
           if (el) {
             el.style.transition = 'transform 0.25s ease-out';
@@ -102,7 +101,6 @@ export default function Home() {
     };
 
     const interval = setInterval(wave, 5000);
-    // Run once immediately after the page loads
     setTimeout(wave, 100);
 
     return () => clearInterval(interval);
@@ -167,7 +165,6 @@ export default function Home() {
       setTimeout(() => {
         setShowBlackOverlay(false);
         setShowContent(true);
-        // Enable bulge after all slide-up animations complete
         setTimeout(() => {
           charRefs.current.forEach((el) => {
             if (el) {
@@ -200,11 +197,7 @@ export default function Home() {
     ctx.scale(dpr, dpr);
 
     const particles = [];
-    const colors = [
-      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
-      '#FFEAA7', '#DDA0DD', '#FF8A5C', '#A29BFE',
-      '#FD79A8', '#00CEC9',
-    ];
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FF8A5C', '#A29BFE', '#FD79A8', '#00CEC9'];
 
     for (let i = 0; i < 250; i++) {
       const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.8;
@@ -267,9 +260,7 @@ export default function Home() {
     };
 
     render();
-    return () => {
-      if (animId) cancelAnimationFrame(animId);
-    };
+    return () => { if (animId) cancelAnimationFrame(animId); };
   }, [pop]);
 
   // ─── Disable zoom ───
@@ -296,7 +287,7 @@ export default function Home() {
     };
   }, []);
 
-  const nameChars = 'JOEL JOJU'.split('');
+  const nameChars = "JOEL JOJU".split("");
 
   return (
     <>
@@ -326,6 +317,27 @@ export default function Home() {
             font-style: normal;
             font-display: swap;
           }
+
+          /* ─── FORCE CROSSHAIR EVERYWHERE ─── */
+          * {
+            cursor: crosshair !important;
+          }
+
+          /* ─── DISABLE TEXT SELECTION ─── */
+          * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+          }
+
+          /* ─── DISABLE IMAGE DRAGGING ─── */
+          img {
+            -webkit-user-drag: none;
+            user-drag: none;
+            -khtml-user-drag: none;
+            pointer-events: none;
+          }
         `}</style>
       </Head>
 
@@ -342,13 +354,19 @@ export default function Home() {
                 <img
                   src="/logo.png"
                   alt="Logo"
+                  draggable={false}
                   className={`loading-image ${audioStarted ? 'animate' : ''}`}
                 />
               </div>
               <canvas ref={canvasRef} className="confetti-canvas" />
               {!audioStarted && audioLoaded && (
                 <div className="prompt-center">
-                  <img src="/pfp.jpg" alt="Profile" className="pfp-image" />
+                  <img
+                    src="/pfp.jpg"
+                    alt="Profile"
+                    draggable={false}
+                    className="pfp-image"
+                  />
                   <p className="prompt-text">Click anywhere to begin</p>
                 </div>
               )}
@@ -374,26 +392,16 @@ export default function Home() {
                 ref={(el) => (charRefs.current[idx] = el)}
                 style={{ animationDelay: `${0.1 + idx * 0.08}s` }}
               >
-                {char === ' ' ? '\u00A0' : char}
+                {char === " " ? "\u00A0" : char}
               </span>
             ))}
           </h1>
           <p>
-            <span className="word" style={{ animationDelay: '1.2s' }}>
-              Hardware
-            </span>
-            <span className="word" style={{ animationDelay: '1.4s' }}>
-              •
-            </span>
-            <span className="word" style={{ animationDelay: '1.6s' }}>
-              Systems
-            </span>
-            <span className="word" style={{ animationDelay: '1.8s' }}>
-              •
-            </span>
-            <span className="word" style={{ animationDelay: '2.0s' }}>
-              UAV
-            </span>
+            <span className="word" style={{ animationDelay: '1.2s' }}>Hardware</span>
+            <span className="word" style={{ animationDelay: '1.4s' }}>•</span>
+            <span className="word" style={{ animationDelay: '1.6s' }}>Systems</span>
+            <span className="word" style={{ animationDelay: '1.8s' }}>•</span>
+            <span className="word" style={{ animationDelay: '2.0s' }}>UAV</span>
           </p>
         </section>
       </main>
@@ -410,13 +418,12 @@ export default function Home() {
         }
 
         body {
-          background: #0f0f0f;
+          background: #0F0F0F;
           color: #fff;
           font-family: 'Aeonik', 'General Sans', Inter, 'Segoe UI', sans-serif;
           overflow: hidden;
           height: 100vh;
           width: 100vw;
-          cursor: crosshair;
         }
 
         .loading-overlay {
@@ -424,7 +431,7 @@ export default function Home() {
           inset: 0;
           display: grid;
           place-items: center;
-          background: #0f0f0f;
+          background: #0F0F0F;
           z-index: 9999;
           transition: opacity 0.8s ease;
           cursor: pointer;
@@ -443,19 +450,12 @@ export default function Home() {
           will-change: transform;
         }
         .camera-scene.zooming {
-          animation: cameraZoom ${TIMINGS.ZOOM_DURATION}ms
-            cubic-bezier(0.1, 0.9, 1.2, 1) forwards;
+          animation: cameraZoom ${TIMINGS.ZOOM_DURATION}ms cubic-bezier(0.1, 0.9, 1.2, 1) forwards;
         }
         @keyframes cameraZoom {
-          0% {
-            transform: scale(1);
-          }
-          60% {
-            transform: scale(22);
-          }
-          100% {
-            transform: scale(18);
-          }
+          0% { transform: scale(1); }
+          60% { transform: scale(22); }
+          100% { transform: scale(18); }
         }
 
         .loading-content {
@@ -470,19 +470,10 @@ export default function Home() {
           animation: floatScreen 6s ease-in-out infinite;
         }
         @keyframes floatScreen {
-          0%,
-          100% {
-            transform: translate(0, 0) rotate(0deg);
-          }
-          25% {
-            transform: translate(4px, -6px) rotate(0.1deg);
-          }
-          50% {
-            transform: translate(-4px, 10px) rotate(-0.5deg);
-          }
-          75% {
-            transform: translate(5px, -4px) rotate(1deg);
-          }
+          0%, 100% { transform: translate(0,0) rotate(0deg); }
+          25% { transform: translate(4px, -6px) rotate(0.1deg); }
+          50% { transform: translate(-4px, 10px) rotate(-0.5deg); }
+          75% { transform: translate(5px, -4px) rotate(1deg); }
         }
 
         .shake-wrapper {
@@ -498,24 +489,12 @@ export default function Home() {
           animation: screenShake ${TIMINGS.SHAKE_DURATION}ms ease-out forwards;
         }
         @keyframes screenShake {
-          0% {
-            transform: translate(0, 0) rotate(0deg);
-          }
-          20% {
-            transform: translate(-8px, 5px) rotate(-0.4deg);
-          }
-          40% {
-            transform: translate(6px, -4px) rotate(0.3deg);
-          }
-          60% {
-            transform: translate(-4px, 3px) rotate(-0.2deg);
-          }
-          80% {
-            transform: translate(2px, -1px) rotate(0.1deg);
-          }
-          100% {
-            transform: translate(0, 0) rotate(0deg);
-          }
+          0%   { transform: translate(0,0) rotate(0deg); }
+          20%  { transform: translate(-8px,5px) rotate(-0.4deg); }
+          40%  { transform: translate(6px,-4px) rotate(0.3deg); }
+          60%  { transform: translate(-4px,3px) rotate(-0.2deg); }
+          80%  { transform: translate(2px,-1px) rotate(0.1deg); }
+          100% { transform: translate(0,0) rotate(0deg); }
         }
 
         .confetti-canvas {
@@ -532,31 +511,15 @@ export default function Home() {
           inset: 0;
           pointer-events: none;
           z-index: 1;
-          background-image: linear-gradient(
-              rgba(255, 255, 255, 0.12) 1px,
-              transparent 1px
-            ),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+          background-image: linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
           background-size: 60px 60px;
           background-position: 0 0, 0 0;
-          mask-image: radial-gradient(
-            circle at center,
-            rgba(0, 0, 0, 1) 15%,
-            rgba(0, 0, 0, 0.8) 30%,
-            rgba(0, 0, 0, 0) 55%
-          );
-          -webkit-mask-image: radial-gradient(
-            circle at center,
-            rgba(0, 0, 0, 1) 15%,
-            rgba(0, 0, 0, 0.8) 30%,
-            rgba(0, 0, 0, 0) 55%
-          );
+          mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
+          -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
           opacity: 0;
           transition: opacity 0.3s ease;
         }
-        .welcome-grid.visible {
-          opacity: 1;
-        }
+        .welcome-grid.visible { opacity: 1; }
 
         .flash-overlay {
           position: fixed;
@@ -573,22 +536,10 @@ export default function Home() {
           animation: bigFlash ${TIMINGS.FLASH_DURATION}ms ease-out forwards;
         }
         @keyframes bigFlash {
-          0% {
-            transform: scale(0.8);
-            opacity: 1;
-          }
-          30% {
-            transform: scale(1.15);
-            opacity: 1;
-          }
-          70% {
-            transform: scale(1.05);
-            opacity: 0.9;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 0;
-          }
+          0% { transform: scale(0.8); opacity: 1; }
+          30% { transform: scale(1.15); opacity: 1; }
+          70% { transform: scale(1.05); opacity: 0.9; }
+          100% { transform: scale(1); opacity: 0; }
         }
 
         .logo-container {
@@ -613,24 +564,13 @@ export default function Home() {
           transition: none;
         }
         .loading-image.animate {
-          animation: linearFastZoom 0.25s cubic-bezier(0.16, 1, 0.3, 1)
-            forwards;
+          animation: linearFastZoom 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
           animation-delay: ${TIMINGS.LOGO_ZOOM_START}ms;
         }
         @keyframes linearFastZoom {
-          0% {
-            transform: scale(0) rotate(0deg);
-            opacity: 0;
-            filter: blur(10px);
-          }
-          30% {
-            opacity: 1;
-          }
-          100% {
-            transform: scale(1) rotate(3deg);
-            opacity: 1;
-            filter: blur(0px);
-          }
+          0% { transform: scale(0) rotate(0deg); opacity: 0; filter: blur(10px); }
+          30% { opacity: 1; }
+          100% { transform: scale(1) rotate(3deg); opacity: 1; filter: blur(0); }
         }
 
         .prompt-center {
@@ -651,9 +591,10 @@ export default function Home() {
           height: 140px;
           border-radius: 8px;
           object-fit: cover;
-          border: 2px solid rgba(255, 255, 255, 0.15);
-          box-shadow: 0 0 40px rgba(255, 255, 255, 0.04);
+          border: 2px solid rgba(255,255,255,0.15);
+          box-shadow: 0 0 40px rgba(255,255,255,0.04);
           flex-shrink: 0;
+          pointer-events: none;
         }
         .prompt-text {
           font-size: 1.6rem;
@@ -668,43 +609,30 @@ export default function Home() {
         .spinner {
           width: 44px;
           height: 44px;
-          border: 3px solid rgba(255, 255, 255, 0.1);
+          border: 3px solid rgba(255,255,255,0.1);
           border-top-color: #fff;
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .black-overlay {
           position: fixed;
           inset: 0;
-          background: #0f0f0f;
+          background: #0F0F0F;
           z-index: 10001;
           pointer-events: none;
           opacity: 0;
           transition: none;
         }
         .black-overlay.active {
-          animation: blackPulse ${TIMINGS.BLACK_TRANSITION_DURATION}ms
-            ease-in-out forwards;
+          animation: blackPulse ${TIMINGS.BLACK_TRANSITION_DURATION}ms ease-in-out forwards;
         }
         @keyframes blackPulse {
-          0% {
-            opacity: 0;
-          }
-          25% {
-            opacity: 1;
-          }
-          75% {
-            opacity: 1;
-          }
-          100% {
-            opacity: 0;
-          }
+          0% { opacity: 0; }
+          25% { opacity: 1; }
+          75% { opacity: 1; }
+          100% { opacity: 0; }
         }
 
         /* ─── MAIN PAGE ─── */
@@ -712,7 +640,7 @@ export default function Home() {
           position: relative;
           min-height: 100vh;
           min-width: 100vw;
-          background: #0f0f0f;
+          background: #0F0F0F;
           overflow: hidden;
         }
 
@@ -721,25 +649,11 @@ export default function Home() {
           inset: 0;
           pointer-events: none;
           z-index: 0;
-          background-image: linear-gradient(
-              rgba(255, 255, 255, 0.06) 1px,
-              transparent 1px
-            ),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+          background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
           background-size: 60px 60px;
           background-position: 0 0, 0 0;
-          mask-image: radial-gradient(
-            circle at center,
-            rgba(0, 0, 0, 1) 15%,
-            rgba(0, 0, 0, 0.8) 30%,
-            rgba(0, 0, 0, 0) 55%
-          );
-          -webkit-mask-image: radial-gradient(
-            circle at center,
-            rgba(0, 0, 0, 1) 15%,
-            rgba(0, 0, 0, 0.8) 30%,
-            rgba(0, 0, 0, 0) 55%
-          );
+          mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
+          -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
         }
 
         .page-content {
@@ -800,14 +714,8 @@ export default function Home() {
         }
 
         @keyframes slideUp {
-          0% {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          0% { opacity: 0; transform: translateY(30px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
 
         .page-content p {

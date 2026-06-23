@@ -1,71 +1,127 @@
 import Head from 'next/head';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [flash, setFlash] = useState(false);
+  const [showGrid, setShowGrid] = useState(false);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsLoading(false), 2400);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const handleMove = (event) => {
-      setMouse({
-        x: event.clientX / window.innerWidth - 0.5,
-        y: event.clientY / window.innerHeight - 0.5,
-      });
+    const preventZoom = (e) => {
+      if (e.ctrlKey && (e.type === 'wheel' || e.type === 'keydown')) {
+        e.preventDefault();
+        return false;
+      }
     };
+    const preventKeyZoom = (e) => {
+      if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '0')) {
+        e.preventDefault();
+        return false;
+      }
+    };
+    window.addEventListener('wheel', preventZoom, { passive: false });
+    window.addEventListener('keydown', preventKeyZoom);
+    document.addEventListener('gesturestart', (e) => e.preventDefault());
 
-    window.addEventListener('mousemove', handleMove);
-    return () => window.removeEventListener('mousemove', handleMove);
+    const loadResources = async () => {
+      try {
+        await document.fonts.load('1em AeonikTRIAL-Regular');
+        await document.fonts.load('700 1em AeonikTRIAL-Bold');
+      } catch {}
+      await new Promise((resolve) => {
+        if (document.readyState === 'complete') resolve();
+        else window.addEventListener('load', resolve);
+      });
+
+      // ─── FLASH (200ms total) ───
+      setTimeout(() => {
+        setFlash(true);
+        // Keep flash visible for 200ms, then hide
+        setTimeout(() => {
+          setFlash(false);
+          setShowGrid(true);
+        }, 200);
+      }, 500);
+
+      const start = Date.now();
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, 4000 - elapsed);
+      setTimeout(() => setIsLoading(false), remaining);
+    };
+    loadResources();
+
+    return () => {
+      window.removeEventListener('wheel', preventZoom);
+      window.removeEventListener('keydown', preventKeyZoom);
+      document.removeEventListener('gesturestart', preventZoom);
+    };
   }, []);
 
-  const gridStyle = useMemo(() => ({
-    '--mouse-x': `${mouse.x * 12}px`,
-    '--mouse-y': `${mouse.y * 12}px`,
-  }), [mouse]);
+  const nameChars = "JOEL JOJU".split("");
 
   return (
     <>
       <Head>
         <title>Joel Joju | Portfolio</title>
         <meta charSet="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
         <meta
           name="description"
           content="Joel Joju is an Embedded Systems, UAV, PCB Design, and IoT enthusiast."
         />
+        <style>{`
+          @font-face {
+            font-family: 'Aeonik';
+            src: url('/fonts/AeonikTRIAL-Regular.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+          }
+          @font-face {
+            font-family: 'Aeonik';
+            src: url('/fonts/AeonikTRIAL-Bold.otf') format('opentype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+          }
+        `}</style>
       </Head>
 
-      {isLoading && (
-        <div className="intro-overlay">
-          <div className="intro-content">
-            <div className="intro-text-wrap">
-              <svg className="intro-image" viewBox="0 0 620 140" aria-label="Joel Joju">
-                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle">
-                  JOEL JOJU
-                </text>
-              </svg>
-            </div>
-            <div className="intro-line" />
-            <span className="intro-meta">Hardware • Systems • UAV</span>
-          </div>
+      {/* ─── LOADING SCREEN ─── */}
+      <div className={`loading-overlay ${!isLoading ? 'fade-out' : ''}`}>
+        <div className="loading-content">
+          <div className={`welcome-grid ${showGrid ? 'visible' : ''}`} />
+          <h1 className="loading-title">Welcome</h1>
+          <div className={`flash-overlay ${flash ? 'active' : ''}`} />
         </div>
-      )}
+      </div>
 
-      <main
-        className={`page-shell ${isLoading ? 'page-shell-hidden' : 'page-shell-visible'}`}
-        style={gridStyle}
-      >
-        <div className="grid-overlay" />
-        <div className="grid-fade" />
-        <div className="page-glow" />
+      {/* ─── MAIN PAGE ─── */}
+      <main className={`page-shell ${!isLoading ? 'is-ready' : ''}`}>
+        <div className="grid-blueprint" />
         <section className="page-content">
           <span className="page-eyebrow">Portfolio</span>
-          <h1>Joel Joju</h1>
-          <p>Hardware • Systems • UAV</p>
+          <h1 className="main-title">
+            {nameChars.map((char, idx) => (
+              <span
+                key={idx}
+                className="char"
+                style={{ animationDelay: `${0.1 + idx * 0.08}s` }}
+              >
+                {char === " " ? "\u00A0" : char}
+              </span>
+            ))}
+          </h1>
+          <p>
+            <span className="word" style={{ animationDelay: '1.2s' }}>Hardware</span>
+            <span className="word" style={{ animationDelay: '1.4s' }}>•</span>
+            <span className="word" style={{ animationDelay: '1.6s' }}>Systems</span>
+            <span className="word" style={{ animationDelay: '1.8s' }}>•</span>
+            <span className="word" style={{ animationDelay: '2.0s' }}>UAV</span>
+          </p>
         </section>
       </main>
 
@@ -77,120 +133,199 @@ export default function Home() {
         }
 
         html {
-          scroll-behavior: smooth;
+          zoom: 1;
         }
 
         body {
-          background: #dcd8c0;
-          color: #2f2a1f;
-          font-family: 'General Sans', Inter, 'Segoe UI', sans-serif;
-          overflow-x: hidden;
+          background: #fffbf7;
+          color: #1a1a1a;
+          font-family: 'Aeonik', 'General Sans', Inter, 'Segoe UI', sans-serif;
+          overflow: hidden;
+          height: 100vh;
+          width: 100vw;
         }
 
-        body::before {
-          content: '';
-          position: fixed;
-          inset: 0;
-          background:
-            radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-            radial-gradient(rgba(47, 42, 31, 0.03) 1px, transparent 1px);
-          background-size: 18px 18px, 36px 36px;
-          background-position: 0 0, 9px 9px;
-          pointer-events: none;
-          opacity: 0.45;
-        }
-
-        body::after {
-          content: '';
-          position: fixed;
-          inset: 0;
-          background:
-            radial-gradient(circle at 50% 15%, rgba(255, 255, 255, 0.08), transparent 9%),
-            radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.04), transparent 10%);
-          pointer-events: none;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .intro-overlay {
+        .loading-overlay {
           position: fixed;
           inset: 0;
           display: grid;
           place-items: center;
-          background: #dcd8c0;
+          background: #000;
           z-index: 9999;
+          transition: opacity 0.8s ease;
         }
 
-        .intro-content {
-          text-align: center;
+        .loading-overlay.fade-out {
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .loading-content {
+          position: relative;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 10px;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          animation: floatScreen 6s ease-in-out infinite;
         }
 
-        .page-shell {
-          position: relative;
-          min-height: 100vh;
-          overflow: hidden;
-          display: grid;
-          place-items: center;
+        @keyframes floatScreen {
+          0%,
+          100% {
+            transform: translate(0, 0) rotate(0deg);
+          }
+          25% {
+            transform: translate(4px, -6px) rotate(0.1deg);
+          }
+          50% {
+            transform: translate(-4px, 8px) rotate(-0.15deg);
+          }
+          75% {
+            transform: translate(2px, -4px) rotate(0.08deg);
+          }
+        }
+
+        /* ─── WHITE GRID ─── */
+        .welcome-grid {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 1;
+          background-image:
+            linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+          background-size: 60px 60px;
+          background-position: 0 0, 0 0;
+          mask-image: radial-gradient(
+            circle at center,
+            rgba(0, 0, 0, 1) 15%,
+            rgba(0, 0, 0, 0.8) 30%,
+            rgba(0, 0, 0, 0) 55%
+          );
+          -webkit-mask-image: radial-gradient(
+            circle at center,
+            rgba(0, 0, 0, 1) 15%,
+            rgba(0, 0, 0, 0.8) 30%,
+            rgba(0, 0, 0, 0) 55%
+          );
           opacity: 0;
-          background:
-            radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.06), transparent 10%),
-            #dcd8c0;
+          transition: opacity 0.3s ease;
         }
 
-        .page-shell-visible {
+        .welcome-grid.visible {
           opacity: 1;
         }
 
-        .page-shell-hidden {
+        /* ─── FLASH (200ms) ─── */
+        .flash-overlay {
+          position: fixed;
+          inset: 0;
+          background: #fff;
+          z-index: 10000;
           pointer-events: none;
+          opacity: 0;
         }
 
-        .grid-overlay {
-          position: absolute;
-          inset: -8%;
-          background-image:
-            linear-gradient(rgba(47, 42, 31, 0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(47, 42, 31, 0.06) 1px, transparent 1px);
-          background-size: 52px 52px;
-          transform:
-            perspective(1000px)
-            rotateX(62deg)
-            translateY(18%)
-            translateX(calc(var(--mouse-x, 0) * 0.25))
-            translateZ(0);
-          transform-origin: center;
-          pointer-events: none;
-          will-change: transform;
-          animation: idleCamera 8s ease-in-out infinite;
+        .flash-overlay.active {
+          animation: flashSnap 0.2s ease-out forwards;
         }
 
-        .grid-fade {
+        @keyframes flashSnap {
+          0% {
+            opacity: 1;
+            transform: scale(0.98);
+          }
+          30% {
+            opacity: 1;
+            transform: scale(1.02);
+          }
+          70% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: scale(1);
+          }
+        }
+
+        /* ─── "Welcome" – BIG, 0° → 3° tilt ─── */
+        .loading-title {
+          position: relative;
+          z-index: 10;
+          font-family: 'Aeonik', 'General Sans', sans-serif;
+          font-size: clamp(6rem, 16vw, 14rem);
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #fff;
+          margin: 0;
+
+          transform: scale(0) rotate(0deg);
+          opacity: 0;
+          filter: blur(10px);
+          transform-origin: center center;
+
+          animation: linearFastZoom 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation-delay: 0.7s; /* starts after flash ends (500+200=700ms) */
+        }
+
+        @keyframes linearFastZoom {
+          0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+            filter: blur(10px);
+          }
+          30% {
+            opacity: 1;
+          }
+          100% {
+            transform: scale(1) rotate(3deg);
+            opacity: 1;
+            filter: blur(0px);
+          }
+        }
+
+        /* ─── MAIN PAGE ─── */
+        .page-shell {
+          position: relative;
+          min-height: 100vh;
+          min-width: 100vw;
+          display: grid;
+          place-items: center;
+          background: #fffbf7;
+          overflow: hidden;
+          opacity: 0;
+          transition: opacity 0.6s ease;
+        }
+
+        .page-shell.is-ready {
+          opacity: 1;
+        }
+
+        .grid-blueprint {
           position: absolute;
           inset: 0;
-          background:
-            linear-gradient(to top, rgba(220, 216, 192, 0.92), rgba(220, 216, 192, 0.18) 48%, rgba(220, 216, 192, 0));
           pointer-events: none;
-          z-index: 2;
-        }
-
-        .page-glow {
-          position: absolute;
-          width: 460px;
-          height: 460px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 68%);
-          top: 50%;
-          left: 50%;
-          transform: translate(calc(-50% + var(--mouse-x, 0) * 0.45), calc(-50% + var(--mouse-y, 0) * 0.45));
-          pointer-events: none;
-          transition: transform 0.18s ease-out;
+          z-index: 0;
+          background-image:
+            linear-gradient(rgba(70, 130, 200, 0.10) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(70, 130, 200, 0.10) 1px, transparent 1px);
+          background-size: 60px 60px;
+          background-position: 0 0, 0 0;
+          mask-image: radial-gradient(
+            circle at center,
+            rgba(0, 0, 0, 1) 15%,
+            rgba(0, 0, 0, 0.8) 30%,
+            rgba(0, 0, 0, 0) 55%
+          );
+          -webkit-mask-image: radial-gradient(
+            circle at center,
+            rgba(0, 0, 0, 1) 15%,
+            rgba(0, 0, 0, 0.8) 30%,
+            rgba(0, 0, 0, 0) 55%
+          );
         }
 
         .page-content {
@@ -201,112 +336,62 @@ export default function Home() {
 
         .page-eyebrow {
           display: block;
-          color: #6c654f;
-          font-size: 0.72rem;
-          letter-spacing: 0.42em;
+          color: #6c6c6c;
+          font-size: 0.9rem;
+          letter-spacing: 0.3em;
           text-transform: uppercase;
           margin-bottom: 12px;
+          opacity: 0;
+          animation: slideUp 0.8s ease forwards;
+          animation-delay: 0.05s;
         }
 
-        .page-content h1 {
-          font-size: clamp(3rem, 6vw, 5rem);
-          letter-spacing: 0.5em;
+        .main-title {
+          font-family: 'Aeonik', 'General Sans', Inter, 'Segoe UI', sans-serif;
+          font-size: clamp(4.5rem, 10vw, 8rem);
+          letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #2f2a1f;
+          color: #1a1a1a;
           margin-bottom: 10px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+
+        .main-title .char {
+          display: inline-block;
+          opacity: 0;
+          animation: slideUp 0.8s ease forwards;
         }
 
         .page-content p {
-          color: #6c654f;
-          font-size: 0.8rem;
-          letter-spacing: 0.38em;
+          color: #6c6c6c;
+          font-size: 1.4rem;
+          letter-spacing: 0.1em;
           text-transform: uppercase;
-        }
-
-        .intro-text-wrap,
-        .intro-line,
-        .intro-meta {
-          opacity: 0;
-          transform: translateY(18px);
-        }
-
-        .intro-text-wrap {
-          width: min(460px, 82vw);
           display: flex;
+          flex-wrap: wrap;
           justify-content: center;
-          animation: fadeUp 1s ease 0.15s forwards;
+          gap: 0.5em;
+          margin-top: 0.5rem;
+          font-weight: 400;
         }
 
-        .intro-image {
-          width: 100%;
-          height: auto;
-          display: block;
-          overflow: visible;
-          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.08));
-          animation: imageFloat 3.6s ease-in-out 1s infinite;
+        .page-content p .word {
+          display: inline-block;
+          opacity: 0;
+          animation: slideUp 0.8s ease forwards;
         }
 
-        .intro-image text {
-          fill: #2f2a1f;
-          font-family: 'General Sans', Inter, 'Segoe UI', sans-serif;
-          font-size: 58px;
-          font-weight: 500;
-          letter-spacing: 0.44em;
-          text-transform: uppercase;
-        }
-
-        .intro-line {
-          width: 170px;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, #8f876c, transparent);
-          opacity: 0.8;
-          animation: fadeUp 0.9s ease 0.45s forwards, linePulse 1.8s ease 1.2s infinite;
-        }
-
-        .intro-meta {
-          color: #6c654f;
-          font-size: 0.7rem;
-          letter-spacing: 0.36em;
-          text-transform: uppercase;
-          animation: fadeUp 0.9s ease 0.75s forwards;
-        }
-
-        @keyframes fadeUp {
-          from {
+        @keyframes slideUp {
+          0% {
             opacity: 0;
-            transform: translateY(18px);
+            transform: translateY(30px);
           }
-          to {
+          100% {
             opacity: 1;
             transform: translateY(0);
           }
-        }
-
-        @keyframes imageFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-5px); }
-        }
-
-        @keyframes idleCamera {
-          0%, 100% {
-            transform:
-              perspective(1000px)
-              rotateX(62deg)
-              translateY(18%)
-              translateX(0);
-          }
-          50% {
-            transform:
-              perspective(1000px)
-              rotateX(61.5deg)
-              translateY(17%)
-              translateX(2px);
-          }
-        }
-
-        @keyframes linePulse {
-          0%, 100% { opacity: 0.4; transform: scaleX(0.9); }
-          50% { opacity: 1; transform: scaleX(1); }
         }
       `}</style>
     </>

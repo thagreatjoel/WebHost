@@ -27,15 +27,30 @@ export default function Home() {
   const [showContent, setShowContent] = useState(false);
   const [showBlackOverlay, setShowBlackOverlay] = useState(false);
   const [bulgeEnabled, setBulgeEnabled] = useState(false);
+  const [cursorVisible, setCursorVisible] = useState(true);
+  const [audioPending, setAudioPending] = useState(false);
 
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
   const charRefs = useRef([]);
+  const sequenceStarted = useRef(false);
+  const interactionListenerAdded = useRef(false);
+
+  // ─── Control cursor visibility ───
+  useEffect(() => {
+    if (cursorVisible) {
+      document.body.classList.remove('cursor-hidden');
+    } else {
+      document.body.classList.add('cursor-hidden');
+    }
+    return () => {
+      document.body.classList.remove('cursor-hidden');
+    };
+  }, [cursorVisible]);
 
   // ─── Mouse move for bulge effect ───
   useEffect(() => {
     if (!bulgeEnabled) return;
-
     const handleMouseMove = (e) => {
       const mouseX = e.clientX;
       const mouseY = e.clientY;
@@ -51,13 +66,9 @@ export default function Home() {
         const dy = mouseY - cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const scale = 1 + (maxScale - 1) * Math.exp(-dist / threshold);
-        const intensity = (scale - 1) * 8;
-        const tx = (dx / (dist + 1)) * intensity;
-        const ty = (dy / (dist + 1)) * intensity;
-        el.style.transform = `translateY(0px) scale(${scale}) translate(${tx}px, ${ty}px)`;
+        el.style.transform = `translateY(0px) scale(${scale})`;
       });
     };
-
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [bulgeEnabled]);
@@ -65,44 +76,36 @@ export default function Home() {
   // ─── Left‑to‑right wave every 5 seconds ───
   useEffect(() => {
     if (!bulgeEnabled) return;
-
     const wave = () => {
       const chars = charRefs.current;
       if (!chars || chars.length === 0) return;
 
-      // Reset all characters
       chars.forEach((el) => {
         if (el) {
           el.style.transition = 'transform 0.25s ease-out';
-          el.style.transform = 'translateY(0px) scale(1) translate(0px, 0px)';
+          el.style.transform = 'translateY(0px) scale(1)';
         }
       });
 
-      // Apply bulge with a left‑to‑right delay
       chars.forEach((el, index) => {
         if (!el || el.textContent === '\u00A0' || el.textContent === ' ') return;
-
         const delay = index * 100;
-
         setTimeout(() => {
           if (el) {
             el.style.transition = 'transform 0.25s ease-out';
-            el.style.transform = 'translateY(0px) scale(1.12) translate(0px, 0px)';
+            el.style.transform = 'translateY(0px) scale(1.12)';
           }
         }, delay);
-
         setTimeout(() => {
           if (el) {
             el.style.transition = 'transform 0.25s ease-out';
-            el.style.transform = 'translateY(0px) scale(1) translate(0px, 0px)';
+            el.style.transform = 'translateY(0px) scale(1)';
           }
         }, delay + 250);
       });
     };
-
     const interval = setInterval(wave, 5000);
     setTimeout(wave, 100);
-
     return () => clearInterval(interval);
   }, [bulgeEnabled]);
 
@@ -124,16 +127,51 @@ export default function Home() {
     };
   }, []);
 
-  // ─── Start sequence ───
-  const handleStart = () => {
-    if (audioStarted || !audioLoaded) return;
+  // ─── Resume audio on user interaction if pending ───
+  useEffect(() => {
+    if (!audioPending) return;
 
-    if (TIMINGS.AUDIO_START === 0) {
-      audioRef.current.play().catch(() => {});
-    } else {
-      setTimeout(() => {
+    const resumeAudio = () => {
+      if (audioRef.current && audioRef.current.paused) {
         audioRef.current.play().catch(() => {});
-      }, TIMINGS.AUDIO_START);
+      }
+      setAudioPending(false);
+      // Remove all listeners after first interaction
+      document.removeEventListener('click', resumeAudio);
+      document.removeEventListener('touchstart', resumeAudio);
+      document.removeEventListener('mousemove', resumeAudio);
+      interactionListenerAdded.current = false;
+    };
+
+    if (!interactionListenerAdded.current) {
+      document.addEventListener('click', resumeAudio);
+      document.addEventListener('touchstart', resumeAudio);
+      document.addEventListener('mousemove', resumeAudio);
+      interactionListenerAdded.current = true;
+    }
+
+    return () => {
+      document.removeEventListener('click', resumeAudio);
+      document.removeEventListener('touchstart', resumeAudio);
+      document.removeEventListener('mousemove', resumeAudio);
+      interactionListenerAdded.current = false;
+    };
+  }, [audioPending]);
+
+  // ─── Start sequence automatically when audio loads ───
+  const startSequence = () => {
+    if (sequenceStarted.current || !audioLoaded) return;
+    sequenceStarted.current = true;
+
+    setCursorVisible(false);
+
+    // Try to play audio
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Autoplay blocked – set pending, will resume on user interaction
+        setAudioPending(true);
+      });
     }
 
     setIsZooming(true);
@@ -159,25 +197,30 @@ export default function Home() {
 
     setTimeout(() => {
       setIsLoading(false);
-      setTimeout(() => {
-        setShowBlackOverlay(true);
-      }, 100);
+      setTimeout(() => setShowBlackOverlay(true), 100);
+
+      charRefs.current.forEach((el) => {
+        if (el) {
+          el.style.animation = 'none';
+          el.style.opacity = '1';
+          el.style.transform = 'translateY(0px) scale(1)';
+        }
+      });
+      setBulgeEnabled(true);
+
       setTimeout(() => {
         setShowBlackOverlay(false);
         setShowContent(true);
-        setTimeout(() => {
-          charRefs.current.forEach((el) => {
-            if (el) {
-              el.style.animation = 'none';
-              el.style.opacity = '1';
-              el.style.transform = 'translateY(0px)';
-            }
-          });
-          setBulgeEnabled(true);
-        }, 2000);
+        setCursorVisible(true);
       }, TIMINGS.BLACK_TRANSITION_DURATION + 100);
     }, TIMINGS.LOADING_DURATION);
   };
+
+  useEffect(() => {
+    if (audioLoaded) {
+      startSequence();
+    }
+  }, [audioLoaded]);
 
   // ─── Confetti render ───
   useEffect(() => {
@@ -318,20 +361,22 @@ export default function Home() {
             font-display: swap;
           }
 
-          /* ─── FORCE CROSSHAIR EVERYWHERE ─── */
-          * {
-            cursor: crosshair !important;
+          body {
+            cursor: crosshair;
+          }
+          body.cursor-hidden {
+            cursor: none !important;
+          }
+          body.cursor-hidden * {
+            cursor: none !important;
           }
 
-          /* ─── DISABLE TEXT SELECTION ─── */
           * {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
           }
-
-          /* ─── DISABLE IMAGE DRAGGING ─── */
           img {
             -webkit-user-drag: none;
             user-drag: none;
@@ -342,10 +387,7 @@ export default function Home() {
       </Head>
 
       {/* ─── LOADING SCREEN ─── */}
-      <div
-        className={`loading-overlay ${!isLoading ? 'fade-out' : ''}`}
-        onClick={handleStart}
-      >
+      <div className={`loading-overlay ${!isLoading ? 'fade-out' : ''}`}>
         <div className={`camera-scene ${isZooming ? 'zooming' : ''}`}>
           <div className={`loading-content ${floatActive ? 'float' : ''}`}>
             <div className={`shake-wrapper ${shake ? 'shake' : ''}`}>
@@ -359,17 +401,6 @@ export default function Home() {
                 />
               </div>
               <canvas ref={canvasRef} className="confetti-canvas" />
-              {!audioStarted && audioLoaded && (
-                <div className="prompt-center">
-                  <img
-                    src="/pfp.jpg"
-                    alt="Profile"
-                    draggable={false}
-                    className="pfp-image"
-                  />
-                  <p className="prompt-text">Click anywhere to begin</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -434,8 +465,8 @@ export default function Home() {
           background: #0F0F0F;
           z-index: 9999;
           transition: opacity 0.8s ease;
-          cursor: pointer;
           overflow: hidden;
+          cursor: default;
         }
         .loading-overlay.fade-out {
           opacity: 0;
@@ -573,49 +604,6 @@ export default function Home() {
           100% { transform: scale(1) rotate(3deg); opacity: 1; filter: blur(0); }
         }
 
-        .prompt-center {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 20;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 20px;
-          pointer-events: none;
-        }
-        .pfp-image {
-          width: 140px;
-          height: 140px;
-          border-radius: 8px;
-          object-fit: cover;
-          border: 2px solid rgba(255,255,255,0.15);
-          box-shadow: 0 0 40px rgba(255,255,255,0.04);
-          flex-shrink: 0;
-          pointer-events: none;
-        }
-        .prompt-text {
-          font-size: 1.6rem;
-          font-weight: 400;
-          letter-spacing: 0.12em;
-          opacity: 0.85;
-          margin: 0;
-          color: #fff;
-          font-family: 'Aeonik', 'General Sans', sans-serif;
-        }
-
-        .spinner {
-          width: 44px;
-          height: 44px;
-          border: 3px solid rgba(255,255,255,0.1);
-          border-top-color: #fff;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         .black-overlay {
           position: fixed;
           inset: 0;
@@ -696,15 +684,18 @@ export default function Home() {
           justify-content: center;
         }
 
-        /* ─── CHARACTER STYLES ─── */
         .char {
           display: inline-block;
           opacity: 0;
           transform: translateY(30px);
-          animation: slideUp 0.8s ease forwards;
           transition: transform 0.25s ease-out, opacity 0.1s ease;
           will-change: transform;
           transform-origin: center center;
+        }
+
+        .page-content.is-ready .char {
+          opacity: 1;
+          transform: translateY(0px);
         }
 
         .page-content p .word {

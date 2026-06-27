@@ -35,6 +35,7 @@ export default function Home() {
   const charRefs = useRef([]);
   const sequenceStarted = useRef(false);
   const interactionListenerAdded = useRef(false);
+  const mouseRef = useRef({ x: 0, y: 0 });
 
   // ─── Control cursor visibility ───
   useEffect(() => {
@@ -48,26 +49,28 @@ export default function Home() {
     };
   }, [cursorVisible]);
 
-  // ─── Mouse move for bulge effect ───
+  // ─── Mouse move for bulge AND canvas ───
   useEffect(() => {
-    if (!bulgeEnabled) return;
     const handleMouseMove = (e) => {
-      const mouseX = e.clientX;
-      const mouseY = e.clientY;
-      const threshold = 120;
-      const maxScale = 1.35;
-
-      charRefs.current.forEach((el) => {
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
-        const dx = mouseX - cx;
-        const dy = mouseY - cy;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const scale = 1 + (maxScale - 1) * Math.exp(-dist / threshold);
-        el.style.transform = `translateY(0px) scale(${scale})`;
-      });
+      mouseRef.current = { x: e.clientX, y: e.clientY };
+      // bulge
+      if (bulgeEnabled) {
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        const threshold = 120;
+        const maxScale = 1.35;
+        charRefs.current.forEach((el) => {
+          if (!el) return;
+          const rect = el.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = mouseX - cx;
+          const dy = mouseY - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const scale = 1 + (maxScale - 1) * Math.exp(-dist / threshold);
+          el.style.transform = `translateY(0px) scale(${scale})`;
+        });
+      }
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
@@ -114,7 +117,20 @@ export default function Home() {
     const audio = new Audio('/audio.mp3');
     audioRef.current = audio;
 
-    const handleCanPlay = () => setAudioLoaded(true);
+    const handleCanPlay = () => {
+      setAudioLoaded(true);
+      playAudio();
+    };
+
+    const playAudio = () => {
+      if (audioRef.current) {
+        const promise = audioRef.current.play();
+        if (promise !== undefined) {
+          promise.catch(() => setAudioPending(true));
+        }
+      }
+    };
+
     audio.addEventListener('canplaythrough', handleCanPlay);
     audio.load();
 
@@ -136,7 +152,6 @@ export default function Home() {
         audioRef.current.play().catch(() => {});
       }
       setAudioPending(false);
-      // Remove all listeners after first interaction
       document.removeEventListener('click', resumeAudio);
       document.removeEventListener('touchstart', resumeAudio);
       document.removeEventListener('mousemove', resumeAudio);
@@ -165,13 +180,11 @@ export default function Home() {
 
     setCursorVisible(false);
 
-    // Try to play audio
-    const playPromise = audioRef.current.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Autoplay blocked – set pending, will resume on user interaction
-        setAudioPending(true);
-      });
+    if (audioRef.current && audioRef.current.paused) {
+      const promise = audioRef.current.play();
+      if (promise !== undefined) {
+        promise.catch(() => setAudioPending(true));
+      }
     }
 
     setIsZooming(true);
@@ -221,6 +234,194 @@ export default function Home() {
       startSequence();
     }
   }, [audioLoaded]);
+
+  // ─── Interactive Canvas Background ───
+  useEffect(() => {
+    if (!showContent) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let W, H;
+    const mouse = mouseRef;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // ── Paleta cálida (same as original) ──
+    const WARM = [
+      [234, 88, 12],
+      [249, 115, 22],
+      [245, 158, 11],
+      [194, 65, 12],
+      [220, 38, 38],
+      [251, 191, 36],
+      [180, 83, 9],
+      [253, 186, 116],
+    ];
+    const COL_SKY = [56, 189, 248];
+
+    function rnd(a, b) { return a + Math.random() * (b - a); }
+    function pick() { return WARM[Math.floor(Math.random() * WARM.length)]; }
+
+    // ── NO SPIRALS – removed ──
+
+    // ── CONSTELACIONES (stars + lines) ──
+    const STAR_COUNT = Math.floor((window.innerWidth * window.innerHeight) / 5500);
+    const stars = Array.from({ length: STAR_COUNT }, () => {
+      const c = Math.random() < 0.3 ? pick() : [253, 232, 200];
+      return {
+        x: rnd(0, W), y: rnd(0, H),
+        r: rnd(0.4, 2.2),
+        alpha: rnd(0.3, 1),
+        twinkleSpeed: rnd(0.0005, 0.0015),
+        phase: rnd(0, Math.PI * 2),
+        isStar4: Math.random() < 0.15,
+        color: c,
+        vx: rnd(-0.015, 0.015),
+        vy: rnd(-0.015, 0.015),
+      };
+    });
+
+    const constellationEdges = [];
+    for (let i = 0; i < stars.length; i++) {
+      for (let j = i + 1; j < stars.length; j++) {
+        const dx = stars[i].x - stars[j].x;
+        const dy = stars[i].y - stars[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 90 && Math.random() < 0.35) {
+          constellationEdges.push([i, j, d]);
+        }
+      }
+    }
+
+    function drawStar4(x, y, r, color, alpha) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2 - Math.PI / 4;
+        ctx.lineTo(Math.cos(a) * r * 3.2, Math.sin(a) * r * 3.2);
+        ctx.lineTo(Math.cos(a + Math.PI / 4) * r * 0.7, Math.sin(a + Math.PI / 4) * r * 0.7);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function updateStars() {
+      stars.forEach(s => {
+        s.x += s.vx; s.y += s.vy;
+        if (s.x < 0) s.x = W; if (s.x > W) s.x = 0;
+        if (s.y < 0) s.y = H; if (s.y > H) s.y = 0;
+        const dx = s.x - mouse.x;
+        const dy = s.y - mouse.y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 120) {
+          const force = (120 - d) / 120 * 0.4;
+          s.x += (dx / d) * force;
+          s.y += (dy / d) * force;
+        }
+      });
+    }
+
+    // ── NO LILIES – removed ──
+
+    // ── SHOOTING STARS ──
+    const shooting = [];
+    let lastShoot = 0, nextShoot = 3000;
+
+    function spawnShoot() {
+      const c = pick();
+      shooting.push({
+        x: rnd(0, W), y: rnd(0, H * 0.5),
+        len: rnd(100, 240), speed: rnd(5, 11),
+        angle: rnd(18, 40) * Math.PI / 180,
+        life: 1, color: c,
+      });
+    }
+
+    function drawShooting() {
+      shooting.forEach((ss, i) => {
+        ss.life -= 0.02;
+        if (ss.life <= 0) { shooting.splice(i, 1); return; }
+        const x2 = ss.x - Math.cos(ss.angle) * ss.len;
+        const y2 = ss.y - Math.sin(ss.angle) * ss.len;
+        const g = ctx.createLinearGradient(ss.x, ss.y, x2, y2);
+        g.addColorStop(0, `rgba(${ss.color[0]},${ss.color[1]},${ss.color[2]},${ss.life})`);
+        g.addColorStop(1, 'transparent');
+        ctx.globalAlpha = ss.life;
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(ss.x, ss.y);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ss.x += Math.cos(ss.angle) * ss.speed;
+        ss.y += Math.sin(ss.angle) * ss.speed;
+      });
+    }
+
+    // ── MAIN LOOP ──
+    let animId;
+
+    function tick(t) {
+      ctx.clearRect(0, 0, W, H);
+
+      // ── Constellations lines ──
+      ctx.globalAlpha = 0.06;
+      ctx.strokeStyle = `rgb(${WARM[6][0]},${WARM[6][1]},${WARM[6][2]})`;
+      ctx.lineWidth = 0.5;
+      constellationEdges.forEach(([i, j, d]) => {
+        const opac = Math.max(0, 1 - d / 90);
+        ctx.globalAlpha = opac * 0.07;
+        ctx.beginPath();
+        ctx.moveTo(stars[i].x, stars[i].y);
+        ctx.lineTo(stars[j].x, stars[j].y);
+        ctx.stroke();
+      });
+
+      // ── Stars ──
+      updateStars();
+      stars.forEach(s => {
+        const a = s.alpha * (0.55 + 0.45 * Math.sin(t * s.twinkleSpeed * 1000 + s.phase));
+        if (s.isStar4) {
+          drawStar4(s.x, s.y, s.r, s.color, a);
+        } else {
+          ctx.globalAlpha = a;
+          ctx.fillStyle = `rgb(${s.color[0]},${s.color[1]},${s.color[2]})`;
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // ── Shooting stars ──
+      if (t - lastShoot > nextShoot) {
+        spawnShoot();
+        lastShoot = t;
+        nextShoot = rnd(2500, 5500);
+      }
+      drawShooting();
+
+      ctx.globalAlpha = 1;
+      animId = requestAnimationFrame(tick);
+    }
+
+    animId = requestAnimationFrame(tick);
+
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
+    };
+  }, [showContent]);
 
   // ─── Confetti render ───
   useEffect(() => {
@@ -412,6 +613,9 @@ export default function Home() {
 
       {/* ─── MAIN PAGE ─── */}
       <main className="page-shell">
+        {/* Interactive Background Canvas */}
+        <canvas ref={canvasRef} className="bg-canvas" />
+
         <div className="grid-blueprint" />
         <section className={`page-content ${showContent ? 'is-ready' : ''}`}>
           <span className="page-eyebrow">Portfolio</span>
@@ -632,11 +836,21 @@ export default function Home() {
           overflow: hidden;
         }
 
+        .bg-canvas {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+          pointer-events: none;
+          display: block;
+        }
+
         .grid-blueprint {
           position: absolute;
           inset: 0;
           pointer-events: none;
-          z-index: 0;
+          z-index: 1;
           background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
           background-size: 60px 60px;
           background-position: 0 0, 0 0;
@@ -646,7 +860,7 @@ export default function Home() {
 
         .page-content {
           position: relative;
-          z-index: 1;
+          z-index: 2;
           text-align: center;
           display: flex;
           flex-direction: column;

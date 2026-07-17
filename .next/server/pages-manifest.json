@@ -2,7 +2,9 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/projects": "pages/projects.js",
+  "/about": "pages/about.js",
   "/": "pages/index.js",
-  "/dashboard": "pages/dashboard.js",
-  "/projects": "pages/projects.js"
+  "/api/stickers/user": "pages/api/stickers/user.js",
+  "/api/stickers/all": "pages/api/stickers/all.js"
 }

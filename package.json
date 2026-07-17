@@ -4,10 +4,10 @@
   "description": "Own personal website",
   "main": "index.js",
   "scripts": {
-     "dev": "next dev",
-     "build": "next build",
-     "start": "next start",
-     "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,9 @@
   },
   "homepage": "https://github.com/ThaGreatJoel/Portfolio#readme",
   "dependencies": {
+    "js-cookie": "^3.0.8",
+    "mongodb": "^7.5.0",
+    "mongoose": "^9.7.4",
     "next": "^15.3.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

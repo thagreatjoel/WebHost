@@ -11,7 +11,10 @@ const TIMINGS = {
   SHAKE_DURATION: 400,
   LOADING_DURATION: 7000,
   LOGO_ZOOM_START: 250,
-  BLACK_TRANSITION_DURATION: 1500,
+  // ─── Black overlay transition ───
+  BLACK_OVERLAY_START: 6850,
+  BLACK_OVERLAY_END: 7550,
+  BLACK_OVERLAY_DURATION: 350,
 };
 
 export default function Home() {
@@ -25,17 +28,33 @@ export default function Home() {
   const [floatActive, setFloatActive] = useState(false);
   const [isZooming, setIsZooming] = useState(false);
   const [showContent, setShowContent] = useState(false);
-  const [showBlackOverlay, setShowBlackOverlay] = useState(false);
   const [bulgeEnabled, setBulgeEnabled] = useState(false);
   const [cursorVisible, setCursorVisible] = useState(true);
-  const [audioPending, setAudioPending] = useState(false);
 
   const canvasRef = useRef(null);
+  const bgCanvasRef = useRef(null);
   const audioRef = useRef(null);
   const charRefs = useRef([]);
   const sequenceStarted = useRef(false);
-  const interactionListenerAdded = useRef(false);
   const mouseRef = useRef({ x: 0, y: 0 });
+
+  // ─── BLACK OVERLAY ───
+  const [showBlackTop, setShowBlackTop] = useState(false);
+
+  useEffect(() => {
+    const fadeInTimer = setTimeout(() => {
+      setShowBlackTop(true);
+    }, TIMINGS.BLACK_OVERLAY_START);
+
+    const fadeOutTimer = setTimeout(() => {
+      setShowBlackTop(false);
+    }, TIMINGS.BLACK_OVERLAY_END);
+
+    return () => {
+      clearTimeout(fadeInTimer);
+      clearTimeout(fadeOutTimer);
+    };
+  }, []);
 
   // ─── Control cursor visibility ───
   useEffect(() => {
@@ -49,11 +68,10 @@ export default function Home() {
     };
   }, [cursorVisible]);
 
-  // ─── Mouse move for bulge AND canvas ───
+  // ─── Mouse move for bulge ───
   useEffect(() => {
     const handleMouseMove = (e) => {
       mouseRef.current = { x: e.clientX, y: e.clientY };
-      // bulge
       if (bulgeEnabled) {
         const mouseX = e.clientX;
         const mouseY = e.clientY;
@@ -76,20 +94,18 @@ export default function Home() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [bulgeEnabled]);
 
-  // ─── Left‑to‑right wave every 5 seconds ───
+  // ─── Left‑to‑right wave ───
   useEffect(() => {
     if (!bulgeEnabled) return;
     const wave = () => {
       const chars = charRefs.current;
       if (!chars || chars.length === 0) return;
-
       chars.forEach((el) => {
         if (el) {
           el.style.transition = 'transform 0.25s ease-out';
           el.style.transform = 'translateY(0px) scale(1)';
         }
       });
-
       chars.forEach((el, index) => {
         if (!el || el.textContent === '\u00A0' || el.textContent === ' ') return;
         const delay = index * 100;
@@ -112,82 +128,19 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [bulgeEnabled]);
 
-  // ─── Audio load ───
-  useEffect(() => {
-    const audio = new Audio('/audio.mp3');
-    audioRef.current = audio;
+  // ─── Audio disabled ───
 
-    const handleCanPlay = () => {
-      setAudioLoaded(true);
-      playAudio();
-    };
-
-    const playAudio = () => {
-      if (audioRef.current) {
-        const promise = audioRef.current.play();
-        if (promise !== undefined) {
-          promise.catch(() => setAudioPending(true));
-        }
-      }
-    };
-
-    audio.addEventListener('canplaythrough', handleCanPlay);
-    audio.load();
-
-    return () => {
-      audio.removeEventListener('canplaythrough', handleCanPlay);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
-  // ─── Resume audio on user interaction if pending ───
-  useEffect(() => {
-    if (!audioPending) return;
-
-    const resumeAudio = () => {
-      if (audioRef.current && audioRef.current.paused) {
-        audioRef.current.play().catch(() => {});
-      }
-      setAudioPending(false);
-      document.removeEventListener('click', resumeAudio);
-      document.removeEventListener('touchstart', resumeAudio);
-      document.removeEventListener('mousemove', resumeAudio);
-      interactionListenerAdded.current = false;
-    };
-
-    if (!interactionListenerAdded.current) {
-      document.addEventListener('click', resumeAudio);
-      document.addEventListener('touchstart', resumeAudio);
-      document.addEventListener('mousemove', resumeAudio);
-      interactionListenerAdded.current = true;
-    }
-
-    return () => {
-      document.removeEventListener('click', resumeAudio);
-      document.removeEventListener('touchstart', resumeAudio);
-      document.removeEventListener('mousemove', resumeAudio);
-      interactionListenerAdded.current = false;
-    };
-  }, [audioPending]);
-
-  // ─── Start sequence automatically when audio loads ───
+  // ─── Start sequence ───
   const startSequence = () => {
-    if (sequenceStarted.current || !audioLoaded) return;
+    if (sequenceStarted.current) return;
     sequenceStarted.current = true;
 
     setCursorVisible(false);
 
-    if (audioRef.current && audioRef.current.paused) {
-      const promise = audioRef.current.play();
-      if (promise !== undefined) {
-        promise.catch(() => setAudioPending(true));
-      }
-    }
-
     setIsZooming(true);
+    setTimeout(() => {
+      setIsZooming(false);
+    }, TIMINGS.ZOOM_DURATION + 30);
 
     setTimeout(() => {
       setAudioStarted(true);
@@ -205,13 +158,11 @@ export default function Home() {
     }, TIMINGS.SEQUENCE_START_DELAY);
 
     setTimeout(() => {
-      setIsZooming(false);
-    }, TIMINGS.SEQUENCE_START_DELAY + TIMINGS.FLASH_DURATION + 30);
-
-    setTimeout(() => {
       setIsLoading(false);
-      setTimeout(() => setShowBlackOverlay(true), 100);
+    }, TIMINGS.LOADING_DURATION);
 
+    const titleAppearTime = TIMINGS.LOADING_DURATION + 400;
+    setTimeout(() => {
       charRefs.current.forEach((el) => {
         if (el) {
           el.style.animation = 'none';
@@ -220,26 +171,20 @@ export default function Home() {
         }
       });
       setBulgeEnabled(true);
-
-      setTimeout(() => {
-        setShowBlackOverlay(false);
-        setShowContent(true);
-        setCursorVisible(true);
-      }, TIMINGS.BLACK_TRANSITION_DURATION + 100);
-    }, TIMINGS.LOADING_DURATION);
+      setShowContent(true);
+      setCursorVisible(true);
+    }, titleAppearTime);
   };
 
   useEffect(() => {
-    if (audioLoaded) {
-      startSequence();
-    }
-  }, [audioLoaded]);
+    startSequence();
+  }, []);
 
   // ─── Interactive Canvas Background ───
   useEffect(() => {
     if (!showContent) return;
 
-    const canvas = canvasRef.current;
+    const canvas = bgCanvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
@@ -250,10 +195,10 @@ export default function Home() {
       W = canvas.width = window.innerWidth;
       H = canvas.height = window.innerHeight;
     }
+
     window.addEventListener('resize', resize);
     resize();
 
-    // ── Paleta cálida (same as original) ──
     const WARM = [
       [234, 88, 12],
       [249, 115, 22],
@@ -264,19 +209,16 @@ export default function Home() {
       [180, 83, 9],
       [253, 186, 116],
     ];
-    const COL_SKY = [56, 189, 248];
 
     function rnd(a, b) { return a + Math.random() * (b - a); }
     function pick() { return WARM[Math.floor(Math.random() * WARM.length)]; }
 
-    // ── NO SPIRALS – removed ──
-
-    // ── CONSTELACIONES (stars + lines) ──
-    const STAR_COUNT = Math.floor((window.innerWidth * window.innerHeight) / 5500);
+    const STAR_COUNT = Math.floor((window.innerWidth * window.innerHeight) / 4500);
     const stars = Array.from({ length: STAR_COUNT }, () => {
       const c = Math.random() < 0.3 ? pick() : [253, 232, 200];
       return {
-        x: rnd(0, W), y: rnd(0, H),
+        x: rnd(0, W),
+        y: rnd(0, H),
         r: rnd(0.4, 2.2),
         alpha: rnd(0.3, 1),
         twinkleSpeed: rnd(0.0005, 0.0015),
@@ -318,9 +260,12 @@ export default function Home() {
 
     function updateStars() {
       stars.forEach(s => {
-        s.x += s.vx; s.y += s.vy;
-        if (s.x < 0) s.x = W; if (s.x > W) s.x = 0;
-        if (s.y < 0) s.y = H; if (s.y > H) s.y = 0;
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.x < 0) s.x = W;
+        if (s.x > W) s.x = 0;
+        if (s.y < 0) s.y = H;
+        if (s.y > H) s.y = 0;
         const dx = s.x - mouse.x;
         const dy = s.y - mouse.y;
         const d = Math.sqrt(dx * dx + dy * dy);
@@ -332,19 +277,20 @@ export default function Home() {
       });
     }
 
-    // ── NO LILIES – removed ──
-
-    // ── SHOOTING STARS ──
     const shooting = [];
-    let lastShoot = 0, nextShoot = 3000;
+    let lastShoot = 0,
+      nextShoot = 3000;
 
     function spawnShoot() {
       const c = pick();
       shooting.push({
-        x: rnd(0, W), y: rnd(0, H * 0.5),
-        len: rnd(100, 240), speed: rnd(5, 11),
+        x: rnd(0, W),
+        y: rnd(0, H * 0.5),
+        len: rnd(100, 240),
+        speed: rnd(5, 11),
         angle: rnd(18, 40) * Math.PI / 180,
-        life: 1, color: c,
+        life: 1,
+        color: c,
       });
     }
 
@@ -369,13 +315,11 @@ export default function Home() {
       });
     }
 
-    // ── MAIN LOOP ──
     let animId;
 
     function tick(t) {
       ctx.clearRect(0, 0, W, H);
 
-      // ── Constellations lines ──
       ctx.globalAlpha = 0.06;
       ctx.strokeStyle = `rgb(${WARM[6][0]},${WARM[6][1]},${WARM[6][2]})`;
       ctx.lineWidth = 0.5;
@@ -388,7 +332,6 @@ export default function Home() {
         ctx.stroke();
       });
 
-      // ── Stars ──
       updateStars();
       stars.forEach(s => {
         const a = s.alpha * (0.55 + 0.45 * Math.sin(t * s.twinkleSpeed * 1000 + s.phase));
@@ -403,7 +346,6 @@ export default function Home() {
         }
       });
 
-      // ── Shooting stars ──
       if (t - lastShoot > nextShoot) {
         spawnShoot();
         lastShoot = t;
@@ -562,8 +504,12 @@ export default function Home() {
             font-display: swap;
           }
 
+          /* ─── No scrolling ─── */
           body {
+            overflow: hidden;
             cursor: crosshair;
+            height: 100vh;
+            width: 100vw;
           }
           body.cursor-hidden {
             cursor: none !important;
@@ -584,8 +530,23 @@ export default function Home() {
             -khtml-user-drag: none;
             pointer-events: none;
           }
+
+          .black-top {
+            position: fixed;
+            inset: 0;
+            background: #0F0F0F;
+            z-index: 10002;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity ${TIMINGS.BLACK_OVERLAY_DURATION}ms ease-in-out;
+          }
+          .black-top.active {
+            opacity: 1;
+          }
         `}</style>
       </Head>
+
+      <div className={`black-top ${showBlackTop ? 'active' : ''}`} />
 
       {/* ─── LOADING SCREEN ─── */}
       <div className={`loading-overlay ${!isLoading ? 'fade-out' : ''}`}>
@@ -608,36 +569,36 @@ export default function Home() {
         <div className={`flash-overlay ${flash ? 'active' : ''}`} />
       </div>
 
-      {/* ─── BLACK TRANSITION ─── */}
-      <div className={`black-overlay ${showBlackOverlay ? 'active' : ''}`} />
-
       {/* ─── MAIN PAGE ─── */}
       <main className="page-shell">
-        {/* Interactive Background Canvas */}
-        <canvas ref={canvasRef} className="bg-canvas" />
-
+        <canvas ref={bgCanvasRef} className="bg-canvas" />
         <div className="grid-blueprint" />
-        <section className={`page-content ${showContent ? 'is-ready' : ''}`}>
-          <span className="page-eyebrow">Portfolio</span>
-          <h1 className="main-title">
-            {nameChars.map((char, idx) => (
-              <span
-                key={idx}
-                className="char"
-                ref={(el) => (charRefs.current[idx] = el)}
-                style={{ animationDelay: `${0.1 + idx * 0.08}s` }}
-              >
-                {char === " " ? "\u00A0" : char}
-              </span>
-            ))}
-          </h1>
-          <p>
-            <span className="word" style={{ animationDelay: '1.2s' }}>Hardware</span>
-            <span className="word" style={{ animationDelay: '1.4s' }}>•</span>
-            <span className="word" style={{ animationDelay: '1.6s' }}>Systems</span>
-            <span className="word" style={{ animationDelay: '1.8s' }}>•</span>
-            <span className="word" style={{ animationDelay: '2.0s' }}>UAV</span>
-          </p>
+
+        <section className={`hero-section ${showContent ? 'is-ready' : ''}`}>
+          <div className="hero-wrapper">
+            <div className="page-content">
+              <span className="page-eyebrow">Portfolio</span>
+              <h1 className="main-title">
+                {nameChars.map((char, idx) => (
+                  <span
+                    key={idx}
+                    className="char"
+                    ref={(el) => (charRefs.current[idx] = el)}
+                    style={{ animationDelay: `${0.1 + idx * 0.08}s` }}
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </span>
+                ))}
+              </h1>
+              <p>
+                <span className="word" style={{ animationDelay: '1.2s' }}>Hardware</span>
+                <span className="word" style={{ animationDelay: '1.4s' }}>•</span>
+                <span className="word" style={{ animationDelay: '1.6s' }}>Systems</span>
+                <span className="word" style={{ animationDelay: '1.8s' }}>•</span>
+                <span className="word" style={{ animationDelay: '2.0s' }}>UAV</span>
+              </p>
+            </div>
+          </div>
         </section>
       </main>
 
@@ -656,9 +617,9 @@ export default function Home() {
           background: #0F0F0F;
           color: #fff;
           font-family: 'Aeonik', 'General Sans', Inter, 'Segoe UI', sans-serif;
-          overflow: hidden;
           height: 100vh;
           width: 100vw;
+          overflow: hidden;
         }
 
         .loading-overlay {
@@ -808,47 +769,47 @@ export default function Home() {
           100% { transform: scale(1) rotate(3deg); opacity: 1; filter: blur(0); }
         }
 
-        .black-overlay {
+        .black-top {
           position: fixed;
           inset: 0;
           background: #0F0F0F;
-          z-index: 10001;
+          z-index: 10002;
           pointer-events: none;
           opacity: 0;
-          transition: none;
+          transition: opacity ${TIMINGS.BLACK_OVERLAY_DURATION}ms ease-in-out;
         }
-        .black-overlay.active {
-          animation: blackPulse ${TIMINGS.BLACK_TRANSITION_DURATION}ms ease-in-out forwards;
-        }
-        @keyframes blackPulse {
-          0% { opacity: 0; }
-          25% { opacity: 1; }
-          75% { opacity: 1; }
-          100% { opacity: 0; }
+        .black-top.active {
+          opacity: 1;
         }
 
-        /* ─── MAIN PAGE ─── */
         .page-shell {
           position: relative;
           min-height: 100vh;
           min-width: 100vw;
-          background: #0F0F0F;
+          background: transparent;
           overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .bg-canvas {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
           z-index: 0;
           pointer-events: none;
           display: block;
         }
 
         .grid-blueprint {
-          position: absolute;
-          inset: 0;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
           pointer-events: none;
           z-index: 1;
           background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
@@ -858,20 +819,31 @@ export default function Home() {
           -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
         }
 
-        .page-content {
+        .hero-section {
           position: relative;
           z-index: 2;
-          text-align: center;
+          min-height: 100vh;
+          min-width: 100vw;
           display: flex;
-          flex-direction: column;
           align-items: center;
           justify-content: center;
-          min-height: 100vh;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-        .page-content.is-ready {
           opacity: 1;
+        }
+        .hero-section.is-ready {
+          opacity: 1;
+        }
+
+        .hero-wrapper {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .page-content {
+          text-align: center;
+          padding: 2rem;
         }
 
         .page-eyebrow {
@@ -906,8 +878,7 @@ export default function Home() {
           will-change: transform;
           transform-origin: center center;
         }
-
-        .page-content.is-ready .char {
+        .hero-section.is-ready .char {
           opacity: 1;
           transform: translateY(0px);
         }
@@ -917,12 +888,6 @@ export default function Home() {
           opacity: 0;
           animation: slideUp 0.8s ease forwards;
         }
-
-        @keyframes slideUp {
-          0% { opacity: 0; transform: translateY(30px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-
         .page-content p {
           color: #aaa;
           font-size: 1.4rem;
@@ -934,6 +899,17 @@ export default function Home() {
           gap: 0.5em;
           margin-top: 0.5rem;
           font-weight: 400;
+        }
+
+        @keyframes slideUp {
+          0% { opacity: 0; transform: translateY(30px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+          .main-title {
+            font-size: clamp(3rem, 8vw, 4.5rem);
+          }
         }
       `}</style>
     </>

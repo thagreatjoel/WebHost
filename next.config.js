@@ -1,11 +1,10 @@
+// next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  images: {
-    domains: ['avatars.githubusercontent.com', 'github.com'],
-    unoptimized: false,
-  },
-  // Remove the 'output: export' line
-}
+  // ... any other existing config (like images.domains)
+  // ✅ REMOVE or COMMENT OUT this line if it exists:
+  // output: 'export',
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

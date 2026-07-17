@@ -80,7 +80,7 @@ const getFallbackProjects = () => {
   ];
 };
 
-// ─── SERVER-SIDE PROPS ───
+// ─── SERVER-SIDE PROPS (Works on Vercel) ───
 export async function getServerSideProps() {
   const username = 'thagreatjoel';
   let repos = [];
@@ -88,9 +88,19 @@ export async function getServerSideProps() {
   let usingFallback = false;
 
   try {
-    const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`);
+    const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, {
+      headers: {
+        'Accept': 'application/json',
+        'User-Agent': 'Next.js-App'
+      }
+    });
 
-    if (!response.ok) {
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      usingFallback = true;
+      repos = getFallbackProjects();
+    } else if (!response.ok) {
       if (response.status === 403) {
         error = 'GitHub API rate limit exceeded. Showing sample projects.';
       } else if (response.status === 404) {
@@ -101,12 +111,16 @@ export async function getServerSideProps() {
       usingFallback = true;
       repos = getFallbackProjects();
     } else {
-      const data = await response.json();
-      // Ensure we have an array
-      repos = Array.isArray(data) ? data : [];
-      
-      // If no repos were returned, use fallback
-      if (repos.length === 0) {
+      try {
+        const data = await response.json();
+        repos = Array.isArray(data) ? data : [];
+        
+        if (repos.length === 0) {
+          usingFallback = true;
+          repos = getFallbackProjects();
+        }
+      } catch (jsonError) {
+        console.error('Failed to parse GitHub response:', jsonError);
         usingFallback = true;
         repos = getFallbackProjects();
       }
@@ -118,7 +132,6 @@ export async function getServerSideProps() {
     repos = getFallbackProjects();
   }
 
-  // Always return an array for repos
   return {
     props: {
       repos: Array.isArray(repos) ? repos : getFallbackProjects(),
@@ -477,11 +490,9 @@ export default function Projects({ repos = [], error = null, usingFallback = fal
   }, []);
 
   // ─── PROCESS REPOS DATA ───
-  // Sort repos by stars (descending) for "pinned" section
   const sortedByStars = [...safeRepos].sort((a, b) => (b.stargazers_count || 0) - (a.stargazers_count || 0));
   const pinnedRepos = sortedByStars.slice(0, 4);
 
-  // Sort repos by last updated for "recent" section
   const sortedByUpdated = [...safeRepos].sort((a, b) => {
     return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
   });
@@ -717,6 +728,21 @@ export default function Projects({ repos = [], error = null, usingFallback = fal
           color: rgba(255, 255, 255, 0.15);
           text-align: center;
           margin-top: -4px;
+        }
+
+        .repo-count {
+          font-size: 0.6rem;
+          color: rgba(255, 255, 255, 0.2);
+          margin-left: 8px;
+          font-weight: 300;
+        }
+
+        .no-projects {
+          grid-column: 1 / -1;
+          text-align: center;
+          color: rgba(255, 255, 255, 0.3);
+          font-size: 0.8rem;
+          padding: 20px;
         }
 
         @media (max-width: 1024px) {
@@ -965,21 +991,6 @@ export default function Projects({ repos = [], error = null, usingFallback = fal
           background-position: 0 0, 0 0;
           mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
           -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
-        }
-
-        .repo-count {
-          font-size: 0.6rem;
-          color: rgba(255, 255, 255, 0.2);
-          margin-left: 8px;
-          font-weight: 300;
-        }
-
-        .no-projects {
-          grid-column: 1 / -1;
-          text-align: center;
-          color: rgba(255, 255, 255, 0.3);
-          font-size: 0.8rem;
-          padding: 20px;
         }
       `}</style>
 

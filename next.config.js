@@ -2,11 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: true,
+    domains: ['avatars.githubusercontent.com', 'github.com'],
+    unoptimized: false,
   },
-  trailingSlash: true,
-  output: 'export',
-  distDir: 'out',
+  // Remove the 'output: export' line
 }
 
 module.exports = nextConfig

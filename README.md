@@ -24,4 +24,7 @@
 
 </div>
 
-<h1>Pages</h1>
+# STICKER SYSTEM
+It is an interactive feature that lets visitors place drag and manage hackclub stickers on the page. 
+- Green dot shows you own a sticker
+- Only stcker owners can only make changes to their stickers

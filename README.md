@@ -6,4 +6,4 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=flat&logo=mongodb)](https://mongodb.com/)
 
 # About 
-A cool protfolio webso=ite of mine shows my works and have cool features and a small database for connect peoples with me it also got real time github intergation with come custom star behind!
+A cool protfolio website of mine shows my works and have cool features and a small database for connect peoples with me it also got real time github intergation with come custom star behind!

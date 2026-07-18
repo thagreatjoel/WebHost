@@ -75,8 +75,7 @@ export default function Home() {
     },
     { 
       id: 2, 
-      name: 'Orphymoji', 
-      emoji: '👾',
+      name: 'Orphymoji',
       imageUrl: 'https://cdn.hackclub.com/019d730b-a55e-7f0f-b67f-18684ad6c4d3/zGbCIuBBdvq17MYY5vU-NPj9Cwx7-EPQ_fWifN47AZc'
     },
     { 

@@ -80,12 +80,12 @@ export default function Home() {
     },
     { 
       id: 3, 
-      name: 'Holiday', 
-      imageUrl: 'https://cdn.hackclub.com/019d730c-1755-7a0c-9e6f-d9b08e0affd5/YDTGVqKSv30zwAf8kuudy8vr3dV_v2Q2gU4A01CZP7o'
+      name: 'Nest', 
+      imageUrl: 'https://user-cdn.hackclub-assets.com/019d730b-7fdb-700a-8fe5-c0d3b5195538/wwW8TpeXYvDe1JJ2ZuhJvhdFki3YRA9_garbc7Du5n8'
     },
     { 
       id: 4, 
-      name: 'Anxious', 
+      name: 'Anxiophy', 
       imageUrl: 'https://cdn.hackclub.com/019d730c-b4a4-7c77-80a6-ab4995f8813e/QgVBcCZOPZP_ZeWoD2-AhBIIG71jUiyn_rwnCbEA2vA'
     },
     { 

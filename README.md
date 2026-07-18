@@ -5,5 +5,5 @@
 [![React](https://img.shields.io/badge/React-19-blue?style=flat&logo=react)](https://reactjs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=flat&logo=mongodb)](https://mongodb.com/)
 
-# About 
+<h1>About</h1>
 A cool protfolio website of mine shows my works and have cool features and a small database for connect peoples with me it also got real time github intergation with come custom star behind!

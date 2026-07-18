@@ -1,6 +1,17 @@
 {
+  "/": "pages/index.html",
   "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js"
+  "/_error": "pages/_error.js",
+  "/about": "pages/about.html",
+  "/api/stickers/all": "pages/api/stickers/all.js",
+  "/api/stickers/delete": "pages/api/stickers/delete.js",
+  "/api/stickers/place": "pages/api/stickers/place.js",
+  "/api/stickers/update": "pages/api/stickers/update.js",
+  "/api/stickers/update-note": "pages/api/stickers/update-note.js",
+  "/api/stickers/user": "pages/api/stickers/user.js",
+  "/dashboard": "pages/dashboard.html",
+  "/projects": "pages/projects.js",
+  "/test": "pages/test.html",
+  "/404": "pages/404.html"
 }

@@ -1,33 +1,55 @@
 {
-  "polyfillFiles": [
-    "static/chunks/polyfills.js"
-  ],
-  "devFiles": [
-    "static/chunks/react-refresh.js"
-  ],
-  "ampDevFiles": [],
-  "lowPriorityFiles": [
-    "static/development/_buildManifest.js",
-    "static/development/_ssgManifest.js"
-  ],
-  "rootMainFiles": [],
-  "rootMainFilesTree": {},
   "pages": {
     "/": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/index.js"
+      "static/chunks/27ojqyv730tns.js",
+      "static/chunks/40gvcu2o_0572.js",
+      "static/chunks/3mae3hh8gtzjc.js",
+      "static/chunks/4316hpr_p9bzs.js",
+      "static/chunks/turbopack-09hiezs9agz41.js"
     ],
     "/_app": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/_app.js"
+      "static/chunks/084c_zudd99sx.js",
+      "static/chunks/3mae3hh8gtzjc.js",
+      "static/chunks/4316hpr_p9bzs.js",
+      "static/chunks/turbopack-3sg6o9717-0s7.js"
     ],
     "/_error": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/_error.js"
+      "static/chunks/2tg08kl579oif.js",
+      "static/chunks/3mae3hh8gtzjc.js",
+      "static/chunks/4316hpr_p9bzs.js",
+      "static/chunks/turbopack-2vauz0w7lt-_s.js"
+    ],
+    "/about": [
+      "static/chunks/1zanhjk291lq0.js",
+      "static/chunks/3mae3hh8gtzjc.js",
+      "static/chunks/4316hpr_p9bzs.js",
+      "static/chunks/turbopack-0qp3b-pocrc8r.js"
+    ],
+    "/dashboard": [
+      "static/chunks/0clnb5fzl1ft0.js",
+      "static/chunks/3mae3hh8gtzjc.js",
+      "static/chunks/4316hpr_p9bzs.js",
+      "static/chunks/turbopack-3-wsm3906i53c.js"
+    ],
+    "/projects": [
+      "static/chunks/0jjoga5-kawhj.js",
+      "static/chunks/3mae3hh8gtzjc.js",
+      "static/chunks/4316hpr_p9bzs.js",
+      "static/chunks/turbopack-1eig9t9_13l_4.js"
+    ],
+    "/test": [
+      "static/chunks/0p76dklq6dhy6.js",
+      "static/chunks/3mae3hh8gtzjc.js",
+      "static/chunks/4316hpr_p9bzs.js",
+      "static/chunks/turbopack-2txqzoksyf5ho.js"
     ]
   },
-  "ampFirstPages": []
+  "devFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [
+    "static/_ZvYdZvRRQsXDq0Mbhsph/_buildManifest.js",
+    "static/_ZvYdZvRRQsXDq0Mbhsph/_ssgManifest.js",
+    "static/_ZvYdZvRRQsXDq0Mbhsph/_clientMiddlewareManifest.js"
+  ],
+  "rootMainFiles": []
 }

@@ -4,13 +4,16 @@ export default function StickerPlacementModal({
   sticker, 
   onConfirm, 
   onCancel, 
-  existingStickers 
+  existingStickers = []  // ✅ Set default value to empty array
 }) {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [publicNote, setPublicNote] = useState('');
   const [privateNote, setPrivateNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ✅ Safe check: ensure existingStickers is always an array
+  const safeExistingStickers = Array.isArray(existingStickers) ? existingStickers : [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,10 +38,11 @@ export default function StickerPlacementModal({
         
         <h2>📌 Place Your Sticker</h2>
         <p style={{ color: '#aaa', fontSize: '0.9rem', marginBottom: '20px' }}>
-          You've selected: {sticker.emoji} {sticker.name}
-          {existingStickers.length > 0 && (
+          You've selected: {sticker?.emoji} {sticker?.name}
+          {/* ✅ Safe: check if safeExistingStickers has items */}
+          {safeExistingStickers.length > 0 && (
             <span style={{ display: 'block', color: '#fbbf24', marginTop: '8px' }}>
-              ⚠️ You already have {existingStickers.length} sticker{existingStickers.length > 1 ? 's' : ''}. 
+              ⚠️ You already have {safeExistingStickers.length} sticker{safeExistingStickers.length > 1 ? 's' : ''}. 
               You can place up to 2 total.
             </span>
           )}

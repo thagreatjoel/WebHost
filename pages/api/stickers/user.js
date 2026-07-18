@@ -9,11 +9,11 @@ export default async function handler(req, res) {
 
   try {
     const { userId } = req.query;
-    
+
     // Always return a valid response even if userId is missing
     if (!userId) {
       console.log('⚠️ No userId provided, returning empty array');
-      return res.status(200).json({ 
+      return res.status(200).json({
         success: true,
         stickers: [],
         count: 0,
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     // Check if MongoDB is configured
     if (!process.env.MONGODB_URI) {
       console.warn('⚠️ MONGODB_URI not set');
-      return res.status(200).json({ 
+      return res.status(200).json({
         success: true,
         stickers: [],
         count: 0,

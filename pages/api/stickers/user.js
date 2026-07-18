@@ -1,36 +1,46 @@
-import { connectToDatabase } from '../../../lib/mongodb';
-import Sticker from '../../../models/Sticker';
+// lib/mongodb.js
+import { MongoClient } from 'mongodb';
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+const uri = process.env.MONGODB_URI;
+const options = {
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+};
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+let client;
+let clientPromise;
 
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  try {
-    await connectToDatabase();
-
-    const { userId } = req.query;
-
-    if (!userId) {
-      return res.status(400).json({ error: 'userId is required' });
+if (!uri) {
+  console.warn('MONGODB_URI is not set. MongoDB features will not work.');
+  clientPromise = null;
+} else {
+  if (process.env.NODE_ENV === 'development') {
+    if (!global._mongoClientPromise) {
+      client = new MongoClient(uri, options);
+      global._mongoClientPromise = client.connect();
     }
-
-    const stickers = await Sticker.find({ userId }).sort({ createdAt: -1 });
-
-    res.status(200).json({
-      success: true,
-      stickers,
-    });
-  } catch (error) {
-    console.error('Error fetching user stickers:', error);
-    res.status(500).json({ error: 'Failed to fetch user stickers' });
+    clientPromise = global._mongoClientPromise;
+  } else {
+    client = new MongoClient(uri, options);
+    clientPromise = client.connect();
   }
 }
+
+// Helper to ensure connection
+export async function connectToDatabase() {
+  if (!clientPromise) {
+    throw new Error('MongoDB not configured');
+  }
+  
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    return { client, db };
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
+  }
+}
+
+export default clientPromise;

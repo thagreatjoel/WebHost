@@ -55,3 +55,6 @@ It is an interactive feature that lets visitors place drag and manage hackclub s
 - Guestbook were visitors leave messages
 - Feedback from people
 - Connection with peoples
+
+## AI DISCLOSURE
+AI was used in this project for animations and css style, art works are made thorugh adobe express

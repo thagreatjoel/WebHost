@@ -1,8 +1,7 @@
-<<<<<<< HEAD
-# Portfolio
-Own personal website
-=======
-# thagreatjoel.me
-My own personal website ✨
-Private repo
->>>>>>> 45103ba2b8603f33daf52ee8ea9686edcc88c416
+# EPIC PORTFOLIO (maybe)
+
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-success?style=flat&logo=vercel)](https://web-host-tan.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-15.3.5-black?style=flat&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue?style=flat&logo=react)](https://reactjs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=flat&logo=mongodb)](https://mongodb.com/)
+

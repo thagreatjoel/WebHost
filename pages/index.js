@@ -757,29 +757,57 @@ export default function Home() {
   }, []);
 
   // ─── FUNCTIONS ───
-  const fetchAllStickers = async () => {
-    try {
-      const res = await fetch('/api/stickers/all');
-      const data = await res.json();
-      if (data.success) {
-        setAllStickers(data.stickers);
-      }
-    } catch (error) {
-      console.error('Error fetching stickers:', error);
+const fetchAllStickers = async () => {
+  try {
+    const res = await fetch('/api/stickers/all');
+    const data = await res.json();
+    
+    if (data.success && data.stickers) {
+      setAllStickers(data.stickers);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching stickers:', error);
+  }
+};
 
   const fetchUserStickers = async () => {
-    try {
-      const res = await fetch(`/api/stickers/user?userId=${userId}`);
-      const data = await res.json();
-      if (data.success) {
-        setUserStickers(data.stickers);
-      }
-    } catch (error) {
-      console.error('Error fetching user stickers:', error);
+  try {
+    if (!userId) return;
+    
+    const res = await fetch(`/api/stickers/user?userId=${userId}`);
+    const data = await res.json();
+    
+    if (data.success && data.stickers) {
+      // ✅ Map the stickers to the format expected by your component
+      const formattedStickers = data.stickers.map(s => ({
+        id: s._id,
+        _id: s._id,
+        emoji: s.emoji,
+        name: s.name,
+        imageUrl: s.imageUrl || '',
+        x: s.x || 100,
+        y: s.y || 100,
+        scale: s.scale || 1,
+        rotation: s.rotation || 0,
+        userName: s.userName,
+        publicNote: s.publicNote,
+        userId: s.userId,
+      }));
+      
+      setUserStickers(formattedStickers);
+      setPlacedStickers(prev => {
+        // Merge with existing stickers, avoiding duplicates
+        const existingIds = new Set(prev.map(s => s.id));
+        const newStickers = formattedStickers.filter(s => !existingIds.has(s.id));
+        return [...prev, ...newStickers];
+      });
     }
-  };
+  } catch (error) {
+    console.error('Error fetching user stickers:', error);
+  }
+};
+
+
 
   const handleStickerSelect = (sticker) => {
     setSelectedSticker(sticker);
@@ -792,8 +820,6 @@ export default function Home() {
     document.body.style.cursor = 'crosshair';
     document.body.classList.add('sticker-placement-mode');
   };
-
-  // In your Home component, update the handlePlaceSticker function
 const handlePlaceSticker = async (data) => {
   if (!pendingSticker) return;
 
@@ -803,7 +829,7 @@ const handlePlaceSticker = async (data) => {
     userEmail: data.userEmail,
     emoji: pendingSticker.emoji,
     name: pendingSticker.name,
-    imageUrl: pendingSticker.imageUrl || '',
+    imageUrl: pendingSticker.imageUrl || '', // ✅ Make sure this is sent
     x: stickerClickPosition.x - 30,
     y: stickerClickPosition.y - 30,
     scale: 1 + Math.random() * 0.3,
@@ -822,12 +848,12 @@ const handlePlaceSticker = async (data) => {
     const result = await res.json();
 
     if (result.success) {
-      // ✅ Update both placedStickers and allStickers
+      // ✅ Store the sticker with imageUrl
       const newSticker = {
         id: result.sticker._id,
         emoji: result.sticker.emoji,
         name: result.sticker.name,
-        imageUrl: result.sticker.imageUrl || '',
+        imageUrl: result.sticker.imageUrl || pendingSticker.imageUrl || '',
         x: result.sticker.x,
         y: result.sticker.y,
         scale: result.sticker.scale,
@@ -837,18 +863,20 @@ const handlePlaceSticker = async (data) => {
         userId: result.sticker.userId,
       };
       
+      // ✅ Update all sticker states
       setPlacedStickers(prev => [...prev, newSticker]);
       setAllStickers(prev => [...prev, result.sticker]);
       setUserStickers(result.userStickers || []);
+      
+      // ✅ Force refresh to get the latest data
       await fetchAllStickers();
       await fetchUserStickers();
-
+      
       setShowPlacementModal(false);
       setPendingSticker(null);
       setShowStickers(false);
       setIsPlacingSticker(false);
       setSelectedSticker(null);
-      setShowPlacementModal(false);  
       document.body.style.cursor = 'default';
       document.body.classList.remove('sticker-placement-mode');
     } else {
@@ -897,21 +925,28 @@ const handlePlaceSticker = async (data) => {
     setContextMenu(null);
   };
 
-  const handleStickerMouseDown = (e, sticker) => {
-    if (sticker.userId !== userId) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    setIsDragging(true);
-    setDragData({
-      stickerId: sticker.id || sticker._id,
-      startX: e.clientX,
-      startY: e.clientY,
-      originalX: sticker.x,
-      originalY: sticker.y,
-    });
-  };
+ const handleStickerMouseDown = (e, sticker) => {
+  // ✅ Only allow dragging if user owns the sticker
+  if (sticker.userId !== userId) return;
+  
+  e.preventDefault();
+  e.stopPropagation();
+  
+  // ✅ Store the sticker ID properly
+  const stickerId = sticker.id || sticker._id;
+  
+  setIsDragging(true);
+  setDragData({
+    stickerId: stickerId,
+    startX: e.clientX,
+    startY: e.clientY,
+    originalX: sticker.x,
+    originalY: sticker.y,
+  });
+  
+  // ✅ Add dragging class
+  document.body.style.cursor = 'grabbing';
+};
 
   const handleStickerRightClick = (e, sticker) => {
     e.preventDefault();
@@ -2201,75 +2236,99 @@ const handlePlaceSticker = async (data) => {
   />
 )}
 
-      {/* Stickers - Only shown when stickersVisible is true */}
-      {stickersVisible && (
-        <>
-          {placedStickers.map((sticker) => (
-            <div 
-              key={sticker.id}
-              className={`placed-sticker ${isDragging && dragData?.stickerId === sticker.id ? 'dragging' : ''}`}
-              style={{
-                left: sticker.x + 'px',
-                top: sticker.y + 'px',
-                transform: `scale(${sticker.scale}) rotate(${sticker.rotation}deg)`,
-                cursor: sticker.userId === userId ? 'grab' : 'pointer',
+     {/* Stickers - Only shown when stickersVisible is true */}
+{stickersVisible && (
+  <>
+    {/* Render placed stickers from placedStickers state */}
+    {placedStickers.map((sticker) => (
+      <div 
+        key={sticker.id}
+        className={`placed-sticker ${isDragging && dragData?.stickerId === sticker.id ? 'dragging' : ''}`}
+        style={{
+          left: sticker.x + 'px',
+          top: sticker.y + 'px',
+          transform: `scale(${sticker.scale || 1}) rotate(${sticker.rotation || 0}deg)`,
+          cursor: sticker.userId === userId ? 'grab' : 'pointer',
+        }}
+        onMouseDown={(e) => handleStickerMouseDown(e, sticker)}
+        onContextMenu={(e) => handleStickerRightClick(e, sticker)}
+      >
+        {/* ✅ Show image if available, otherwise emoji */}
+        {sticker.imageUrl ? (
+          <img 
+            src={sticker.imageUrl} 
+            alt={sticker.name} 
+            style={{ 
+              width: '50px', 
+              height: '50px', 
+              objectFit: 'contain',
+              pointerEvents: 'none',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <span style={{ fontSize: '2.5rem' }}>{sticker.emoji || '📌'}</span>
+        )}
+        {sticker.userId === userId && (
+          <div className="sticker-owner-indicator" title="You own this sticker" />
+        )}
+        <div className="sticker-tooltip">
+          <span className="tooltip-name">@{sticker.userName}</span>
+          {sticker.publicNote && (
+            <span className="tooltip-note">{sticker.publicNote}</span>
+          )}
+        </div>
+      </div>
+    ))}
+
+    {/* Render stickers from allStickers (from database) */}
+    {allStickers.map((sticker) => {
+      const isPlaced = placedStickers.some(s => s.id === sticker._id);
+      if (isPlaced) return null;
+
+      return (
+        <div
+          key={sticker._id}
+          className={`placed-sticker server-sticker ${isDragging && dragData?.stickerId === sticker._id ? 'dragging' : ''}`}
+          style={{
+            left: sticker.x + 'px',
+            top: sticker.y + 'px',
+            transform: `scale(${sticker.scale || 1}) rotate(${sticker.rotation || 0}deg)`,
+            cursor: sticker.userId === userId ? 'grab' : 'pointer',
+          }}
+          onMouseDown={(e) => handleStickerMouseDown(e, { ...sticker, id: sticker._id })}
+          onContextMenu={(e) => handleStickerRightClick(e, { ...sticker, id: sticker._id })}
+        >
+          {/* ✅ Show image if available, otherwise emoji */}
+          {sticker.imageUrl ? (
+            <img 
+              src={sticker.imageUrl} 
+              alt={sticker.name} 
+              style={{ 
+                width: '50px', 
+                height: '50px', 
+                objectFit: 'contain',
+                pointerEvents: 'none',
+                display: 'block'
               }}
-              onMouseDown={(e) => handleStickerMouseDown(e, sticker)}
-              onContextMenu={(e) => handleStickerRightClick(e, sticker)}
-            >
-              {sticker.imageUrl ? (
-                <img src={sticker.imageUrl} alt={sticker.name} />
-              ) : (
-                sticker.emoji
-              )}
-              {sticker.userId === userId && (
-                <div className="sticker-owner-indicator" title="You own this sticker" />
-              )}
-              <div className="sticker-tooltip">
-                <span className="tooltip-name">@{sticker.userName}</span>
-                {sticker.publicNote && (
-                  <span className="tooltip-note">{sticker.publicNote}</span>
-                )}
-              </div>
-            </div>
-          ))}
-
-          {allStickers.map((sticker) => {
-            const isPlaced = placedStickers.some(s => s.id === sticker._id);
-            if (isPlaced) return null;
-
-            return (
-              <div
-                key={sticker._id}
-                className={`placed-sticker server-sticker ${isDragging && dragData?.stickerId === sticker._id ? 'dragging' : ''}`}
-                style={{
-                  left: sticker.x + 'px',
-                  top: sticker.y + 'px',
-                  transform: `scale(${sticker.scale}) rotate(${sticker.rotation}deg)`,
-                  cursor: sticker.userId === userId ? 'grab' : 'pointer',
-                }}
-                onMouseDown={(e) => handleStickerMouseDown(e, { ...sticker, id: sticker._id })}
-                onContextMenu={(e) => handleStickerRightClick(e, { ...sticker, id: sticker._id })}
-              >
-                {sticker.imageUrl ? (
-                  <img src={sticker.imageUrl} alt={sticker.name} />
-                ) : (
-                  sticker.emoji || '📌'
-                )}
-                {sticker.userId === userId && (
-                  <div className="sticker-owner-indicator" title="You own this sticker" />
-                )}
-                <div className="sticker-tooltip">
-                  <span className="tooltip-name">@{sticker.userName}</span>
-                  {sticker.publicNote && (
-                    <span className="tooltip-note">{sticker.publicNote}</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </>
-      )}
+            />
+          ) : (
+            <span style={{ fontSize: '2.5rem' }}>{sticker.emoji || '📌'}</span>
+          )}
+          {sticker.userId === userId && (
+            <div className="sticker-owner-indicator" title="You own this sticker" />
+          )}
+          <div className="sticker-tooltip">
+            <span className="tooltip-name">@{sticker.userName}</span>
+            {sticker.publicNote && (
+              <span className="tooltip-note">{sticker.publicNote}</span>
+            )}
+          </div>
+        </div>
+      );
+    })}
+  </>
+)}
 
       {/* Context Menu */}
       {contextMenu && (

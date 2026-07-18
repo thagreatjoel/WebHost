@@ -58,24 +58,39 @@ export default async function handler(req, res) {
     }
 
     // Create new sticker
-    const newSticker = {
-      userId,
-      userName,
-      userEmail,
-      emoji,
-      name,
-      placedAt: new Date(),
-    };
+      const newSticker = {
+    userId,
+    userName,
+    userEmail,
+    emoji,
+    name,
+    imageUrl: imageUrl || '', // ✅ Store imageUrl
+    x: x || 0,
+    y: y || 0,
+    scale: scale || 1,
+    rotation: rotation || 0,
+    publicNote: publicNote || '',
+    privateNote: privateNote || '',
+    placedAt: new Date(),
+  };
 
     console.log('💾 Saving new sticker...');
     const result = await collection.insertOne(newSticker);
     console.log('✅ Sticker saved successfully!');
 
-    return res.status(200).json({
-      success: true,
-      message: 'Sticker placed successfully!',
-      sticker: { ...newSticker, _id: result.insertedId }
-    });
+   
+
+  return res.status(200).json({
+    success: true,  
+    message: 'Sticker placed successfully!',
+    sticker: {
+      ...newSticker,
+      _id: result.insertedId,
+    },
+    userStickers: userStickers,
+  });
+}
+
 
   } catch (error) {
     console.error('❌ Error placing sticker:', error);
@@ -100,4 +115,14 @@ export default async function handler(req, res) {
       message: error.message
     });
   }
+}
+
+  return res.status(200).json({
+    success: true,
+    sticker: {
+      ...newSticker,
+      _id: result.insertedId,
+    },
+    userStickers: userStickers,
+  });
 }

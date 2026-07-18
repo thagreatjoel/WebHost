@@ -71,7 +71,6 @@ export default function Home() {
     { 
       id: 1, 
       name: 'Hedie Shy', 
-      emoji: '😊',
       imageUrl: 'https://user-cdn.hackclub-assets.com/019d730b-237a-7aed-89c3-e60a9f562ae6/47QlTJFkr25F8SM6jxi0ek0aWavxHqHZYRA26PLvgag'
     },
     { 
@@ -83,25 +82,21 @@ export default function Home() {
     { 
       id: 3, 
       name: 'Holiday', 
-      emoji: '🎄',
       imageUrl: 'https://cdn.hackclub.com/019d730c-1755-7a0c-9e6f-d9b08e0affd5/YDTGVqKSv30zwAf8kuudy8vr3dV_v2Q2gU4A01CZP7o'
     },
     { 
       id: 4, 
       name: 'Anxious', 
-      emoji: '😰',
       imageUrl: 'https://cdn.hackclub.com/019d730c-b4a4-7c77-80a6-ab4995f8813e/QgVBcCZOPZP_ZeWoD2-AhBIIG71jUiyn_rwnCbEA2vA'
     },
     { 
       id: 5, 
       name: 'Hedie & Orphous', 
-      emoji: '💕',
       imageUrl: 'https://cdn.hackclub.com/019e1513-68f6-7140-ba8f-ad5991bbe395/archive-26sticker-2.PNG'
     },
     { 
       id: 6, 
-      name: 'Star', 
-      emoji: '⭐',
+      name: 'Star',
       imageUrl: ''
     },
   ];

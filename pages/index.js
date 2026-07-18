@@ -90,8 +90,8 @@ export default function Home() {
     },
     { 
       id: 5, 
-      name: 'Hedie & Orphous', 
-      imageUrl: 'https://cdn.hackclub.com/019e1513-68f6-7140-ba8f-ad5991bbe395/archive-26sticker-2.PNG'
+      name: 'Phoxy', 
+      imageUrl: 'https://cdn.hackclub.com/019f7440-98e0-7b3b-86ae-eaa60188ec2c/foxy.png'
     },
     { 
       id: 6, 

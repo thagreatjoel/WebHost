@@ -1,48 +1,75 @@
-import { connectToDatabase } from '../../../lib/mongodb';
-import Sticker from '../../../models/Sticker';
+// pages/api/stickers/update.js
+import clientPromise from '../../../lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'PUT, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
+  // Only allow PUT requests
   if (req.method !== 'PUT') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    await connectToDatabase();
+    const { stickerId, userId, x, y, publicNote, privateNote } = req.body;
 
-    const { stickerId, userId, x, y } = req.body;
-
-    if (!stickerId || !userId || x === undefined || y === undefined) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!stickerId || !userId) {
+      return res.status(400).json({ error: 'stickerId and userId are required' });
     }
 
-    const sticker = await Sticker.findById(stickerId);
-
-    if (!sticker) {
-      return res.status(404).json({ error: 'Sticker not found' });
+    // Check if MongoDB is configured
+    if (!process.env.MONGODB_URI) {
+      return res.status(503).json({
+        error: 'MongoDB not configured',
+        message: 'Please set MONGODB_URI environment variable'
+      });
     }
 
-    if (sticker.userId !== userId) {
-      return res.status(403).json({ error: 'You do not own this sticker' });
+    // Connect to MongoDB
+    const client = await clientPromise;
+    if (!client) {
+      return res.status(503).json({
+        error: 'MongoDB connection failed',
+        message: 'Could not connect to database'
+      });
     }
 
-    sticker.x = x;
-    sticker.y = y;
-    await sticker.save();
+    const db = client.db();
+    const collection = db.collection('stickers');
 
-    res.status(200).json({
-      success: true,
-      message: 'Sticker position updated successfully',
+    // Build update object
+    const updateData = {};
+    if (x !== undefined) updateData.x = x;
+    if (y !== undefined) updateData.y = y;
+    if (publicNote !== undefined) updateData.publicNote = publicNote;
+    if (privateNote !== undefined) updateData.privateNote = privateNote;
+
+    // Update the sticker
+    const result = await collection.updateOne(
+      { _id: new ObjectId(stickerId), userId: userId },
+      { $set: updateData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        error: 'Sticker not found or you do not have permission to edit it'
+      });
+    }
+
+    // Get the updated sticker
+    const updatedSticker = await collection.findOne({
+      _id: new ObjectId(stickerId)
     });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Sticker updated successfully',
+      sticker: updatedSticker
+    });
+
   } catch (error) {
-    console.error('Error updating sticker:', error);
-    res.status(500).json({ error: 'Failed to update sticker' });
+    console.error('❌ Error updating sticker:', error);
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error.message || 'Failed to update sticker'
+    });
   }
 }

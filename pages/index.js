@@ -242,12 +242,12 @@ export default function Home() {
         setStickerPosition({ x: e.clientX, y: e.clientY });
       }
       
-      // Handle dragging - update positions in real-time
+      // Handle dragging - update positions in real-time with percentage
       if (isDragging && dragData) {
-        const dx = e.clientX - dragData.startX;
-        const dy = e.clientY - dragData.startY;
-        const newX = dragData.originalX + dx;
-        const newY = dragData.originalY + dy;
+        const dx = (e.clientX - dragData.startX) / dragData.viewportWidth * 100;
+        const dy = (e.clientY - dragData.startY) / dragData.viewportHeight * 100;
+        const newX = Math.max(0, Math.min(100, dragData.originalX + dx));
+        const newY = Math.max(0, Math.min(100, dragData.originalY + dy));
         
         // Update placedStickers
         setPlacedStickers(prev => prev.map(s => {
@@ -296,10 +296,10 @@ export default function Home() {
     const handleMouseUp = async () => {
       if (isDragging && dragData) {
         try {
-          const dx = mouseRef.current.x - dragData.startX;
-          const dy = mouseRef.current.y - dragData.startY;
-          const newX = dragData.originalX + dx;
-          const newY = dragData.originalY + dy;
+          const dx = (mouseRef.current.x - dragData.startX) / dragData.viewportWidth * 100;
+          const dy = (mouseRef.current.y - dragData.startY) / dragData.viewportHeight * 100;
+          const newX = Math.max(0, Math.min(100, dragData.originalX + dx));
+          const newY = Math.max(0, Math.min(100, dragData.originalY + dy));
           
           const res = await fetch('/api/stickers/update', {
             method: 'PUT',
@@ -328,6 +328,87 @@ export default function Home() {
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, [isDragging, dragData, userId]);
+
+  // ─── TOUCH HANDLERS ───
+  const handleStickerTouchStart = (e, sticker) => {
+    if (sticker.userId !== userId) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const stickerId = sticker.id || sticker._id;
+    
+    setIsDragging(true);
+    setDragData({
+      stickerId: stickerId,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      originalX: sticker.x,
+      originalY: sticker.y,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      isTouch: true,
+    });
+    
+    document.body.style.cursor = 'grabbing';
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging || !dragData) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const dx = (touch.clientX - dragData.startX) / dragData.viewportWidth * 100;
+    const dy = (touch.clientY - dragData.startY) / dragData.viewportHeight * 100;
+    const newX = Math.max(0, Math.min(100, dragData.originalX + dx));
+    const newY = Math.max(0, Math.min(100, dragData.originalY + dy));
+    
+    setPlacedStickers(prev => prev.map(s => {
+      const id = s.id || s._id;
+      if (id === dragData.stickerId) {
+        return { ...s, x: newX, y: newY };
+      }
+      return s;
+    }));
+    
+    setAllStickers(prev => prev.map(s => {
+      if (s._id === dragData.stickerId) {
+        return { ...s, x: newX, y: newY };
+      }
+      return s;
+    }));
+  };
+
+  const handleTouchEnd = async () => {
+    if (isDragging && dragData) {
+      try {
+        const dx = (mouseRef.current.x - dragData.startX) / dragData.viewportWidth * 100;
+        const dy = (mouseRef.current.y - dragData.startY) / dragData.viewportHeight * 100;
+        const newX = Math.max(0, Math.min(100, dragData.originalX + dx));
+        const newY = Math.max(0, Math.min(100, dragData.originalY + dy));
+        
+        const res = await fetch('/api/stickers/update', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            stickerId: dragData.stickerId,
+            userId: userId,
+            x: newX,
+            y: newY,
+          }),
+        });
+        
+        if (!res.ok) {
+          console.error('Failed to update sticker position');
+        }
+      } catch (error) {
+        console.error('Error updating sticker position:', error);
+      }
+      
+      setIsDragging(false);
+      setDragData(null);
+      document.body.style.cursor = 'default';
+    }
+  };
 
   // ─── CLICK HANDLER FOR STICKER PLACEMENT ───
   useEffect(() => {
@@ -793,8 +874,8 @@ export default function Home() {
           emoji: s.emoji,
           name: s.name,
           imageUrl: s.imageUrl || '',
-          x: s.x || 100,
-          y: s.y || 100,
+          x: s.x || 50,
+          y: s.y || 50,
           scale: s.scale || 1,
           rotation: s.rotation || 0,
           userName: s.userName,
@@ -829,6 +910,10 @@ export default function Home() {
   const handlePlaceSticker = async (data) => {
     if (!pendingSticker) return;
 
+    // ✅ Convert click position to percentage of viewport
+    const xPercent = (stickerClickPosition.x / window.innerWidth) * 100;
+    const yPercent = (stickerClickPosition.y / window.innerHeight) * 100;
+
     const stickerData = {
       userId: userId,
       userName: data.userName,
@@ -836,8 +921,8 @@ export default function Home() {
       emoji: pendingSticker.emoji,
       name: pendingSticker.name,
       imageUrl: pendingSticker.imageUrl || '',
-      x: stickerClickPosition.x - 30,
-      y: stickerClickPosition.y - 30,
+      x: Math.max(0, Math.min(100, xPercent)),  // ✅ Store as percentage (0-100)
+      y: Math.max(0, Math.min(100, yPercent)),  // ✅ Store as percentage (0-100)
       scale: 1 + Math.random() * 0.3,
       rotation: (Math.random() - 0.5) * 30,
       publicNote: data.publicNote,
@@ -929,7 +1014,6 @@ export default function Home() {
   };
 
   const handleStickerMouseDown = (e, sticker) => {
-    // Only allow dragging if user owns the sticker
     if (sticker.userId !== userId) return;
     
     e.preventDefault();
@@ -944,6 +1028,9 @@ export default function Home() {
       startY: e.clientY,
       originalX: sticker.x,
       originalY: sticker.y,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      isTouch: false,
     });
     
     document.body.style.cursor = 'grabbing';
@@ -2246,14 +2333,17 @@ export default function Home() {
               key={sticker.id}
               className={`placed-sticker ${isDragging && dragData?.stickerId === sticker.id ? 'dragging' : ''}`}
               style={{
-                left: sticker.x + 'px',
-                top: sticker.y + 'px',
+                left: sticker.x + '%',
+                top: sticker.y + '%',
                 transform: `scale(${sticker.scale || 1}) rotate(${sticker.rotation || 0}deg)`,
                 cursor: sticker.userId === userId ? 'grab' : 'pointer',
                 position: 'fixed',
                 zIndex: isDragging && dragData?.stickerId === sticker.id ? 99998 : 99996,
               }}
               onMouseDown={(e) => handleStickerMouseDown(e, sticker)}
+              onTouchStart={(e) => handleStickerTouchStart(e, sticker)}
+              onTouchMove={(e) => handleTouchMove(e)}
+              onTouchEnd={handleTouchEnd}
               onContextMenu={(e) => handleStickerRightClick(e, sticker)}
             >
               {sticker.imageUrl ? (
@@ -2293,14 +2383,17 @@ export default function Home() {
                 key={sticker._id}
                 className={`placed-sticker server-sticker ${isDragging && dragData?.stickerId === sticker._id ? 'dragging' : ''}`}
                 style={{
-                  left: sticker.x + 'px',
-                  top: sticker.y + 'px',
+                  left: sticker.x + '%',
+                  top: sticker.y + '%',
                   transform: `scale(${sticker.scale || 1}) rotate(${sticker.rotation || 0}deg)`,
                   cursor: sticker.userId === userId ? 'grab' : 'pointer',
                   position: 'fixed',
                   zIndex: isDragging && dragData?.stickerId === sticker._id ? 99998 : 99996,
                 }}
                 onMouseDown={(e) => handleStickerMouseDown(e, { ...sticker, id: sticker._id })}
+                onTouchStart={(e) => handleStickerTouchStart(e, { ...sticker, id: sticker._id })}
+                onTouchMove={(e) => handleTouchMove(e)}
+                onTouchEnd={handleTouchEnd}
                 onContextMenu={(e) => handleStickerRightClick(e, { ...sticker, id: sticker._id })}
               >
                 {sticker.imageUrl ? (

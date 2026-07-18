@@ -929,6 +929,7 @@ export default function Home() {
   };
 
   const handleStickerMouseDown = (e, sticker) => {
+    // Only allow dragging if user owns the sticker
     if (sticker.userId !== userId) return;
     
     e.preventDefault();
@@ -1165,8 +1166,410 @@ export default function Home() {
         />
       </Head>
       <style>{`
-        /* ... all your existing styles ... */
-        /* Make sure these styles are included: */
+        @font-face {
+          font-family: 'Aeonik';
+          src: url('/fonts/AeonikTRIAL-Regular.otf') format('opentype');
+          font-weight: 400;
+          font-style: normal;
+          font-display: swap;
+        }
+        @font-face {
+          font-family: 'Aeonik';
+          src: url('/fonts/AeonikTRIAL-Bold.otf') format('opentype');
+          font-weight: 700;
+          font-style: normal;
+          font-display: swap;
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        html,
+        body {
+          height: 100%;
+          width: 100%;
+          overflow: hidden;
+        }
+
+        body {
+          background: #0F0F0F;
+          color: #fff;
+          font-family: 'Aeonik', 'General Sans', Inter, 'Segoe UI', sans-serif;
+          cursor: crosshair;
+        }
+        body.cursor-hidden {
+          cursor: none !important;
+        }
+        body.cursor-hidden * {
+          cursor: none !important;
+        }
+        
+        body.sticker-placement-mode {
+          cursor: crosshair !important;
+        }
+        body.sticker-placement-mode * {
+          cursor: crosshair !important;
+        }
+
+        * {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
+        img {
+          -webkit-user-drag: none;
+          user-drag: none;
+          -khtml-user-drag: none;
+          pointer-events: none;
+        }
+
+        .black-top {
+          position: fixed;
+          inset: 0;
+          background: #0F0F0F;
+          z-index: 10002;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity ${TIMINGS.BLACK_OVERLAY_DURATION}ms ease-in-out;
+        }
+        .black-top.active {
+          opacity: 1;
+        }
+
+        .click-prompt {
+          position: fixed;
+          bottom: 60px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 10003;
+          color: rgba(255, 255, 255, 0.7);
+          font-family: 'Aeonik', 'General Sans', sans-serif;
+          font-size: 1rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          cursor: pointer;
+          padding: 12px 32px;
+          border: none;
+          border-radius: 30px;
+          background: transparent;
+          transition: opacity 0.8s ease, transform 0.8s ease;
+          animation: blinkPulse 2s ease-in-out infinite;
+        }
+        .click-prompt:focus {
+          outline: none;
+        }
+        .click-prompt:hover {
+          color: rgba(255, 255, 255, 1);
+          transform: translateX(-50%) scale(1.03);
+        }
+        .click-prompt.hidden {
+          opacity: 0 !important;
+          transform: translateX(-50%) translateY(20px);
+          pointer-events: none;
+        }
+
+        @keyframes blinkPulse {
+          0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
+          50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
+        }
+
+        .top-nav {
+          position: fixed;
+          top: 30px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 10004;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-family: 'Aeonik', 'General Sans', sans-serif;
+          font-size: clamp(0.6rem, 0.8vw, 0.75rem);
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.6);
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(16px);
+          padding: 12px 28px;
+          border-radius: 2mm;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          opacity: 0;
+          pointer-events: none;
+          width: auto;
+          min-width: 320px;
+          max-width: 90%;
+          transition: opacity 0.5s ease;
+        }
+        .top-nav.visible {
+          opacity: 1;
+          pointer-events: all;
+        }
+
+        .top-nav .nav-group {
+          display: flex;
+          align-items: center;
+          gap: 2.5rem;
+        }
+
+        .top-nav a {
+          color: rgba(255, 255, 255, 0.5);
+          text-decoration: none;
+          transition: color 0.3s ease;
+          cursor: pointer;
+          font-weight: 400;
+          padding: 6px 8px;
+          letter-spacing: 0.15em;
+          white-space: nowrap;
+          font-size: clamp(0.6rem, 0.75vw, 0.75rem);
+          position: relative;
+        }
+
+        .top-nav a::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          width: 0;
+          height: 2px;
+          background: #ffffff;
+          transition: all 0.3s ease;
+          transform: translateX(-50%);
+        }
+
+        .top-nav a:hover::after {
+          width: 80%;
+        }
+
+        .top-nav a:hover {
+          color: rgba(255, 255, 255, 0.9);
+        }
+
+        .top-nav a.active {
+          color: #ffffff;
+        }
+
+        .top-nav a.active::after {
+          width: 80%;
+        }
+
+        .top-nav .nav-divider {
+          width: 1px;
+          height: 20px;
+          background: rgba(255, 255, 255, 0.15);
+        }
+
+        .top-nav .nav-plus {
+          font-size: 1.2rem;
+          font-weight: 300;
+          color: rgba(255, 255, 255, 0.4);
+          padding: 0 4px;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          user-select: none;
+          display: inline-block;
+          position: relative;
+        }
+
+        .top-nav .nav-plus:hover {
+          color: rgba(255, 255, 255, 0.9);
+          transform: rotate(90deg);
+        }
+
+        .sticker-count {
+          position: absolute;
+          top: -6px;
+          right: -12px;
+          background: #fbbf24;
+          color: #0F0F0F;
+          font-size: 0.5rem;
+          padding: 2px 6px;
+          border-radius: 10px;
+          font-weight: 700;
+          min-width: 18px;
+          text-align: center;
+        }
+
+        .sticker-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(12px);
+          z-index: 99998;
+          display: none;
+          align-items: center;
+          justify-content: center;
+          animation: overlayFadeIn 0.3s ease;
+        }
+        .sticker-overlay.open {
+          display: flex;
+        }
+
+        @keyframes overlayFadeIn {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+
+        .sticker-modal {
+          background: rgba(20, 20, 20, 0.95);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 30px;
+          min-width: 320px;
+          max-width: 500px;
+          width: 90%;
+          max-height: 80vh;
+          overflow-y: auto;
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+          animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+          position: relative;
+        }
+
+        @keyframes modalPopIn {
+          0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .sticker-modal .modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .sticker-modal .modal-title {
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.9rem;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          font-weight: 400;
+        }
+
+        .sticker-modal .modal-close {
+          color: rgba(255, 255, 255, 0.4);
+          font-size: 1.2rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          background: none;
+          border: none;
+          padding: 4px 8px;
+          border-radius: 4px;
+        }
+        .sticker-modal .modal-close:hover {
+          color: rgba(255, 255, 255, 0.8);
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sticker-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+        }
+
+        .sticker-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 14px 8px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid transparent;
+        }
+        .sticker-item:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.15);
+          transform: scale(1.05);
+        }
+        .sticker-item:active {
+          transform: scale(0.95);
+        }
+
+        .sticker-item .sticker-emoji {
+          font-size: 2.5rem;
+          line-height: 1.2;
+        }
+        
+        .sticker-item .sticker-image {
+          width: 60px;
+          height: 60px;
+          object-fit: contain;
+          border-radius: 8px;
+        }
+        
+        .sticker-item .sticker-name {
+          color: rgba(255, 255, 255, 0.4);
+          font-size: 0.55rem;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          margin-top: 6px;
+          font-weight: 400;
+          text-align: center;
+        }
+
+        .placement-instructions {
+          position: fixed;
+          bottom: 120px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 99997;
+          background: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(10px);
+          padding: 12px 24px;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.9rem;
+          text-align: center;
+          animation: pulseGlow 2s ease-in-out infinite;
+          pointer-events: none;
+        }
+
+        .placement-instructions .key {
+          display: inline-block;
+          background: rgba(255, 255, 255, 0.1);
+          padding: 2px 10px;
+          border-radius: 4px;
+          font-size: 0.7rem;
+          margin: 0 4px;
+          color: #fbbf24;
+        }
+
+        @keyframes pulseGlow {
+          0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.1); }
+          50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.2); }
+        }
+
+        .cursor-sticker {
+          position: fixed;
+          pointer-events: none;
+          z-index: 99997;
+          font-size: 2.5rem;
+          transform: translate(-50%, -50%) scale(1);
+          transition: none;
+          opacity: 0.9;
+          filter: drop-shadow(0 4px 20px rgba(0,0,0,0.6));
+          animation: stickerFloat 1.5s ease-in-out infinite;
+        }
+
+        .cursor-sticker img {
+          width: 60px;
+          height: 60px;
+          object-fit: contain;
+        }
+
+        @keyframes stickerFloat {
+          0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+          50% { transform: translate(-50%, -60%) scale(1.1) rotate(5deg); }
+        }
+
         .placed-sticker {
           position: fixed;
           pointer-events: auto;
@@ -1178,16 +1581,6 @@ export default function Home() {
           animation: stickerDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
           opacity: 0;
           animation-fill-mode: forwards;
-          user-select: none;
-          -webkit-user-select: none;
-          touch-action: none;
-        }
-        
-        .placed-sticker.dragging {
-          cursor: grabbing !important;
-          transform: scale(1.2) !important;
-          filter: drop-shadow(0 8px 30px rgba(255,255,255,0.3));
-          z-index: 99998 !important;
         }
         
         .placed-sticker img {
@@ -1200,6 +1593,562 @@ export default function Home() {
         .placed-sticker:hover {
           transform: scale(1.15) !important;
           filter: drop-shadow(0 4px 20px rgba(255,255,255,0.2));
+        }
+
+        .placed-sticker.dragging {
+          cursor: grabbing !important;
+          transform: scale(1.2) !important;
+          filter: drop-shadow(0 8px 30px rgba(255,255,255,0.3));
+          z-index: 99997 !important;
+        }
+
+        .placed-sticker .sticker-owner-indicator {
+          position: absolute;
+          top: -8px;
+          left: -8px;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #4ade80;
+          border: 2px solid rgba(0,0,0,0.5);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+
+        .placed-sticker:hover .sticker-owner-indicator {
+          opacity: 1;
+        }
+
+        .server-sticker {
+          cursor: pointer;
+        }
+
+        .sticker-tooltip {
+          position: absolute;
+          bottom: calc(100% + 8px);
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.4);
+          backdrop-filter: blur(8px);
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 0.6rem;
+          color: rgba(255, 255, 255, 0.9);
+          white-space: nowrap;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.3s ease;
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2px;
+          max-width: 180px;
+        }
+
+        .server-sticker:hover .sticker-tooltip {
+          opacity: 1;
+        }
+
+        .tooltip-name {
+          color: #fbbf24;
+          font-weight: 500;
+          font-size: 0.6rem;
+        }
+
+        .tooltip-note {
+          color: rgba(255, 255, 255, 0.6);
+          font-size: 0.5rem;
+          max-width: 160px;
+          white-space: normal;
+          word-wrap: break-word;
+          text-align: center;
+          line-height: 1.3;
+        }
+
+        .context-menu {
+          position: fixed;
+          background: rgba(20, 20, 20, 0.95);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 8px;
+          min-width: 160px;
+          z-index: 99999;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+          animation: contextMenuIn 0.15s ease;
+        }
+
+        @keyframes contextMenuIn {
+          0% { opacity: 0; transform: scale(0.9); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+
+        .context-menu-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 14px;
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 0.8rem;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          border: none;
+          background: none;
+          width: 100%;
+          font-family: inherit;
+        }
+
+        .context-menu-item:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: white;
+        }
+
+        .context-menu-item.danger:hover {
+          background: rgba(255, 0, 0, 0.15);
+          color: #ff6b6b;
+        }
+
+        .context-menu-divider {
+          height: 1px;
+          background: rgba(255, 255, 255, 0.06);
+          margin: 4px 8px;
+        }
+
+        @keyframes stickerDrop {
+          0% { opacity: 0; transform: scale(0) rotate(-20deg); }
+          100% { opacity: 1; transform: scale(1) rotate(0deg); }
+        }
+
+        .page-shell {
+          position: relative;
+          min-height: 100vh;
+          min-width: 100vw;
+          background: transparent;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          transform-origin: center center;
+        }
+        .page-shell.zoom-in-big {
+          transform: scale(1.8);
+          opacity: 0;
+          filter: blur(34px);
+        }
+
+        .hero-section {
+          position: relative;
+          z-index: 10 !important;
+          min-height: 100dvh;
+          width: 100vw;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 1;
+        }
+        .hero-section.is-ready {
+          opacity: 1;
+        }
+
+        .hero-wrapper {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 20px 40px;
+        }
+
+        .page-content {
+          text-align: center;
+          max-width: 90vw;
+        }
+
+        .page-eyebrow {
+          display: block;
+          color: #aaa;
+          font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          margin-bottom: 12px;
+          opacity: 0;
+          animation: slideUp 0.8s ease forwards;
+          animation-delay: 0.05s;
+        }
+
+        .main-title {
+          font-family: 'Aeonik', 'General Sans', Inter, 'Segoe UI', sans-serif;
+          font-size: clamp(3rem, 10vw, 7rem);
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #fff;
+          margin-bottom: 10px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          line-height: 1.1;
+        }
+
+        .char {
+          display: inline-block;
+          opacity: 0;
+          transform: translateY(30px);
+          transition: transform 0.25s ease-out, opacity 0.1s ease;
+          will-change: transform;
+          transform-origin: center center;
+        }
+        .hero-section.is-ready .char {
+          opacity: 1;
+          transform: translateY(0px);
+        }
+
+        .subtitle {
+          color: #aaa;
+          font-size: clamp(0.8rem, 1.4vw, 1.4rem);
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: clamp(0.3em, 0.8vw, 0.5em);
+          margin-top: 0.5rem;
+          font-weight: 400;
+          line-height: 1.6;
+        }
+
+        .subtitle .word {
+          display: inline-block;
+          opacity: 0;
+          animation: slideUp 0.8s ease forwards;
+        }
+
+        @keyframes slideUp {
+          0% { opacity: 0; transform: translateY(30px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading-overlay {
+          position: fixed;
+          inset: 0;
+          display: grid;
+          place-items: center;
+          background: #0F0F0F;
+          z-index: 9999;
+          transition: opacity 0.8s ease;
+          overflow: hidden;
+          cursor: default;
+        }
+        .loading-overlay.fade-out {
+          opacity: 0;
+          pointer-events: none;
+        }
+
+        .camera-scene {
+          width: 100%;
+          height: 100%;
+          transform-origin: center center;
+          transform: scale(1);
+          will-change: transform;
+        }
+        .camera-scene.zooming {
+          animation: cameraZoom ${TIMINGS.ZOOM_DURATION}ms cubic-bezier(0.1, 0.9, 1.2, 1) forwards;
+        }
+        @keyframes cameraZoom {
+          0% { transform: scale(1); }
+          60% { transform: scale(22); }
+          100% { transform: scale(18); }
+        }
+
+        .loading-content {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .loading-content.float {
+          animation: floatScreen 6s ease-in-out infinite;
+        }
+        @keyframes floatScreen {
+          0%, 100% { transform: translate(0,0) rotate(0deg); }
+          25% { transform: translate(4px, -6px) rotate(0.1deg); }
+          50% { transform: translate(-4px, 10px) rotate(-0.5deg); }
+          75% { transform: translate(5px, -4px) rotate(1deg); }
+        }
+
+        .shake-wrapper {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .shake-wrapper.shake {
+          animation: screenShake ${TIMINGS.SHAKE_DURATION}ms ease-out forwards;
+        }
+        @keyframes screenShake {
+          0%   { transform: translate(0,0) rotate(0deg); }
+          20%  { transform: translate(-8px,5px) rotate(-0.4deg); }
+          40%  { transform: translate(6px,-4px) rotate(0.3deg); }
+          60%  { transform: translate(-4px,3px) rotate(-0.2deg); }
+          80%  { transform: translate(2px,-1px) rotate(0.1deg); }
+          100% { transform: translate(0,0) rotate(0deg); }
+        }
+
+        .confetti-canvas {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          z-index: 5;
+        }
+
+        .welcome-grid {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 1;
+          background-image: linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px);
+          background-size: 60px 60px;
+          background-position: 0 0, 0 0;
+          mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
+          -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        .welcome-grid.visible { opacity: 1; }
+
+        .flash-overlay {
+          position: fixed;
+          inset: 0;
+          background: #fff;
+          z-index: 10000;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.2s ease-out;
+        }
+        .flash-overlay.active {
+          opacity: 1;
+          transition: none;
+          animation: bigFlash ${TIMINGS.FLASH_DURATION}ms ease-out forwards;
+        }
+        @keyframes bigFlash {
+          0% { transform: scale(0.8); opacity: 1; }
+          30% { transform: scale(1.15); opacity: 1; }
+          70% { transform: scale(1.05); opacity: 0.9; }
+          100% { transform: scale(1); opacity: 0; }
+        }
+
+        .logo-container {
+          position: relative;
+          z-index: 10;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          pointer-events: none;
+        }
+
+        .loading-image {
+          max-width: 70vw;
+          max-height: 60vh;
+          object-fit: contain;
+          display: block;
+          transform: scale(0) rotate(0deg);
+          opacity: 0;
+          filter: blur(10px);
+          transform-origin: center center;
+          transition: none;
+        }
+        .loading-image.animate {
+          animation: linearFastZoom 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
+          animation-delay: ${TIMINGS.LOGO_ZOOM_START}ms;
+        }
+        @keyframes linearFastZoom {
+          0% { transform: scale(0) rotate(0deg); opacity: 0; filter: blur(10px); }
+          30% { opacity: 1; }
+          100% { transform: scale(1) rotate(3deg); opacity: 1; filter: blur(0); }
+        }
+
+        .bg-canvas {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 0;
+          pointer-events: none;
+          display: block;
+        }
+
+        .grid-blueprint {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          pointer-events: none;
+          z-index: 1;
+          background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+          background-size: 60px 60px;
+          background-position: 0 0, 0 0;
+          mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
+          -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
+        }
+
+        @media (max-width: 768px) {
+          .top-nav {
+            padding: 8px 16px;
+            min-width: 280px;
+            gap: 1rem;
+          }
+          .top-nav .nav-group {
+            gap: 1.5rem;
+          }
+          .top-nav a {
+            font-size: clamp(0.5rem, 0.6vw, 0.6rem);
+            letter-spacing: 0.1em;
+            padding: 4px 6px;
+          }
+          .click-prompt {
+            bottom: 30px;
+            font-size: 0.8rem;
+            padding: 10px 24px;
+          }
+          .hero-wrapper {
+            padding: 70px 16px 30px;
+          }
+          .sticker-modal {
+            padding: 20px;
+            min-width: 280px;
+          }
+          .sticker-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+          }
+          .sticker-item .sticker-emoji {
+            font-size: 2rem;
+          }
+          .sticker-item .sticker-image {
+            width: 50px;
+            height: 50px;
+          }
+          .cursor-sticker {
+            font-size: 2rem;
+          }
+          .cursor-sticker img {
+            width: 50px;
+            height: 50px;
+          }
+          .placed-sticker {
+            font-size: 2rem;
+          }
+          .placed-sticker img {
+            width: 40px;
+            height: 40px;
+          }
+          .placement-instructions {
+            bottom: 100px;
+            font-size: 0.8rem;
+            padding: 10px 20px;
+          }
+          .context-menu {
+            min-width: 140px;
+          }
+          .sticker-tooltip {
+            font-size: 0.5rem;
+            padding: 3px 8px;
+          }
+          .tooltip-note {
+            font-size: 0.45rem;
+            max-width: 120px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .top-nav {
+            padding: 6px 12px;
+            min-width: 200px;
+            gap: 0.8rem;
+            top: 16px;
+          }
+          .top-nav .nav-group {
+            gap: 1rem;
+          }
+          .top-nav a {
+            font-size: clamp(0.4rem, 0.5vw, 0.5rem);
+            letter-spacing: 0.08em;
+            padding: 3px 4px;
+          }
+          .top-nav .nav-plus {
+            font-size: 0.9rem;
+          }
+          .click-prompt {
+            bottom: 20px;
+            font-size: 0.7rem;
+            padding: 8px 18px;
+          }
+          .sticker-modal {
+            padding: 16px;
+            min-width: 200px;
+          }
+          .sticker-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+          }
+          .sticker-item .sticker-emoji {
+            font-size: 1.6rem;
+          }
+          .sticker-item .sticker-image {
+            width: 40px;
+            height: 40px;
+          }
+          .sticker-item .sticker-name {
+            font-size: 0.45rem;
+          }
+          .cursor-sticker {
+            font-size: 1.6rem;
+          }
+          .cursor-sticker img {
+            width: 40px;
+            height: 40px;
+          }
+          .placed-sticker {
+            font-size: 1.6rem;
+          }
+          .placed-sticker img {
+            width: 35px;
+            height: 35px;
+          }
+          .placement-instructions {
+            bottom: 80px;
+            font-size: 0.7rem;
+            padding: 8px 16px;
+          }
+          .context-menu {
+            min-width: 120px;
+            padding: 6px;
+          }
+          .context-menu-item {
+            font-size: 0.7rem;
+            padding: 6px 10px;
+          }
+          .sticker-tooltip {
+            font-size: 0.45rem;
+            padding: 2px 6px;
+            max-width: 100px;
+          }
+          .tooltip-note {
+            font-size: 0.4rem;
+            max-width: 80px;
+          }
         }
       `}</style>
 
@@ -1288,9 +2237,10 @@ export default function Home() {
         />
       )}
 
-      {/* Stickers Rendering */}
+      {/* Stickers - Only shown when stickersVisible is true */}
       {stickersVisible && (
         <>
+          {/* Render placed stickers from placedStickers state */}
           {placedStickers.map((sticker) => (
             <div 
               key={sticker.id}
@@ -1333,6 +2283,7 @@ export default function Home() {
             </div>
           ))}
 
+          {/* Render stickers from allStickers (from database) */}
           {allStickers.map((sticker) => {
             const isPlaced = placedStickers.some(s => s.id === sticker._id);
             if (isPlaced) return null;

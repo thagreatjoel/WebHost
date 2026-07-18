@@ -47,9 +47,9 @@
   "devFiles": [],
   "polyfillFiles": [],
   "lowPriorityFiles": [
-    "static/_ZvYdZvRRQsXDq0Mbhsph/_buildManifest.js",
-    "static/_ZvYdZvRRQsXDq0Mbhsph/_ssgManifest.js",
-    "static/_ZvYdZvRRQsXDq0Mbhsph/_clientMiddlewareManifest.js"
+    "static/gpu7fmc1TgbXyrNdLgD-W/_buildManifest.js",
+    "static/gpu7fmc1TgbXyrNdLgD-W/_ssgManifest.js",
+    "static/gpu7fmc1TgbXyrNdLgD-W/_clientMiddlewareManifest.js"
   ],
   "rootMainFiles": []
 }

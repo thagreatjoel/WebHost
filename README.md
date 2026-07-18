@@ -28,3 +28,30 @@
 It is an interactive feature that lets visitors place drag and manage hackclub stickers on the page. 
 - Green dot shows you own a sticker
 - Only stcker owners can only make changes to their stickers
+- 	Click + button in navigation to use the sticker
+
+
+
+## DATABASE SCHEMA
+```xml
+{
+  _id: ObjectId,
+  userId: String,        // User identifier
+  userName: String,      // Display name
+  userEmail: String,     // User email
+  emoji: String,         // Unicode emoji
+  name: String,          // Sticker name
+  imageUrl: String,      // CDN image URL
+  x: Number,            // Position (0-100%)
+  y: Number,            // Position (0-100%)
+  scale: Number,        // Size multiplier
+  rotation: Number,     // Degrees rotated
+  publicNote: String,   // Visible to everyone
+  privateNote: String,  // Visible to admin only
+  placedAt: Date
+}
+```
+## WHAT IS THE USE?
+- Guestbook were visitors leave messages
+- Feedback from people
+- Connection with peoples

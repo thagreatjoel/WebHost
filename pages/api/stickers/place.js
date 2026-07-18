@@ -1,95 +1,103 @@
-import { connectToDatabase } from '../../../lib/mongodb';
-import Sticker from '../../../models/Sticker';
+// pages/api/stickers/place.js
+import clientPromise from '../../../lib/mongodb';
 
 export default async function handler(req, res) {
-  // Add CORS headers for development
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
+  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     console.log('📦 Connecting to MongoDB...');
-    await connectToDatabase();
-    console.log('✅ MongoDB connected');
 
-    const { 
-      userId, 
-      userName, 
-      userEmail, 
-      emoji, 
-      name, 
-      imageUrl,
-      x, 
-      y, 
-      scale, 
-      rotation, 
-      publicNote, 
-      privateNote 
-    } = req.body;
-
-    console.log('📝 Received data:', { userId, userName, userEmail, emoji, name });
-
-    // Validate required fields
-    if (!userId || !userName || !userEmail || !emoji || !name || x === undefined || y === undefined) {
-      console.log('❌ Missing fields:', { userId, userName, userEmail, emoji, name, x, y });
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Check if user already has 2 stickers
-    console.log('🔍 Checking existing stickers for user:', userId);
-    const existingStickers = await Sticker.find({ userId });
-    console.log(`📊 Found ${existingStickers.length} existing stickers`);
-
-    if (existingStickers.length >= 2) {
-      return res.status(400).json({ 
-        error: 'You already have 2 stickers. Delete one to place a new one.',
-        existingStickers
+    // Check if MongoDB is configured
+    if (!process.env.MONGODB_URI) {
+      return res.status(503).json({ 
+        error: 'MongoDB not configured',
+        message: 'Please set MONGODB_URI environment variable'
       });
     }
 
-    // Create the sticker
-    const sticker = new Sticker({
+    // Get the client and ensure connection
+    const client = await clientPromise;
+    if (!client) {
+      return res.status(503).json({ 
+        error: 'MongoDB connection failed',
+        message: 'Could not connect to database'
+      });
+    }
+
+    console.log('✅ MongoDB connected');
+
+    const db = client.db();
+    const collection = db.collection('stickers');
+
+    // Get data from request body
+    const { userId, userName, userEmail, emoji, name } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    console.log('📝 Received data:', { userId, userName, userEmail, emoji, name });
+    console.log('🔍 Checking existing stickers for user:', userId);
+
+    // Check if user already has this sticker
+    const existingSticker = await collection.findOne({
+      userId: userId,
+      name: name
+    });
+
+    if (existingSticker) {
+      console.log('ℹ️ Sticker already exists for this user');
+      return res.status(200).json({
+        success: true,
+        message: 'Sticker already exists',
+        sticker: existingSticker
+      });
+    }
+
+    // Create new sticker
+    const newSticker = {
       userId,
       userName,
       userEmail,
       emoji,
       name,
-      imageUrl: imageUrl || '',
-      x,
-      y,
-      scale,
-      rotation,
-      publicNote: publicNote || '',
-      privateNote: privateNote || '',
-    });
+      placedAt: new Date(),
+    };
 
-    console.log('💾 Saving sticker...');
-    await sticker.save();
-    console.log('✅ Sticker saved with ID:', sticker._id);
+    console.log('💾 Saving new sticker...');
+    const result = await collection.insertOne(newSticker);
+    console.log('✅ Sticker saved successfully!');
 
-    // Return all stickers for this user
-    const allUserStickers = await Sticker.find({ userId });
-
-    res.status(201).json({
+    return res.status(200).json({
       success: true,
-      sticker,
-      userStickers: allUserStickers,
+      message: 'Sticker placed successfully!',
+      sticker: { ...newSticker, _id: result.insertedId }
     });
+
   } catch (error) {
     console.error('❌ Error placing sticker:', error);
-    // Send more detailed error
-    res.status(500).json({ 
-      error: 'Failed to place sticker',
-      details: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    
+    // Handle specific MongoDB errors
+    if (error.name === 'MongoServerSelectionError') {
+      return res.status(503).json({
+        error: 'Database connection error',
+        message: 'Could not connect to MongoDB. Please check your connection string.'
+      });
+    }
+
+    if (error.name === 'MongoTimeoutError' || error.message.includes('buffering timed out')) {
+      return res.status(504).json({
+        error: 'Database timeout',
+        message: 'The database operation took too long. Please try again.'
+      });
+    }
+
+    return res.status(500).json({
+      error: 'Internal server error',
+      message: error.message
     });
   }
 }

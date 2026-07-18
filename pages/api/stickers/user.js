@@ -8,7 +8,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('📦 Fetching user stickers...');
+    const { userId } = req.query;
+    
+    // Always return a valid response even if userId is missing
+    if (!userId) {
+      console.log('⚠️ No userId provided, returning empty array');
+      return res.status(200).json({ 
+        success: true,
+        stickers: [],
+        count: 0,
+        message: 'No userId provided'
+      });
+    }
 
     // Check if MongoDB is configured
     if (!process.env.MONGODB_URI) {
@@ -21,20 +32,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Get userId from query
-    const { userId } = req.query;
-    
-    if (!userId) {
-      console.warn('⚠️ No userId provided');
-      return res.status(200).json({
-        success: true,
-        stickers: [],
-        count: 0,
-        message: 'No userId provided'
-      });
-    }
-
-    console.log('🔍 Looking for stickers for user:', userId);
+    console.log(`🔍 Fetching stickers for user: ${userId}`);
 
     // Connect to MongoDB
     const client = await clientPromise;
@@ -67,12 +65,12 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('❌ Error fetching user stickers:', error);
-    // Always return an array even on error
+    // Always return a 200 with empty array instead of 500
     return res.status(200).json({
       success: false,
       stickers: [],
       count: 0,
-      error: error.message
+      error: error.message || 'Failed to fetch stickers'
     });
   }
 }

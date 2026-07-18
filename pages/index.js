@@ -793,73 +793,80 @@ export default function Home() {
     document.body.classList.add('sticker-placement-mode');
   };
 
-  const handlePlaceSticker = async (data) => {
-    if (!pendingSticker) return;
+  // In your Home component, update the handlePlaceSticker function
+const handlePlaceSticker = async (data) => {
+  if (!pendingSticker) return;
 
-    const stickerData = {
-      userId: userId,
-      userName: data.userName,
-      userEmail: data.userEmail,
-      emoji: pendingSticker.emoji,
-      name: pendingSticker.name,
-      imageUrl: pendingSticker.imageUrl || '',
-      x: stickerClickPosition.x - 30,
-      y: stickerClickPosition.y - 30,
-      scale: 1 + Math.random() * 0.3,
-      rotation: (Math.random() - 0.5) * 30,
-      publicNote: data.publicNote,
-      privateNote: data.privateNote,
-    };
+  const stickerData = {
+    userId: userId,
+    userName: data.userName,
+    userEmail: data.userEmail,
+    emoji: pendingSticker.emoji,
+    name: pendingSticker.name,
+    imageUrl: pendingSticker.imageUrl || '',
+    x: stickerClickPosition.x - 30,
+    y: stickerClickPosition.y - 30,
+    scale: 1 + Math.random() * 0.3,
+    rotation: (Math.random() - 0.5) * 30,
+    publicNote: data.publicNote,
+    privateNote: data.privateNote,
+  };
 
-    try {
-      const res = await fetch('/api/stickers/place', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(stickerData),
-      });
+  try {
+    const res = await fetch('/api/stickers/place', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(stickerData),
+    });
 
-      const result = await res.json();
+    const result = await res.json();
 
-      if (result.success) {
-        setPlacedStickers([...placedStickers, {
-          id: result.sticker._id,
-          emoji: result.sticker.emoji,
-          name: result.sticker.name,
-          imageUrl: result.sticker.imageUrl || '',
-          x: result.sticker.x,
-          y: result.sticker.y,
-          scale: result.sticker.scale,
-          rotation: result.sticker.rotation,
-          userName: result.sticker.userName,
-          publicNote: result.sticker.publicNote,
-          userId: result.sticker.userId,
-        }]);
-        
-        setUserStickers(result.userStickers);
-        setAllStickers([...allStickers, result.sticker]);
-        setShowPlacementModal(false);
-        setPendingSticker(null);
-        setShowStickers(false);
-        setIsPlacingSticker(false);
-        setSelectedSticker(null);
-        document.body.style.cursor = 'default';
-        document.body.classList.remove('sticker-placement-mode');
-      } else {
-        alert(result.error || 'Failed to place sticker');
-        setIsPlacingSticker(true);
-        setSelectedSticker(pendingSticker);
-        document.body.style.cursor = 'crosshair';
-        document.body.classList.add('sticker-placement-mode');
-      }
-    } catch (error) {
-      console.error('Error placing sticker:', error);
-      alert('Failed to place sticker. Please try again.');
+    if (result.success) {
+      // ✅ Update both placedStickers and allStickers
+      const newSticker = {
+        id: result.sticker._id,
+        emoji: result.sticker.emoji,
+        name: result.sticker.name,
+        imageUrl: result.sticker.imageUrl || '',
+        x: result.sticker.x,
+        y: result.sticker.y,
+        scale: result.sticker.scale,
+        rotation: result.sticker.rotation,
+        userName: result.sticker.userName,
+        publicNote: result.sticker.publicNote,
+        userId: result.sticker.userId,
+      };
+      
+      setPlacedStickers(prev => [...prev, newSticker]);
+      setAllStickers(prev => [...prev, result.sticker]);
+      setUserStickers(result.userStickers || []);
+      await fetchAllStickers();
+      await fetchUserStickers();
+
+      setShowPlacementModal(false);
+      setPendingSticker(null);
+      setShowStickers(false);
+      setIsPlacingSticker(false);
+      setSelectedSticker(null);
+      setShowPlacementModal(false);  
+      document.body.style.cursor = 'default';
+      document.body.classList.remove('sticker-placement-mode');
+    } else {
+      alert(result.error || 'Failed to place sticker');
       setIsPlacingSticker(true);
       setSelectedSticker(pendingSticker);
       document.body.style.cursor = 'crosshair';
       document.body.classList.add('sticker-placement-mode');
     }
-  };
+  } catch (error) {
+    console.error('Error placing sticker:', error);
+    alert('Failed to place sticker. Please try again.');
+    setIsPlacingSticker(true);
+    setSelectedSticker(pendingSticker);
+    document.body.style.cursor = 'crosshair';
+    document.body.classList.add('sticker-placement-mode');
+  }
+};
 
   const removeSticker = async (id) => {
     const isServerSticker = allStickers.some(s => s._id === id);
@@ -2181,18 +2188,18 @@ export default function Home() {
         </div>
       )}
 
-      {showPlacementModal && pendingSticker && (
-        <StickerPlacementModal
-          sticker={pendingSticker}
-          existingStickers={userStickers}
-          onConfirm={handlePlaceSticker}
-          onCancel={() => {
-            setShowPlacementModal(false);
-            setPendingSticker(null);
-            setShowStickers(true);
-          }}
-        />
-      )}
+    {showPlacementModal && pendingSticker && (
+  <StickerPlacementModal
+    sticker={pendingSticker}
+    existingStickers={userStickers || []} // ✅ Always pass an array
+    onConfirm={handlePlaceSticker}
+    onCancel={() => {
+      setShowPlacementModal(false);
+      setPendingSticker(null);
+      setShowStickers(true);
+    }}
+  />
+)}
 
       {/* Stickers - Only shown when stickersVisible is true */}
       {stickersVisible && (

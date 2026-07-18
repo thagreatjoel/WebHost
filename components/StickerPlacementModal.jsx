@@ -4,7 +4,7 @@ export default function StickerPlacementModal({
   sticker, 
   onConfirm, 
   onCancel, 
-  existingStickers = []  // ✅ Set default value to empty array
+  existingStickers = []  // ✅ Default to empty array
 }) {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -23,6 +23,7 @@ export default function StickerPlacementModal({
     }
 
     setIsSubmitting(true);
+    // ✅ Call onConfirm with all data
     onConfirm({
       userName: userName.trim(),
       userEmail: userEmail.trim(),

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Your fixed connection string
-const MONGODB_URI = 'mongodb+srv://greatjoel:Dady%402026@protfolios.mwgqbkm.mongodb.net/?appName=Protfolios';
+const MONGODB_URI = MONGO_URI;
 
 console.log('🔗 Testing MongoDB connection...');
 console.log('📡 Connecting to Atlas...');

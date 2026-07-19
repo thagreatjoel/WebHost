@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
-export default function Projects() {
+export default function About() {
   const router = useRouter();
   const pageShellRef = useRef(null);
   const bgCanvasRef = useRef(null);
@@ -18,7 +18,7 @@ export default function Projects() {
     overlays.forEach(el => el.remove());
   }, []);
 
-  // INTRO ANIMATION - Starts BIG, zooms OUT to normal
+  // INTRO ANIMATION
   useEffect(() => {
     if (pageShellRef.current && !introComplete) {
       pageShellRef.current.classList.add('zoom-in-big');
@@ -27,7 +27,6 @@ export default function Projects() {
           pageShellRef.current.classList.remove('zoom-in-big');
           setIntroComplete(true);
           setIsLoaded(true);
-          // Show content after zoom-out completes
           setTimeout(() => {
             setShowContent(true);
           }, 100);
@@ -36,13 +35,11 @@ export default function Projects() {
     }
   }, [introComplete]);
 
-  // ─── NAVIGATION HANDLER WITH OUTRO ANIMATION ───
+  // ─── NAVIGATION HANDLER ───
   const handleNavigation = (path) => (e) => {
     if (e) e.preventDefault();
     if (isRedirecting || !path) return;
     setIsRedirecting(true);
-    
-    // Hide content immediately
     setShowContent(false);
     
     if (pageShellRef.current) {
@@ -74,13 +71,11 @@ export default function Projects() {
     }, 800);
   };
 
-  // ─── BACK TO HOME HANDLER ───
+  // ─── BACK TO HOME ───
   const handleBackToHome = () => {
     if (isRedirecting) return;
     setIsRedirecting(true);
     sessionStorage.setItem('redirectedToHome', 'true');
-    
-    // Hide content immediately
     setShowContent(false);
     
     if (pageShellRef.current) {
@@ -398,7 +393,6 @@ export default function Projects() {
           pointer-events: none;
         }
 
-        /* Loading overlay for page transitions */
         .loading-overlay {
           position: fixed;
           inset: 0;
@@ -433,28 +427,139 @@ export default function Projects() {
         .page-content {
           position: relative;
           z-index: 10;
-          text-align: center;
           max-width: 90vw;
+          width: 900px;
           opacity: 0;
           transition: opacity 0.8s ease;
+          padding: 40px 20px;
+          max-height: 90vh;
+          overflow-y: auto;
+          text-align: left;
         }
 
         .page-content.visible {
           opacity: 1;
         }
 
-        .page-title {
-          font-size: clamp(3rem, 8vw, 5rem);
+        .page-content::-webkit-scrollbar {
+          width: 4px;
+        }
+        .page-content::-webkit-scrollbar-track {
+          background: rgba(255,255,255,0.02);
+        }
+        .page-content::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+        }
+
+        .about-title {
+          font-size: clamp(2.5rem, 6vw, 4rem);
           color: #fff;
-          margin-bottom: 1rem;
+          margin-bottom: 0.5rem;
           letter-spacing: 0.05em;
           font-weight: 700;
+          text-align: center;
         }
-        .page-subtitle {
-          color: #aaa;
-          font-size: clamp(1rem, 1.5vw, 1.5rem);
+
+        .about-subtitle {
+          color: rgba(255,255,255,0.3);
+          font-size: clamp(0.8rem, 1.2vw, 1rem);
+          letter-spacing: 0.15em;
+          text-align: center;
+          margin-bottom: 2.5rem;
+          font-weight: 300;
+          text-transform: uppercase;
+        }
+
+        .about-section {
+          margin-bottom: 2rem;
+        }
+
+        .about-section h2 {
+          color: rgba(255,255,255,0.8);
+          font-size: clamp(1rem, 1.4vw, 1.2rem);
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          margin-bottom: 0.75rem;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          padding-bottom: 0.5rem;
+        }
+
+        .about-section p {
+          color: rgba(255,255,255,0.6);
+          font-size: clamp(0.85rem, 1.1vw, 1rem);
+          line-height: 1.8;
+          letter-spacing: 0.02em;
+          margin-bottom: 0.5rem;
+        }
+
+        .about-section .highlight {
+          color: rgba(255,255,255,0.85);
+        }
+
+        .tag-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+        }
+
+        .tag {
+          display: inline-block;
+          padding: 4px 14px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 20px;
+          font-size: clamp(0.7rem, 0.8vw, 0.75rem);
+          color: rgba(255,255,255,0.5);
+          letter-spacing: 0.05em;
+          transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.12);
+          color: rgba(255,255,255,0.8);
+        }
+
+        .bio-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem 2rem;
+          margin-top: 0.5rem;
+        }
+
+        .bio-item {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .bio-item .label {
+          color: rgba(255,255,255,0.25);
+          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
+          text-transform: uppercase;
           letter-spacing: 0.1em;
-          font-weight: 400;
+        }
+
+        .bio-item .value {
+          color: rgba(255,255,255,0.75);
+          font-size: clamp(0.85rem, 1vw, 0.95rem);
+          margin-top: 2px;
+        }
+
+        .quote-block {
+          background: rgba(255,255,255,0.02);
+          border-left: 2px solid rgba(255,255,255,0.08);
+          padding: 1rem 1.5rem;
+          margin: 1rem 0;
+          border-radius: 0 4px 4px 0;
+        }
+
+        .quote-block p {
+          color: rgba(255,255,255,0.5);
+          font-style: italic;
+          font-size: clamp(0.9rem, 1.1vw, 1rem);
+          line-height: 1.8;
         }
 
         .bg-canvas {
@@ -569,19 +674,6 @@ export default function Projects() {
           background: rgba(255, 255, 255, 0.15);
         }
 
-        .top-nav .nav-plus {
-          font-size: 1.2rem;
-          font-weight: 300;
-          color: rgba(255, 255, 255, 0.4);
-          padding: 0 4px;
-          transition: all 0.3s ease;
-        }
-
-        .top-nav .nav-plus:hover {
-          color: rgba(255, 255, 255, 0.9);
-          transform: rotate(90deg);
-        }
-
         .back-button {
           position: fixed;
           top: 30px;
@@ -629,6 +721,16 @@ export default function Projects() {
             padding: 8px 16px;
             font-size: 0.6rem;
           }
+          .bio-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+          }
+          .page-content {
+            padding: 30px 16px;
+          }
+          .about-subtitle {
+            margin-bottom: 1.5rem;
+          }
         }
 
         @media (max-width: 480px) {
@@ -646,46 +748,143 @@ export default function Projects() {
             letter-spacing: 0.08em;
             padding: 3px 4px;
           }
-          .top-nav .nav-plus {
-            font-size: 0.9rem;
-          }
           .back-button {
             top: 16px;
             left: 16px;
             padding: 6px 12px;
             font-size: 0.5rem;
           }
+          .page-content {
+            padding: 20px 12px;
+          }
         }
       `}</style>
 
-      {/* Loading overlay */}
       <div className={`loading-overlay ${!showContent ? 'active' : ''}`} />
 
       <canvas ref={bgCanvasRef} className="bg-canvas" />
       <div className="grid-blueprint" />
 
-      {/* Navigation Bar - Dashboard, Projects, About, + */}
+      {/* Navigation */}
       <nav className={`top-nav ${showContent ? 'visible' : ''}`}>
         <div className="nav-group">
           <a href="/dashboard" onClick={handleNavigation('/dashboard')}>Dashboard</a>
           <a href="/projects" onClick={handleNavigation('/projects')}>Projects</a>
           <a href="/about" className="active" onClick={handleNavigation('/about')}>About</a>
         </div>
-        <div className="nav-group">
-          <div className="nav-divider" />
-          <a href="#" className="nav-plus" onClick={handleNavigation('/contact')}>+</a>
-        </div>
       </nav>
 
-      {/* Back to Home Button */}
+      {/* Back Button */}
       <button className={`back-button ${showContent ? 'visible' : ''}`} onClick={handleBackToHome}>
         Back
       </button>
       
       <main ref={pageShellRef} className="page-shell">
         <div className={`page-content ${showContent ? 'visible' : ''}`}>
-          <h1 className="page-title">About</h1>
-          <p className="page-subtitle">Learn more about me and my work.</p>
+          <h1 className="about-title">About Me</h1>
+          <p className="about-subtitle">Embedded Systems · PCB Design · IoT · Firmware</p>
+
+          {/* Bio */}
+          <div className="about-section">
+            <h2>Who I Am</h2>
+            <p>
+              I'm <span className="highlight">Joel</span>, a builder from <span className="highlight">Kerala, India</span>. 
+              I finished 12th grade and decided to spend a gap year building things instead of rushing into college.
+            </p>
+            <p>
+              I enjoy taking on technically ambitious projects, especially where <span className="highlight">hardware and software meet</span>. 
+              I learn by experimenting, asking lots of follow-up questions, and refining ideas through trial and error.
+            </p>
+          </div>
+
+          {/* Quick Info */}
+          <div className="about-section">
+            <h2>Quick Info</h2>
+            <div className="bio-grid">
+              <div className="bio-item">
+                <span className="label">Born</span>
+                <span className="value">6 August 2008</span>
+              </div>
+              <div className="bio-item">
+                <span className="label">From</span>
+                <span className="value">Kerala, India</span>
+              </div>
+              <div className="bio-item">
+                <span className="label">Currently</span>
+                <span className="value">Gap Year · Building</span>
+              </div>
+              <div className="bio-item">
+                <span className="label">Focus</span>
+                <span className="value">Embedded Systems · Hardware</span>
+              </div>
+            </div>
+          </div>
+
+          {/* What I Build */}
+          <div className="about-section">
+            <h2>What I Build</h2>
+            <p>
+              I work across the full stack of hardware and software—from designing <span className="highlight">PCBs</span> 
+              and routing circuits to writing <span className="highlight">firmware</span> and building full 
+              <span className="highlight"> web applications</span>.
+            </p>
+            <p>
+              Some of my projects include <span className="highlight">flight controllers</span>, 
+              <span className="highlight"> VTOL aircraft</span>, custom <span className="highlight">robotics</span>, 
+              and software tools like <span className="highlight">DualDesk</span>—a system that turns 
+              one PC into two independent workstations.
+            </p>
+          </div>
+
+          {/* Tech Stack */}
+          <div className="about-section">
+            <h2>Tech Stack</h2>
+            <div className="tag-grid">
+              <span className="tag">ESP32-C3</span>
+              <span className="tag">ESP32-S3</span>
+              <span className="tag">Arduino</span>
+              <span className="tag">Raspberry Pi</span>
+              <span className="tag">PCB Design</span>
+              <span className="tag">MOSFETs</span>
+              <span className="tag">Li-Ion / LiPo</span>
+              <span className="tag">Brushless Motors</span>
+              <span className="tag">Next.js</span>
+              <span className="tag">React</span>
+              <span className="tag">Node.js</span>
+              <span className="tag">MongoDB</span>
+              <span className="tag">Express</span>
+              <span className="tag">C++</span>
+              <span className="tag">Python</span>
+              <span className="tag">JavaScript</span>
+              <span className="tag">Git</span>
+              <span className="tag">CAD</span>
+            </div>
+          </div>
+
+          {/* Philosophy */}
+          <div className="about-section">
+            <h2>Philosophy</h2>
+            <div className="quote-block">
+              <p>
+                "Building thoughtful software, one project at a time."
+              </p>
+            </div>
+            <p>
+              I believe in <span className="highlight">building things yourself</span> instead of just using them. 
+              Understanding how systems work at a low level, creating projects that feel meaningful, 
+              and learning through <span className="highlight">experimentation</span>—even if it means 
+              debugging the same issue many times.
+            </p>
+          </div>
+
+          {/* Contact Note */}
+          <div className="about-section" style={{ marginBottom: 0 }}>
+            <h2>Get in Touch</h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>
+              📧 <a href="mailto:joeljoju06@gmail.com" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>joeljoju06@gmail.com</a>
+              &nbsp;·&nbsp; 🐙 <a href="https://github.com/thagreatjoel" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>@thagreatjoel</a>
+            </p>
+          </div>
         </div>
       </main>
     </>

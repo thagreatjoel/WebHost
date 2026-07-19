@@ -1006,10 +1006,6 @@ export default function Projects({ repos = [], error = null, usingFallback = fal
           <a href="/projects" className="active" onClick={handleNavigation('/projects')}>Projects</a>
           <a href="/about" onClick={handleNavigation('/about')}>About</a>
         </div>
-        <div className="nav-group">
-          <div className="nav-divider" />
-          <a href="#" className="nav-plus" onClick={handleNavigation('/contact')}>+</a>
-        </div>
       </nav>
 
       <button className={`back-button ${showContent ? 'visible' : ''}`} onClick={handleBackToHome}>

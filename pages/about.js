@@ -823,179 +823,195 @@ export default function About() {
           color: rgba(255, 255, 255, 0.9);
         }
 
-        /* Duolingo Badge Styles */
-        .duolingo-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.75rem;
+        /* ============================================ */
+        /* DUOLINGO STATS CARD - NEW DESIGN */
+        /* ============================================ */
+        .duolingo-stats-container {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .duolingo-main-card {
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 12px;
-          padding: 0.6rem 1.2rem;
-          margin-top: 0.3rem;
+          border-radius: 16px;
+          padding: 1.5rem;
           transition: all 0.3s ease;
+        }
+
+        .duolingo-main-card:hover {
+          background: rgba(255,255,255,0.05);
+          border-color: rgba(255,255,255,0.1);
+        }
+
+        .duolingo-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
           flex-wrap: wrap;
-          width: 100%;
+          gap: 0.5rem;
         }
 
-        .duolingo-badge:hover {
-          background: rgba(255,255,255,0.06);
-          border-color: rgba(255,255,255,0.12);
-        }
-
-        .duolingo-badge .language {
+        .duolingo-logo {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.5rem;
         }
 
-        .duolingo-badge .flag {
-          font-size: 1.2rem;
+        .duolingo-icon {
+          font-size: 1.5rem;
         }
 
-        .duolingo-badge .score {
-          color: #58cc02;
+        .duolingo-title {
+          color: rgba(255,255,255,0.8);
+          font-size: 1.1rem;
           font-weight: 600;
-          font-size: clamp(0.9rem, 1.1vw, 1rem);
-        }
-
-        .duolingo-badge .label {
-          color: rgba(255,255,255,0.3);
-          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
           letter-spacing: 0.05em;
         }
 
-        .duolingo-badge .streak {
-          color: #ff9600;
-          font-weight: 500;
-          font-size: clamp(0.7rem, 0.8vw, 0.75rem);
-        }
-
-        .duolingo-badge .level {
-          color: rgba(255,255,255,0.4);
-          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
-        }
-
-        .duolingo-loading {
+        .duolingo-profile-link {
           color: rgba(255,255,255,0.3);
-          font-size: 0.8rem;
+          text-decoration: none;
+          font-size: 0.7rem;
+          transition: color 0.3s ease;
+          padding: 4px 12px;
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 6px;
         }
 
-        .duolingo-badge .live-indicator {
-          display: inline-block;
-          width: 8px;
-          height: 8px;
-          background: #58cc02;
-          border-radius: 50%;
-          margin-right: 4px;
-          animation: pulse 1.5s ease-in-out infinite;
+        .duolingo-profile-link:hover {
+          color: rgba(255,255,255,0.6);
+          border-color: rgba(255,255,255,0.12);
         }
 
-        @keyframes pulse {
-          0% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.3; transform: scale(0.8); }
-          100% { opacity: 1; transform: scale(1); }
+        /* Stats Grid - Like Duolingo App */
+        .duolingo-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1rem;
+          margin-bottom: 1.5rem;
         }
 
-        /* Language Progress Container */
-        .duolingo-container {
+        .stat-item {
+          text-align: center;
+          padding: 0.5rem;
+          background: rgba(255,255,255,0.02);
+          border-radius: 8px;
+        }
+
+        .stat-value {
+          color: #fff;
+          font-size: clamp(1.2rem, 1.8vw, 1.8rem);
+          font-weight: 700;
+          margin-bottom: 0.2rem;
+        }
+
+        .stat-label {
+          color: rgba(255,255,255,0.3);
+          font-size: clamp(0.5rem, 0.6vw, 0.6rem);
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+
+        .stat-value.league {
+          font-size: clamp(1.5rem, 2vw, 2rem);
+        }
+
+        /* Language Progress Bars */
+        .duolingo-languages {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
-        }
-
-        .language-progress-container {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
+          gap: 0.8rem;
           margin-top: 0.5rem;
         }
 
-        .language-progress-item {
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-          padding: 0.5rem 0.75rem;
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.04);
-          border-radius: 8px;
-          min-width: 150px;
-          flex: 1;
-          transition: all 0.3s ease;
+        .language-progress-bar {
+          padding: 0.5rem 0;
+          border-bottom: 1px solid rgba(255,255,255,0.03);
         }
 
-        .language-progress-item:hover {
-          background: rgba(255,255,255,0.06);
-          border-color: rgba(255,255,255,0.08);
+        .language-progress-bar:last-child {
+          border-bottom: none;
         }
 
-        .language-header {
+        .language-bar-header {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          margin-bottom: 0.3rem;
+          flex-wrap: wrap;
+        }
+
+        .language-flag {
+          font-size: 1rem;
         }
 
         .language-name {
           color: rgba(255,255,255,0.7);
-          font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+          font-size: clamp(0.8rem, 0.9vw, 0.85rem);
           font-weight: 500;
-        }
-
-        .language-level {
-          color: rgba(255,255,255,0.3);
-          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
-          margin-left: auto;
-        }
-
-        .language-stats {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          padding-left: 2rem;
+          flex: 1;
         }
 
         .language-xp {
           color: #58cc02;
           font-size: clamp(0.7rem, 0.8vw, 0.75rem);
+          font-weight: 500;
         }
 
-        .language-streak {
-          color: #ff9600;
-          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
-        }
-
-        .language-crowns {
-          color: #ffd700;
-          font-size: 0.6rem;
-          padding: 2px 6px;
-          background: rgba(255, 215, 0, 0.1);
-          border-radius: 4px;
-        }
-
-        .language-primary {
-          color: #58cc02;
-          font-size: 0.55rem;
-          padding: 2px 6px;
-          background: rgba(88, 204, 2, 0.1);
-          border-radius: 4px;
-          margin-left: auto;
-        }
-
-        .language-from {
-          color: rgba(255,255,255,0.2);
+        .active-badge {
           font-size: 0.5rem;
-          padding-left: 2rem;
-          margin-top: 0.1rem;
+          padding: 2px 8px;
+          background: rgba(88, 204, 2, 0.15);
+          color: #58cc02;
+          border-radius: 10px;
+          border: 1px solid rgba(88, 204, 2, 0.2);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
 
-        .duolingo-badge .source-tag {
-          font-size: 0.55rem;
+        .progress-bar-track {
+          width: 100%;
+          height: 4px;
+          background: rgba(255,255,255,0.06);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+
+        .progress-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #58cc02, #7ce03a);
+          border-radius: 2px;
+          transition: width 0.8s ease;
+        }
+
+        .language-level-info {
+          display: flex;
+          gap: 1rem;
+          margin-top: 0.2rem;
+          font-size: clamp(0.5rem, 0.6vw, 0.55rem);
+          color: rgba(255,255,255,0.25);
+        }
+
+        /* Source Tag */
+        .source-tag {
+          font-size: 0.5rem;
           padding: 2px 8px;
           border-radius: 10px;
           border: 1px solid;
           margin-left: 4px;
         }
 
+        .duolingo-loading {
+          color: rgba(255,255,255,0.3);
+          font-size: 0.8rem;
+          padding: 1rem;
+          text-align: center;
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
           .top-nav {
             padding: 8px 16px;
@@ -1023,16 +1039,20 @@ export default function About() {
           .about-headline {
             font-size: clamp(0.7rem, 1vw, 0.85rem);
           }
-          .duolingo-badge {
-            padding: 0.4rem 0.8rem;
+          .duolingo-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
             gap: 0.5rem;
           }
-          .language-progress-item {
-            min-width: 120px;
-            padding: 0.4rem 0.6rem;
+          .duolingo-main-card {
+            padding: 1rem;
           }
-          .language-stats {
-            padding-left: 1.5rem;
+          .duolingo-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+          }
+          .duolingo-profile-link {
+            align-self: flex-start;
           }
         }
 
@@ -1063,6 +1083,19 @@ export default function About() {
           .about-headline {
             font-size: clamp(0.65rem, 0.9vw, 0.75rem);
             margin-bottom: 1.5rem;
+          }
+          .duolingo-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.3rem;
+          }
+          .stat-item {
+            padding: 0.3rem;
+          }
+          .stat-value {
+            font-size: 1rem;
+          }
+          .language-bar-header {
+            flex-wrap: wrap;
           }
         }
       `}</style>
@@ -1177,99 +1210,113 @@ export default function About() {
             {duolingoLoading ? (
               <div className="duolingo-loading">Loading Duolingo data...</div>
             ) : duolingoData ? (
-              <div className="duolingo-container">
-                {/* Main Duolingo Badge */}
-                <div className="duolingo-badge">
-                  <span className="language">
-                    <span className="flag">🌍</span>
-                    <span className="label">Duolingo</span>
-                    <span className="live-indicator"></span>
-                    <span className="source-tag" style={{ 
-                      background: 'rgba(88, 204, 2, 0.15)',
-                      color: '#58cc02',
-                      borderColor: 'rgba(88, 204, 2, 0.2)'
-                    }}>
-                      ● Real Data
-                    </span>
-                  </span>
-                  <span className="score">{duolingoData.totalXp || 0} Total XP</span>
-                  <span className="level">Level {duolingoData.level || 1}</span>
-                  {duolingoData.streak > 0 && (
-                    <span className="streak">🔥 {duolingoData.streak} day streak</span>
-                  )}
-                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem' }}>·</span>
-                  <a 
-                    href={`https://www.duolingo.com/profile/${duolingoData.username}`}
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    style={{ 
-                      color: 'rgba(255,255,255,0.3)', 
-                      textDecoration: 'none',
-                      fontSize: '0.7rem',
-                      transition: 'color 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
-                    onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.3)'}
-                  >
-                    View Profile →
-                  </a>
-                </div>
-
-                {/* Language Progress - Shows ALL your languages */}
-                {duolingoData.languages && duolingoData.languages.length > 0 && (
-                  <div className="language-progress-container">
-                    {duolingoData.languages.map((langCode) => {
-                      const langData = duolingoData.languageProgress?.[langCode] || {};
-                      const langName = langData.language_string || getLanguageName(langCode);
-                      
-                      return (
-                        <div key={langCode} className="language-progress-item">
-                          <div className="language-header">
-                            <span className="flag">{getFlagEmoji(langCode)}</span>
-                            <span className="language-name">{langName}</span>
-                            <span className="language-level">
-                              Level {langData.level || 0}
-                            </span>
-                          </div>
-                          <div className="language-stats">
-                            <span className="language-xp">{langData.points || 0} XP</span>
-                            {langData.crowns > 0 && (
-                              <span className="language-crowns">👑 {langData.crowns}</span>
-                            )}
-                            {langCode === duolingoData.learningLanguage && (
-                              <span className="language-primary">★ Active</span>
-                            )}
-                          </div>
-                          {langData.fromLanguage && (
-                            <div className="language-from">
-                              From: {getLanguageName(langData.fromLanguage)}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+              <div className="duolingo-stats-container">
+                {/* Main Duolingo Card */}
+                <div className="duolingo-main-card">
+                  <div className="duolingo-header">
+                    <div className="duolingo-logo">
+                      <span className="duolingo-icon">🦉</span>
+                      <span className="duolingo-title">Duolingo</span>
+                      <span className="source-tag" style={{ 
+                        background: 'rgba(88, 204, 2, 0.15)',
+                        color: '#58cc02',
+                        borderColor: 'rgba(88, 204, 2, 0.2)'
+                      }}>
+                        ● Live
+                      </span>
+                    </div>
+                    <a 
+                      href={`https://www.duolingo.com/profile/${duolingoData.username}`}
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="duolingo-profile-link"
+                    >
+                      View Profile →
+                    </a>
                   </div>
-                )}
+
+                  {/* Stats Grid - Like Duolingo App */}
+                  <div className="duolingo-stats-grid">
+                    <div className="stat-item">
+                      <div className="stat-value">{duolingoData.streak || 0}</div>
+                      <div className="stat-label">Day Streak</div>
+                    </div>
+                    <div className="stat-item">
+                      <div className="stat-value">{duolingoData.totalXp || 0}</div>
+                      <div className="stat-label">Total XP</div>
+                    </div>
+                    <div className="stat-item">
+                      <div className="stat-value">Week {Math.ceil(((duolingoData.totalXp || 0) / 500) + 1) || 1}</div>
+                      <div className="stat-label">Week</div>
+                    </div>
+                    <div className="stat-item">
+                      <div className="stat-value league">🏆</div>
+                      <div className="stat-label">Current League</div>
+                    </div>
+                  </div>
+
+                  {/* Language Progress Bars */}
+                  <div className="duolingo-languages">
+                    {duolingoData.languages && duolingoData.languages.length > 0 ? (
+                      duolingoData.languages.map((langCode) => {
+                        const langData = duolingoData.languageProgress?.[langCode] || {};
+                        const langName = langData.language_string || getLanguageName(langCode);
+                        const progress = Math.min(((langData.points || 0) / 1000) * 100, 100);
+                        
+                        return (
+                          <div key={langCode} className="language-progress-bar">
+                            <div className="language-bar-header">
+                              <span className="language-flag">{getFlagEmoji(langCode)}</span>
+                              <span className="language-name">{langName}</span>
+                              <span className="language-xp">{langData.points || 0} XP</span>
+                              {langCode === duolingoData.learningLanguage && (
+                                <span className="active-badge">Active</span>
+                              )}
+                            </div>
+                            <div className="progress-bar-track">
+                              <div 
+                                className="progress-bar-fill" 
+                                style={{ width: `${Math.min(progress, 100)}%` }}
+                              />
+                            </div>
+                            <div className="language-level-info">
+                              <span>Level {langData.level || 0}</span>
+                              {langData.crowns > 0 && (
+                                <span>👑 {langData.crowns} crowns</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', textAlign: 'center', padding: '0.5rem' }}>
+                        No languages found
+                      </div>
+                    )}
+                  </div>
+                </div>
                 
                 <p style={{ 
-                  color: 'rgba(255,255,255,0.15)', 
-                  fontSize: '0.55rem', 
+                  color: 'rgba(255,255,255,0.12)', 
+                  fontSize: '0.5rem', 
                   marginTop: '0.5rem',
-                  fontStyle: 'italic',
+                  textAlign: 'center',
                   letterSpacing: '0.05em'
                 }}>
-                  ⚡ Real data from Duolingo • {duolingoData.languages?.length || 0} languages
+                  ⚡ Real-time data from Duolingo • Updated {new Date().toLocaleString()}
                 </p>
               </div>
             ) : (
-              <div className="duolingo-badge">
-                <span className="language">
-                  <span className="flag">🌍</span>
-                  <span className="label">Duolingo</span>
-                </span>
-                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem' }}>
+              <div className="duolingo-main-card">
+                <div className="duolingo-header">
+                  <div className="duolingo-logo">
+                    <span className="duolingo-icon">🦉</span>
+                    <span className="duolingo-title">Duolingo</span>
+                  </div>
+                </div>
+                <div style={{ padding: '1rem', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
                   Loading language data...
-                </span>
+                </div>
               </div>
             )}
           </div>

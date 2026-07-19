@@ -440,6 +440,25 @@ export default function About() {
     return flags[code] || '🌍';
   }
 
+  // Helper function to get flag image URLs
+  function getFlagUrl(langCode) {
+    const flags = {
+      'en': 'https://static.wikia.nocookie.net/duolingo/images/5/59/American_flag.png/revision/latest/scale-to-width-down/250?cb=20240930044000',
+      'de': 'https://static.wikia.nocookie.net/duolingo/images/5/50/German_flag.png/revision/latest/smart/width/386/height/259?cb=20240929062800',
+      'fr': 'https://static.wikia.nocookie.net/duolingo/images/4/4b/France_flag.png/revision/latest/smart/width/386/height/259?cb=20240929152429',
+      'es': 'https://static.wikia.nocookie.net/duolingo/images/6/61/Spain_flag.png/revision/latest/smart/width/386/height/259?cb=20240929152919',
+      'it': 'https://static.wikia.nocookie.net/duolingo/images/f/f2/Italy_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153147',
+      'pt': 'https://static.wikia.nocookie.net/duolingo/images/9/94/Portugal_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153400',
+      'ru': 'https://static.wikia.nocookie.net/duolingo/images/7/7c/Russia_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153605',
+      'ja': 'https://static.wikia.nocookie.net/duolingo/images/d/da/Japan_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153717',
+      'ko': 'https://static.wikia.nocookie.net/duolingo/images/5/5d/South_Korea_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153840',
+      'zh': 'https://static.wikia.nocookie.net/duolingo/images/b/bd/China_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153938',
+      'ar': 'https://static.wikia.nocookie.net/duolingo/images/0/04/Saudi_Arabia_flag.png/revision/latest/smart/width/386/height/259?cb=20240929154032',
+      'hi': 'https://static.wikia.nocookie.net/duolingo/images/2/25/India_flag.png/revision/latest/smart/width/386/height/259?cb=20240929154516'
+    };
+    return flags[langCode] || null;
+  }
+
   return (
     <>
       <Head>
@@ -824,7 +843,7 @@ export default function About() {
         }
 
         /* ============================================ */
-        /* DUOLINGO STATS CARD - NEW DESIGN */
+        /* DUOLINGO STATS CARD - UPDATED WITH IMAGES */
         /* ============================================ */
         .duolingo-stats-container {
           display: flex;
@@ -858,6 +877,13 @@ export default function About() {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+        }
+
+        .duolingo-logo-img {
+          height: 32px;
+          width: auto;
+          object-fit: contain;
+          border-radius: 4px;
         }
 
         .duolingo-icon {
@@ -906,6 +932,14 @@ export default function About() {
           font-size: clamp(1.2rem, 1.8vw, 1.8rem);
           font-weight: 700;
           margin-bottom: 0.2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+        }
+
+        .stat-value svg {
+          display: inline-block;
         }
 
         .stat-label {
@@ -944,8 +978,13 @@ export default function About() {
           flex-wrap: wrap;
         }
 
-        .language-flag {
-          font-size: 1rem;
+        .language-flag-img {
+          width: 24px;
+          height: 18px;
+          object-fit: cover;
+          border-radius: 2px;
+          border: 1px solid rgba(255,255,255,0.1);
+          flex-shrink: 0;
         }
 
         .language-name {
@@ -1054,6 +1093,13 @@ export default function About() {
           .duolingo-profile-link {
             align-self: flex-start;
           }
+          .duolingo-logo-img {
+            height: 24px;
+          }
+          .language-flag-img {
+            width: 20px;
+            height: 15px;
+          }
         }
 
         @media (max-width: 480px) {
@@ -1096,6 +1142,13 @@ export default function About() {
           }
           .language-bar-header {
             flex-wrap: wrap;
+          }
+          .duolingo-logo-img {
+            height: 20px;
+          }
+          .language-flag-img {
+            width: 18px;
+            height: 13px;
           }
         }
       `}</style>
@@ -1215,7 +1268,11 @@ export default function About() {
                 <div className="duolingo-main-card">
                   <div className="duolingo-header">
                     <div className="duolingo-logo">
-                      <span className="duolingo-icon">🦉</span>
+                      <img 
+                        src="https://cdn.hackclub.com/019f7c14-d877-7ba2-93d5-791574249440/Untitled%20-%20July%2020,%202026%20at%2002.00.16.png" 
+                        alt="Duolingo" 
+                        className="duolingo-logo-img"
+                      />
                       <span className="duolingo-title">Duolingo</span>
                       <span className="source-tag" style={{ 
                         background: 'rgba(88, 204, 2, 0.15)',
@@ -1238,7 +1295,13 @@ export default function About() {
                   {/* Stats Grid - Like Duolingo App */}
                   <div className="duolingo-stats-grid">
                     <div className="stat-item">
-                      <div className="stat-value">{duolingoData.streak || 0}</div>
+                      <div className="stat-value">
+                        <svg width="24" height="30" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', marginRight: '4px' }}>
+                          <path d="M6.77271 0.532617C7.336 -0.177539 8.414 -0.177539 8.97729 0.532616L14.0623 6.94342C15.1193 8.23421 15.75 9.86374 15.75 11.6351C15.75 15.8233 12.2242 19.2185 7.875 19.2185C3.52576 19.2185 0 15.8233 0 11.6351C0 11.3414 0.0173457 11.0515 0.0511046 10.7664L0.0333507 4.37841C0.0307386 3.43858 0.542464 2.74527 1.41725 2.89269C1.59157 2.92207 1.9601 3.0331 2.12522 3.12149L3.94611 4.09617L6.77271 0.532617Z" fill="#FF9600"/>
+                          <path d="M8.40677 8.24144C8.1299 7.86443 7.5667 7.86443 7.28982 8.24144L5.30202 10.9482C5.28343 10.9735 5.2689 11 5.25814 11.027C4.7842 11.5866 4.5 12.3011 4.5 13.0796C4.5 14.8745 6.01104 16.3296 7.875 16.3296C9.73896 16.3296 11.25 14.8745 11.25 13.0796C11.25 12.2008 10.8878 11.4035 10.2993 10.8185L8.40677 8.24144Z" fill="#FFC800"/>
+                        </svg>
+                        {duolingoData.streak || 0}
+                      </div>
                       <div className="stat-label">Day Streak</div>
                     </div>
                     <div className="stat-item">
@@ -1255,18 +1318,35 @@ export default function About() {
                     </div>
                   </div>
 
-                  {/* Language Progress Bars */}
+                  {/* Language Progress Bars with Custom Flags */}
                   <div className="duolingo-languages">
                     {duolingoData.languages && duolingoData.languages.length > 0 ? (
                       duolingoData.languages.map((langCode) => {
                         const langData = duolingoData.languageProgress?.[langCode] || {};
                         const langName = langData.language_string || getLanguageName(langCode);
                         const progress = Math.min(((langData.points || 0) / 1000) * 100, 100);
+                        const flagUrl = getFlagUrl(langCode);
                         
                         return (
                           <div key={langCode} className="language-progress-bar">
                             <div className="language-bar-header">
-                              <span className="language-flag">{getFlagEmoji(langCode)}</span>
+                              {flagUrl ? (
+                                <img 
+                                  src={flagUrl} 
+                                  alt={langName} 
+                                  className="language-flag-img"
+                                  onError={(e) => {
+                                    // Fallback to emoji if image fails to load
+                                    e.target.style.display = 'none';
+                                    const fallbackSpan = document.createElement('span');
+                                    fallbackSpan.className = 'language-flag-emoji';
+                                    fallbackSpan.textContent = getFlagEmoji(langCode);
+                                    e.target.parentNode.insertBefore(fallbackSpan, e.target);
+                                  }}
+                                />
+                              ) : (
+                                <span className="language-flag-emoji">{getFlagEmoji(langCode)}</span>
+                              )}
                               <span className="language-name">{langName}</span>
                               <span className="language-xp">{langData.points || 0} XP</span>
                               {langCode === duolingoData.learningLanguage && (
@@ -1310,7 +1390,11 @@ export default function About() {
               <div className="duolingo-main-card">
                 <div className="duolingo-header">
                   <div className="duolingo-logo">
-                    <span className="duolingo-icon">🦉</span>
+                    <img 
+                      src="https://cdn.hackclub.com/019f7c14-d877-7ba2-93d5-791574249440/Untitled%20-%20July%2020,%202026%20at%2002.00.16.png" 
+                      alt="Duolingo" 
+                      className="duolingo-logo-img"
+                    />
                     <span className="duolingo-title">Duolingo</span>
                   </div>
                 </div>

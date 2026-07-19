@@ -11,11 +11,33 @@ export default function About() {
   const [introComplete, setIntroComplete] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [duolingoData, setDuolingoData] = useState(null);
+  const [duolingoLoading, setDuolingoLoading] = useState(true);
 
   // Clean up overlays on mount
   useEffect(() => {
     const overlays = document.querySelectorAll('.nav-overlay');
     overlays.forEach(el => el.remove());
+  }, []);
+
+  // Fetch Duolingo data
+  useEffect(() => {
+    const fetchDuolingo = async () => {
+      try {
+        // Using a proxy to avoid CORS issues
+        const response = await fetch('/api/duolingo?username=joeljoju06');
+        if (response.ok) {
+          const data = await response.json();
+          setDuolingoData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching Duolingo data:', error);
+      } finally {
+        setDuolingoLoading(false);
+      }
+    };
+    
+    fetchDuolingo();
   }, []);
 
   // INTRO ANIMATION
@@ -536,9 +558,8 @@ export default function About() {
 
         .experience-item {
           margin-bottom: 1rem;
-          padding-left: 0.5rem;
-          border-left: 2px solid rgba(255,255,255,0.06);
           padding-left: 1rem;
+          border-left: 2px solid rgba(255,255,255,0.06);
         }
 
         .experience-item .role {
@@ -571,41 +592,6 @@ export default function About() {
           position: absolute;
           left: 0;
           color: rgba(255,255,255,0.15);
-        }
-
-        .project-item {
-          margin-bottom: 1rem;
-        }
-
-        .project-item .name {
-          color: rgba(255,255,255,0.8);
-          font-weight: 500;
-          font-size: clamp(0.9rem, 1.1vw, 1rem);
-        }
-
-        .project-item .tech {
-          color: rgba(255,255,255,0.25);
-          font-size: clamp(0.65rem, 0.8vw, 0.75rem);
-          letter-spacing: 0.05em;
-          margin-left: 0.5rem;
-        }
-
-        .project-item p {
-          color: rgba(255,255,255,0.5);
-          font-size: clamp(0.8rem, 0.95vw, 0.9rem);
-          line-height: 1.6;
-          margin-top: 0.2rem;
-        }
-
-        .project-item .github-link {
-          color: rgba(255,255,255,0.25);
-          text-decoration: none;
-          font-size: clamp(0.65rem, 0.75vw, 0.7rem);
-          transition: color 0.3s ease;
-        }
-
-        .project-item .github-link:hover {
-          color: rgba(255,255,255,0.6);
         }
 
         .role-tags {
@@ -774,18 +760,29 @@ export default function About() {
         .duolingo-badge {
           display: inline-flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.75rem;
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.06);
           border-radius: 12px;
-          padding: 0.4rem 1rem;
+          padding: 0.6rem 1.2rem;
           margin-top: 0.3rem;
           transition: all 0.3s ease;
+          flex-wrap: wrap;
         }
 
         .duolingo-badge:hover {
           background: rgba(255,255,255,0.06);
           border-color: rgba(255,255,255,0.12);
+        }
+
+        .duolingo-badge .language {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+        }
+
+        .duolingo-badge .flag {
+          font-size: 1.2rem;
         }
 
         .duolingo-badge .score {
@@ -798,6 +795,22 @@ export default function About() {
           color: rgba(255,255,255,0.3);
           font-size: clamp(0.6rem, 0.7vw, 0.65rem);
           letter-spacing: 0.05em;
+        }
+
+        .duolingo-badge .streak {
+          color: #ff9600;
+          font-weight: 500;
+          font-size: clamp(0.7rem, 0.8vw, 0.75rem);
+        }
+
+        .duolingo-badge .level {
+          color: rgba(255,255,255,0.4);
+          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
+        }
+
+        .duolingo-loading {
+          color: rgba(255,255,255,0.3);
+          font-size: 0.8rem;
         }
 
         @media (max-width: 768px) {
@@ -826,6 +839,10 @@ export default function About() {
           }
           .about-headline {
             font-size: clamp(0.7rem, 1vw, 0.85rem);
+          }
+          .duolingo-badge {
+            padding: 0.4rem 0.8rem;
+            gap: 0.5rem;
           }
         }
 
@@ -936,48 +953,6 @@ export default function About() {
             </div>
           </div>
 
-          {/* Projects */}
-          <div className="about-section">
-            <h2>Projects</h2>
-            
-            <div className="project-item">
-              <span className="name">ESP32 Drone Flight Controller</span>
-              <span className="tech">ESP32 · C++ · MPU6050 · PWM</span>
-              <p>Custom flight controller for UAVs using ESP32, sensor fusion, and motor control</p>
-            </div>
-
-            <div className="project-item">
-              <span className="name">MarketView PCB</span>
-              <span className="tech">ESP32 · OLED · USB-C · EasyEDA</span>
-              <p>Custom PCB with ESP32, OLED display, buttons, USB-C, and buzzer</p>
-              <a href="https://github.com/thagreatjoel/MarketView" target="_blank" rel="noopener noreferrer" className="github-link">View on GitHub →</a>
-            </div>
-
-            <div className="project-item">
-              <span className="name">DualDesk</span>
-              <span className="tech">Windows · HID · C++ · WinAPI</span>
-              <p>Turn one Windows PC into two independent workstations with multiple mice and screen barriers</p>
-            </div>
-
-            <div className="project-item">
-              <span className="name">VTOL Aircraft Prototype</span>
-              <span className="tech">ESP32 · Brushless Motors · ESCs · CAD</span>
-              <p>Vertical takeoff and landing aircraft with custom flight control and motor mixing</p>
-            </div>
-
-            <div className="project-item">
-              <span className="name">Friend Lee Robot</span>
-              <span className="tech">ESP32 · Motors · Sensors · Robotics</span>
-              <p>Mobile robot platform with motor control, sensor integration, and autonomous navigation</p>
-            </div>
-
-            <div className="project-item">
-              <span className="name">Large MAX7219 Display System</span>
-              <span className="tech">MAX7219 · ESP32 · LED Matrix · C++</span>
-              <p>Multi-panel LED matrix display system with custom content rendering</p>
-            </div>
-          </div>
-
           {/* Tech Stack */}
           <div className="about-section">
             <h2>Skills</h2>
@@ -1005,22 +980,66 @@ export default function About() {
             </div>
           </div>
 
-          {/* Duolingo */}
+          {/* Duolingo - Real Time Data */}
           <div className="about-section" style={{ marginBottom: 0 }}>
             <h2>Language Learning</h2>
-            <div className="duolingo-badge">
-              <span className="label">🇫🇷 Duolingo</span>
-              <span className="score">French</span>
-              <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem' }}>·</span>
-              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem' }}>
-                <a href="https://www.duolingo.com/profile/joeljoju06" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>
+            
+            {duolingoLoading ? (
+              <div className="duolingo-loading">Loading Duolingo data...</div>
+            ) : duolingoData ? (
+              <div className="duolingo-badge">
+                <span className="language">
+                  <span className="flag">🇫🇷</span>
+                  <span className="label">French</span>
+                </span>
+                <span className="score">{duolingoData.xp || 0} XP</span>
+                <span className="level">Level {duolingoData.level || 1}</span>
+                {duolingoData.streak && (
+                  <span className="streak">🔥 {duolingoData.streak} day streak</span>
+                )}
+                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem' }}>·</span>
+                <a 
+                  href="https://www.duolingo.com/profile/joeljoju06" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  style={{ 
+                    color: 'rgba(255,255,255,0.3)', 
+                    textDecoration: 'none',
+                    fontSize: '0.7rem',
+                    transition: 'color 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+                  onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.3)'}
+                >
                   View Progress →
                 </a>
-              </span>
-            </div>
-            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', marginTop: '0.3rem' }}>
-              Currently learning French on Duolingo
-            </p>
+              </div>
+            ) : (
+              <div className="duolingo-badge">
+                <span className="language">
+                  <span className="flag">🇫🇷</span>
+                  <span className="label">French</span>
+                </span>
+                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem' }}>
+                  Currently learning on Duolingo
+                </span>
+                <a 
+                  href="https://www.duolingo.com/profile/joeljoju06" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  style={{ 
+                    color: 'rgba(255,255,255,0.3)', 
+                    textDecoration: 'none',
+                    fontSize: '0.7rem',
+                    transition: 'color 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+                  onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.3)'}
+                >
+                  View Progress →
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </main>

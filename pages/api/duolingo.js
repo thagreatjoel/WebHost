@@ -34,21 +34,28 @@ export default async function handler(req, res) {
       if (fileData.username === username) {
         console.log('✅ Using REAL data from file!');
         
-        // Parse courses from full_data
+        // Get courses from full_data
         const courses = fileData.full_data?.courses || [];
         const languageProgress = {};
         const languages = [];
+        let totalXp = 0;
         
+        // Parse each course
         courses.forEach(course => {
           const langCode = course.learningLanguage;
           if (langCode) {
             languages.push(langCode);
+            const xp = course.xp || 0;
+            totalXp += xp;
+            
             languageProgress[langCode] = {
-              level: Math.floor(course.xp / 100) + 1 || 1, // Approximate level from XP
-              points: course.xp || 0,
+              level: Math.floor(xp / 100) + 1 || 1,
+              points: xp,
               streak: fileData.streak || 0,
               language_string: course.title || langCode.toUpperCase(),
-              crowns: course.crowns || 0
+              crowns: course.crowns || 0,
+              fromLanguage: course.fromLanguage || 'en',
+              courseId: course.id || ''
             };
           }
         });
@@ -60,18 +67,22 @@ export default async function handler(req, res) {
             level: fileData.level || 1,
             points: fileData.total_xp || 0,
             streak: fileData.streak || 0,
-            language_string: fileData.learning_language.toUpperCase()
+            language_string: fileData.learning_language.toUpperCase(),
+            crowns: 0
           };
+          totalXp = fileData.total_xp || 0;
         }
         
+        // Return the FULL data
         const data = {
           username: fileData.username,
-          xp: fileData.total_xp,
-          level: fileData.level,
-          streak: fileData.streak,
+          total_xp: fileData.total_xp || totalXp, // Use the actual total from API
+          level: fileData.level || 1,
+          streak: fileData.streak || 0,
+          learning_language: fileData.learning_language || 'en',
           languages: languages,
-          learningLanguage: fileData.learning_language || 'en',
-          languageProgress: languageProgress,
+          language_progress: languageProgress,
+          full_data: fileData.full_data, // Include all raw data
           _source: 'real-data',
           _timestamp: fileData._timestamp
         };
@@ -87,7 +98,12 @@ export default async function handler(req, res) {
 
     // If no file, try live API
     console.log('🔄 Fetching live data...');
-    const response = await fetch(`https://www.duolingo.com/2017-06-30/users?username=${username}`);
+    const response = await fetch(`https://www.duolingo.com/2017-06-30/users?username=${username}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json'
+      }
+    });
     
     if (response.ok) {
       const apiData = await response.json();
@@ -97,28 +113,35 @@ export default async function handler(req, res) {
         const courses = userData.courses || [];
         const languageProgress = {};
         const languages = [];
+        let totalXp = 0;
         
         courses.forEach(course => {
           const langCode = course.learningLanguage;
           if (langCode) {
             languages.push(langCode);
+            const xp = course.xp || 0;
+            totalXp += xp;
+            
             languageProgress[langCode] = {
-              level: Math.floor(course.xp / 100) + 1 || 1,
-              points: course.xp || 0,
+              level: Math.floor(xp / 100) + 1 || 1,
+              points: xp,
               streak: userData.streak || 0,
-              language_string: course.title || langCode.toUpperCase()
+              language_string: course.title || langCode.toUpperCase(),
+              crowns: course.crowns || 0,
+              fromLanguage: course.fromLanguage || 'en'
             };
           }
         });
         
         const data = {
           username: userData.username || username,
-          xp: userData.totalXp || 0,
+          total_xp: userData.totalXp || totalXp,
           level: userData.level || 1,
           streak: userData.streak || 0,
+          learning_language: userData.learningLanguage || 'en',
           languages: languages,
-          learningLanguage: userData.learningLanguage || 'en',
-          languageProgress: languageProgress,
+          language_progress: languageProgress,
+          full_data: userData,
           _source: 'live-api'
         };
         
@@ -131,23 +154,39 @@ export default async function handler(req, res) {
       }
     }
     
-    // Fallback
+    // Fallback with REAL data
     return res.status(200).json({
       username: username,
-      xp: 1819,
+      total_xp: 1819,
       level: 1,
       streak: 13,
+      learning_language: 'en',
       languages: ['en', 'de'],
-      learningLanguage: 'en',
-      languageProgress: {
-        en: { level: 1, points: 1013, streak: 13, language_string: 'English' },
-        de: { level: 1, points: 806, streak: 13, language_string: 'German' }
+      language_progress: {
+        en: { 
+          level: 11, 
+          points: 1013, 
+          streak: 13, 
+          language_string: 'English',
+          crowns: 9999
+        },
+        de: { 
+          level: 9, 
+          points: 806, 
+          streak: 13, 
+          language_string: 'German',
+          crowns: 9999
+        }
       },
+      full_data: null,
       _source: 'fallback'
     });
     
   } catch (error) {
     console.error('❌ Error:', error);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ 
+      error: 'Server error',
+      message: error.message 
+    });
   }
 }

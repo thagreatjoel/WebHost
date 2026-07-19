@@ -1357,7 +1357,7 @@ export default function Home() {
         /* ─── PRIMARY NAVIGATION ─── */
         .top-nav {
           position: fixed;
-          top: 30px;
+          top: 16px;
           left: 50%;
           transform: translateX(-50%);
           z-index: 10004;
@@ -1365,21 +1365,22 @@ export default function Home() {
           align-items: center;
           justify-content: center;
           font-family: 'Aeonik', 'General Sans', sans-serif;
-          font-size: clamp(0.6rem, 0.8vw, 0.75rem);
+          font-size: clamp(0.5rem, 0.7vw, 0.7rem);
           letter-spacing: 0.12em;
           text-transform: uppercase;
           color: rgba(255, 255, 255, 0.6);
           background: rgba(255, 255, 255, 0.06);
           backdrop-filter: blur(16px);
-          padding: 12px 28px;
+          padding: 8px 20px;
           border-radius: 2mm;
           border: 1px solid rgba(255, 255, 255, 0.08);
           opacity: 0;
           pointer-events: none;
           width: auto;
-          min-width: 320px;
+          min-width: 260px;
           max-width: 90%;
           transition: opacity 0.5s ease;
+          gap: 1.5rem;
         }
 
         .top-nav.visible {
@@ -1390,7 +1391,7 @@ export default function Home() {
         .top-nav .nav-group {
           display: flex;
           align-items: center;
-          gap: 2.5rem;
+          gap: 1.8rem;
         }
 
         .top-nav a {
@@ -1399,10 +1400,10 @@ export default function Home() {
           transition: color 0.3s ease;
           cursor: pointer;
           font-weight: 400;
-          padding: 6px 8px;
+          padding: 4px 6px;
           letter-spacing: 0.15em;
           white-space: nowrap;
-          font-size: clamp(0.6rem, 0.75vw, 0.75rem);
+          font-size: clamp(0.5rem, 0.65vw, 0.7rem);
           position: relative;
         }
 
@@ -1437,7 +1438,7 @@ export default function Home() {
         /* ─── SECONDARY NAVIGATION (Right Side) ─── */
         .top-nav-right {
           position: fixed;
-          top: 30px;
+          top: 16px;
           right: 30px;
           z-index: 10004;
           display: flex;
@@ -1445,7 +1446,7 @@ export default function Home() {
           font-family: 'Aeonik', 'General Sans', sans-serif;
           background: rgba(255, 255, 255, 0.06);
           backdrop-filter: blur(16px);
-          padding: 12px 18px;
+          padding: 8px 14px;
           border-radius: 2mm;
           border: 1px solid rgba(255, 255, 255, 0.08);
           opacity: 0;
@@ -1478,8 +1479,8 @@ export default function Home() {
 
         .top-nav-right .nav-sticker-btn img {
           display: block;
-          width: 24px;
-          height: 24px;
+          width: 22px;
+          height: 22px;
           filter: brightness(0.85);
           transition: filter 0.3s ease, border-color 0.3s ease;
           border-radius: 50%;
@@ -2132,22 +2133,27 @@ export default function Home() {
 
         @media (max-width: 768px) {
           .top-nav {
-            padding: 8px 16px;
-            min-width: 280px;
+            padding: 6px 14px;
+            min-width: 200px;
             gap: 1rem;
+            top: 12px;
           }
           .top-nav .nav-group {
-            gap: 1.5rem;
+            gap: 1.2rem;
           }
           .top-nav a {
-            font-size: clamp(0.5rem, 0.6vw, 0.6rem);
+            font-size: clamp(0.4rem, 0.5vw, 0.55rem);
             letter-spacing: 0.1em;
-            padding: 4px 6px;
+            padding: 3px 4px;
           }
           .top-nav-right {
-            top: 80px;
+            top: 68px;
             right: 16px;
-            padding: 10px 14px;
+            padding: 6px 12px;
+          }
+          .top-nav-right .nav-sticker-btn img {
+            width: 20px;
+            height: 20px;
           }
           .click-prompt {
             bottom: 30px;
@@ -2186,10 +2192,6 @@ export default function Home() {
             width: 40px;
             height: 40px;
           }
-          .top-nav-right .nav-sticker-btn img {
-            width: 20px;
-            height: 20px;
-          }
           .placement-instructions {
             bottom: 100px;
             font-size: 0.8rem;
@@ -2210,28 +2212,27 @@ export default function Home() {
 
         @media (max-width: 480px) {
           .top-nav {
-            padding: 6px 12px;
-            min-width: 200px;
-            gap: 0.8rem;
-            top: 16px;
+            padding: 4px 10px;
+            min-width: 150px;
+            gap: 0.6rem;
+            top: 10px;
           }
           .top-nav .nav-group {
             gap: 0.8rem;
           }
           .top-nav a {
-            font-size: clamp(0.4rem, 0.5vw, 0.5rem);
+            font-size: clamp(0.35rem, 0.4vw, 0.45rem);
             letter-spacing: 0.08em;
-            padding: 3px 4px;
+            padding: 2px 3px;
           }
           .top-nav-right {
-            top: 68px;
+            top: 60px;
             right: 12px;
-            padding: 8px 12px;
+            padding: 4px 10px;
           }
           .top-nav-right .nav-sticker-btn img {
             width: 18px;
             height: 18px;
-            border-width: 1px;
           }
           .click-prompt {
             bottom: 20px;
@@ -2319,8 +2320,8 @@ export default function Home() {
               src="https://cdn.hackclub.com/019f7440-98e0-7b3b-86ae-eaa60188ec2c/foxy.png" 
               alt="Sticker button" 
               style={{ 
-                width: '24px', 
-                height: '24px', 
+                width: '22px', 
+                height: '22px', 
                 display: 'block',
                 filter: 'brightness(0.85)',
                 transition: 'filter 0.3s ease, border-color 0.3s ease',

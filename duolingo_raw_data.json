@@ -1,0 +1,82 @@
+{
+  "id": 1308876074,
+  "acquisitionSurveyReason": "none",
+  "resurrectedAcquisitionSurveyReason": "none",
+  "bio": "",
+  "courses": [
+    {
+      "authorId": "duolingo",
+      "fromLanguage": "en",
+      "healthEnabled": true,
+      "id": "DUOLINGO_EN_EN",
+      "learningLanguage": "en",
+      "placementTestAvailable": false,
+      "preload": false,
+      "title": "English",
+      "xp": 1013,
+      "crowns": 9999
+    },
+    {
+      "authorId": "duolingo",
+      "fromLanguage": "en",
+      "healthEnabled": true,
+      "id": "DUOLINGO_DE_EN",
+      "learningLanguage": "de",
+      "placementTestAvailable": false,
+      "preload": false,
+      "title": "German",
+      "xp": 806,
+      "crowns": 9999
+    }
+  ],
+  "fromLanguage": "en",
+  "joinedClassroomIds": [],
+  "classroomLeaderboardsEnabled": false,
+  "learningLanguage": "en",
+  "currentCourseId": "DUOLINGO_EN_EN",
+  "motivation": "travel",
+  "name": "Joel Jo",
+  "observedClassroomIds": [],
+  "picture": "//simg-ssl.duolingo.com/ssr-avatars/1308876074/SSR-Fkw5NJKT5r",
+  "privacySettings": [
+    "DISABLE_CLUBS",
+    "DISABLE_DISCUSSIONS",
+    "DISABLE_EVENTS",
+    "DISABLE_IMMERSION",
+    "DISABLE_MATURE_WORDS",
+    "DISABLE_PERSONALIZED_ADS",
+    "DISABLE_THIRD_PARTY_TRACKING",
+    "DISABLE_ADS_AND_TRACKING_CONSENT",
+    "COPPA_WAIVED"
+  ],
+  "profileCountry": null,
+  "globalAmbassadorStatus": {},
+  "roles": [
+    "users"
+  ],
+  "canUseModerationTools": false,
+  "streak": 13,
+  "streakData": {
+    "currentStreak": {
+      "length": 13,
+      "startDate": "2026-07-07",
+      "endDate": "2026-07-20"
+    }
+  },
+  "username": "greatjoel",
+  "emailVerified": false,
+  "hasPlus": false,
+  "creationDate": 1700233231,
+  "hasRecentActivity15": false,
+  "hasFacebookId": false,
+  "hasGoogleId": true,
+  "requiresSsoLogin": false,
+  "hasPhoneNumber": false,
+  "shouldForceConnectPhoneNumber": false,
+  "totalXp": 1819,
+  "achievements": [],
+  "_achievements": [],
+  "betaStatus": "INELIGIBLE",
+  "shakeToReportEnabled": null,
+  "chinaUserModerationRecords": []
+}

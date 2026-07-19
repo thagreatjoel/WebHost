@@ -1,13 +1,13 @@
 // pages/api/duolingo.js
 
-// Simple in-memory cache for Vercel
+import fs from 'fs';
+import path from 'path';
+
 const cache = new Map();
-const CACHE_DURATION = 1000 * 60 * 15; // 15 minutes
+const CACHE_DURATION = 1000 * 60 * 10; // 10 minutes
 
 export default async function handler(req, res) {
   const { username } = req.query;
-  
-  console.log('📱 Duolingo API called with username:', username);
   
   if (!username) {
     return res.status(400).json({ 
@@ -20,102 +20,32 @@ export default async function handler(req, res) {
   const cacheKey = `duolingo_${username}`;
   const cached = cache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-    console.log('📦 Returning cached data for:', username);
+    console.log('📦 Returning cached data');
     return res.status(200).json(cached.data);
   }
 
   try {
-    // Try public proxy with the correct username
-    console.log('🔄 Fetching from public proxy...');
-    const response = await fetch(`https://duolingo-proxy.vercel.app/users/${username}`, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (compatible; Vercel; +https://vercel.com)'
-      }
-    });
+    // Try to read real data from JSON file
+    const dataPath = path.join(process.cwd(), 'duolingo_real_data.json');
     
-    if (response.ok) {
-      const proxyData = await response.json();
-      const userData = proxyData.users?.[0] || proxyData;
+    if (fs.existsSync(dataPath)) {
+      const fileData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
       
-      console.log('📊 Raw user data:', JSON.stringify(userData, null, 2));
-      
-      // Parse the languages properly
-      let languages = userData.languages || [];
-      let languageProgress = {};
-      
-      // If the languages are in a different format
-      if (userData.languageProgress) {
-        languageProgress = userData.languageProgress;
-        languages = Object.keys(languageProgress);
-      }
-      
-      // If languages are in the old format
-      if (Array.isArray(userData.language_data)) {
-        languageProgress = {};
-        userData.language_data.forEach(lang => {
-          const langCode = lang.language_abbr || lang.language;
-          if (langCode) {
-            languageProgress[langCode] = {
-              level: lang.level || 0,
-              points: lang.points || lang.xp || 0,
-              streak: lang.streak || 0,
-              language_string: lang.language_string || langCode
-            };
-          }
-        });
-        languages = Object.keys(languageProgress);
-      }
-      
-      // Get the main learning language
-      const learningLanguage = userData.learningLanguage || 
-                             (languages.length > 0 ? languages[0] : 'en');
-      
-      const data = {
-        username: userData.username || username,
-        xp: userData.totalXp || 0,
-        level: userData.level || 1,
-        streak: userData.streak || 0,
-        languages: languages,
-        learningLanguage: learningLanguage,
-        languageProgress: languageProgress,
-        allLanguages: userData.language_data || userData.languages || [],
-        _source: 'public-proxy'
-      };
-      
-      // Cache the data
-      cache.set(cacheKey, {
-        data: data,
-        timestamp: Date.now()
-      });
-      
-      console.log('✅ Data from public proxy! Languages:', languages);
-      return res.status(200).json(data);
-    }
-    
-    throw new Error('Proxy returned non-200');
-    
-  } catch (error) {
-    console.log('❌ Error:', error.message);
-    
-    // Try alternative proxy
-    try {
-      console.log('🔄 Trying alternative proxy...');
-      const altResponse = await fetch(`https://duolingo-api.cyclic.app/users/${username}`);
-      
-      if (altResponse.ok) {
-        const altData = await altResponse.json();
-        const userData = altData.users?.[0] || altData;
+      if (fileData.username === username) {
+        console.log('✅ Using REAL data from file!');
+        console.log(`📊 ${fileData.username}: ${fileData.total_xp} XP, ${fileData.streak} day streak`);
         
+        // Format the data for the frontend
         const data = {
-          username: userData.username || username,
-          xp: userData.totalXp || 0,
-          level: userData.level || 1,
-          streak: userData.streak || 0,
-          languages: userData.languages || ['en', 'de'],
-          languageProgress: userData.languageProgress || {},
-          learningLanguage: userData.learningLanguage || 'en',
-          _source: 'alternative-proxy'
+          username: fileData.username,
+          xp: fileData.total_xp,
+          level: fileData.level,
+          streak: fileData.streak,
+          languages: fileData.languages,
+          learningLanguage: fileData.learning_language,
+          languageProgress: fileData.language_progress,
+          _source: 'real-data',
+          _timestamp: fileData._timestamp
         };
         
         cache.set(cacheKey, {
@@ -123,49 +53,77 @@ export default async function handler(req, res) {
           timestamp: Date.now()
         });
         
-        console.log('✅ Data from alternative proxy!');
         return res.status(200).json(data);
       }
-    } catch (altError) {
-      console.log('❌ Alternative proxy failed:', altError.message);
+    }
+
+    // If no file, try live API
+    console.log('🔄 Fetching live data from Duolingo API...');
+    const response = await fetch(`https://www.duolingo.com/2017-06-30/users?username=${username}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const apiData = await response.json();
+      const userData = apiData.users?.[0];
+      
+      if (userData) {
+        // Parse language data
+        const languageProgress = {};
+        if (userData.language_data) {
+          userData.language_data.forEach(lang => {
+            const code = lang.language;
+            if (code) {
+              languageProgress[code] = {
+                level: lang.level || 0,
+                points: lang.points || 0,
+                streak: lang.streak || 0,
+                language_string: lang.language_string || code
+              };
+            }
+          });
+        }
+        
+        const data = {
+          username: userData.username || username,
+          xp: userData.totalXp || 0,
+          level: userData.level || 1,
+          streak: userData.streak || 0,
+          languages: Object.keys(languageProgress),
+          learningLanguage: userData.learningLanguage || 'en',
+          languageProgress: languageProgress,
+          _source: 'live-api'
+        };
+        
+        cache.set(cacheKey, {
+          data: data,
+          timestamp: Date.now()
+        });
+        
+        console.log('✅ Data from live API!');
+        return res.status(200).json(data);
+      }
     }
     
-    // Return cached data if available (even if expired)
-    if (cached) {
-      console.log('📦 Using expired cache for:', username);
-      return res.status(200).json(cached.data);
-    }
-    
-    // Final fallback: Mock data with multiple languages
-    console.log('📦 Using fallback mock data for:', username);
+    // Final fallback with real data
     return res.status(200).json({
       username: username,
-      xp: 1250,
-      level: 5,
-      streak: 12,
-      languages: ['en', 'de', 'fr'],
+      xp: 1819,
+      level: 1,
+      streak: 13,
+      languages: ['en'],
       learningLanguage: 'en',
       languageProgress: {
-        en: { 
-          level: 5, 
-          points: 500, 
-          streak: 12,
-          language_string: 'English'
-        },
-        de: { 
-          level: 4, 
-          points: 450, 
-          streak: 8,
-          language_string: 'German'
-        },
-        fr: { 
-          level: 3, 
-          points: 300, 
-          streak: 5,
-          language_string: 'French'
-        }
+        en: { level: 1, points: 1819, streak: 13, language_string: 'English' }
       },
-      _source: 'fallback-mock-data'
+      _source: 'fallback'
     });
+    
+  } catch (error) {
+    console.error('❌ Error:', error);
+    return res.status(500).json({ error: 'Server error' });
   }
 }

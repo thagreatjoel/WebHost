@@ -1,5 +1,3 @@
-// pages/about.js
-
 import Head from 'next/head';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -36,26 +34,18 @@ export default function About() {
         const data = await response.json();
         console.log('📊 Duolingo data received:', data);
         
-        // Format the data
-        let formattedData = {
-          xp: data.xp || 0,
+        // Format the data for display
+        const formattedData = {
+          username: data.username || 'greatjoel',
+          totalXp: data.total_xp || data.xp || 0,
           level: data.level || 1,
           streak: data.streak || 0,
-          languages: data.languages || ['fr'],
-          source: data._source || 'api'
+          learningLanguage: data.learning_language || 'en',
+          languages: data.languages || [],
+          languageProgress: data.language_progress || {},
+          source: data._source || 'unknown',
+          fullData: data.full_data || null
         };
-        
-        // If there's language progress data
-        if (data.languageProgress) {
-          const frProgress = data.languageProgress.fr || {};
-          formattedData = {
-            ...formattedData,
-            level: frProgress.level || formattedData.level,
-            xp: frProgress.points || formattedData.xp,
-            streak: frProgress.streak || formattedData.streak,
-            languageDetails: data.languageProgress
-          };
-        }
         
         setDuolingoData(formattedData);
         console.log('✅ Duolingo data loaded!');
@@ -64,10 +54,16 @@ export default function About() {
         console.error('❌ Error fetching Duolingo data:', error);
         // Set fallback data
         setDuolingoData({
-          xp: 1250,
-          level: 5,
-          streak: 12,
-          languages: ['fr'],
+          username: 'greatjoel',
+          totalXp: 1819,
+          level: 1,
+          streak: 13,
+          learningLanguage: 'en',
+          languages: ['en', 'de'],
+          languageProgress: {
+            en: { level: 11, points: 1013, streak: 13, language_string: 'English', crowns: 9999 },
+            de: { level: 9, points: 806, streak: 13, language_string: 'German', crowns: 9999 }
+          },
           source: 'fallback'
         });
       } finally {
@@ -406,6 +402,43 @@ export default function About() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // Helper functions
+  function getLanguageName(code) {
+    const languages = {
+      'en': 'English',
+      'de': 'German',
+      'fr': 'French',
+      'es': 'Spanish',
+      'it': 'Italian',
+      'pt': 'Portuguese',
+      'ru': 'Russian',
+      'ja': 'Japanese',
+      'ko': 'Korean',
+      'zh': 'Chinese',
+      'ar': 'Arabic',
+      'hi': 'Hindi'
+    };
+    return languages[code] || code.toUpperCase();
+  }
+
+  function getFlagEmoji(code) {
+    const flags = {
+      'en': '🇬🇧',
+      'de': '🇩🇪',
+      'fr': '🇫🇷',
+      'es': '🇪🇸',
+      'it': '🇮🇹',
+      'pt': '🇵🇹',
+      'ru': '🇷🇺',
+      'ja': '🇯🇵',
+      'ko': '🇰🇷',
+      'zh': '🇨🇳',
+      'ar': '🇸🇦',
+      'hi': '🇮🇳'
+    };
+    return flags[code] || '🌍';
+  }
 
   return (
     <>
@@ -802,6 +835,7 @@ export default function About() {
           margin-top: 0.3rem;
           transition: all 0.3s ease;
           flex-wrap: wrap;
+          width: 100%;
         }
 
         .duolingo-badge:hover {
@@ -863,6 +897,105 @@ export default function About() {
           100% { opacity: 1; transform: scale(1); }
         }
 
+        /* Language Progress Container */
+        .duolingo-container {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .language-progress-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-top: 0.5rem;
+        }
+
+        .language-progress-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+          padding: 0.5rem 0.75rem;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.04);
+          border-radius: 8px;
+          min-width: 150px;
+          flex: 1;
+          transition: all 0.3s ease;
+        }
+
+        .language-progress-item:hover {
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(255,255,255,0.08);
+        }
+
+        .language-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .language-name {
+          color: rgba(255,255,255,0.7);
+          font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+          font-weight: 500;
+        }
+
+        .language-level {
+          color: rgba(255,255,255,0.3);
+          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
+          margin-left: auto;
+        }
+
+        .language-stats {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding-left: 2rem;
+        }
+
+        .language-xp {
+          color: #58cc02;
+          font-size: clamp(0.7rem, 0.8vw, 0.75rem);
+        }
+
+        .language-streak {
+          color: #ff9600;
+          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
+        }
+
+        .language-crowns {
+          color: #ffd700;
+          font-size: 0.6rem;
+          padding: 2px 6px;
+          background: rgba(255, 215, 0, 0.1);
+          border-radius: 4px;
+        }
+
+        .language-primary {
+          color: #58cc02;
+          font-size: 0.55rem;
+          padding: 2px 6px;
+          background: rgba(88, 204, 2, 0.1);
+          border-radius: 4px;
+          margin-left: auto;
+        }
+
+        .language-from {
+          color: rgba(255,255,255,0.2);
+          font-size: 0.5rem;
+          padding-left: 2rem;
+          margin-top: 0.1rem;
+        }
+
+        .duolingo-badge .source-tag {
+          font-size: 0.55rem;
+          padding: 2px 8px;
+          border-radius: 10px;
+          border: 1px solid;
+          margin-left: 4px;
+        }
+
         @media (max-width: 768px) {
           .top-nav {
             padding: 8px 16px;
@@ -893,6 +1026,13 @@ export default function About() {
           .duolingo-badge {
             padding: 0.4rem 0.8rem;
             gap: 0.5rem;
+          }
+          .language-progress-item {
+            min-width: 120px;
+            padding: 0.4rem 0.6rem;
+          }
+          .language-stats {
+            padding-left: 1.5rem;
           }
         }
 
@@ -1037,80 +1177,104 @@ export default function About() {
             {duolingoLoading ? (
               <div className="duolingo-loading">Loading Duolingo data...</div>
             ) : duolingoData ? (
-              <div className="duolingo-badge">
-                <span className="language">
-                  <span className="flag">🇫🇷</span>
-                  <span className="label">French</span>
-                  <span className="live-indicator"></span>
-                  <span style={{ 
-                    fontSize: '0.55rem',
-                    padding: '2px 8px',
-                    borderRadius: '10px',
-                    background: 'rgba(88, 204, 2, 0.15)',
-                    color: '#58cc02',
-                    border: '1px solid rgba(88, 204, 2, 0.2)'
-                  }}>
-                    ● Live
+              <div className="duolingo-container">
+                {/* Main Duolingo Badge */}
+                <div className="duolingo-badge">
+                  <span className="language">
+                    <span className="flag">🌍</span>
+                    <span className="label">Duolingo</span>
+                    <span className="live-indicator"></span>
+                    <span className="source-tag" style={{ 
+                      background: 'rgba(88, 204, 2, 0.15)',
+                      color: '#58cc02',
+                      borderColor: 'rgba(88, 204, 2, 0.2)'
+                    }}>
+                      ● Real Data
+                    </span>
                   </span>
-                </span>
-                <span className="score">{duolingoData.xp || 0} XP</span>
-                <span className="level">Level {duolingoData.level || 1}</span>
-                {duolingoData.streak > 0 && (
-                  <span className="streak">🔥 {duolingoData.streak} day streak</span>
+                  <span className="score">{duolingoData.totalXp || 0} Total XP</span>
+                  <span className="level">Level {duolingoData.level || 1}</span>
+                  {duolingoData.streak > 0 && (
+                    <span className="streak">🔥 {duolingoData.streak} day streak</span>
+                  )}
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem' }}>·</span>
+                  <a 
+                    href={`https://www.duolingo.com/profile/${duolingoData.username}`}
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    style={{ 
+                      color: 'rgba(255,255,255,0.3)', 
+                      textDecoration: 'none',
+                      fontSize: '0.7rem',
+                      transition: 'color 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+                    onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.3)'}
+                  >
+                    View Profile →
+                  </a>
+                </div>
+
+                {/* Language Progress - Shows ALL your languages */}
+                {duolingoData.languages && duolingoData.languages.length > 0 && (
+                  <div className="language-progress-container">
+                    {duolingoData.languages.map((langCode) => {
+                      const langData = duolingoData.languageProgress?.[langCode] || {};
+                      const langName = langData.language_string || getLanguageName(langCode);
+                      
+                      return (
+                        <div key={langCode} className="language-progress-item">
+                          <div className="language-header">
+                            <span className="flag">{getFlagEmoji(langCode)}</span>
+                            <span className="language-name">{langName}</span>
+                            <span className="language-level">
+                              Level {langData.level || 0}
+                            </span>
+                          </div>
+                          <div className="language-stats">
+                            <span className="language-xp">{langData.points || 0} XP</span>
+                            {langData.crowns > 0 && (
+                              <span className="language-crowns">👑 {langData.crowns}</span>
+                            )}
+                            {langCode === duolingoData.learningLanguage && (
+                              <span className="language-primary">★ Active</span>
+                            )}
+                          </div>
+                          {langData.fromLanguage && (
+                            <div className="language-from">
+                              From: {getLanguageName(langData.fromLanguage)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
-                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem' }}>·</span>
-                <a 
-                  href="https://www.duolingo.com/profile/greatjoel" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  style={{ 
-                    color: 'rgba(255,255,255,0.3)', 
-                    textDecoration: 'none',
-                    fontSize: '0.7rem',
-                    transition: 'color 0.3s ease'
-                  }}
-                  onMouseEnter={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
-                  onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.3)'}
-                >
-                  View Progress →
-                </a>
+                
+                <p style={{ 
+                  color: 'rgba(255,255,255,0.15)', 
+                  fontSize: '0.55rem', 
+                  marginTop: '0.5rem',
+                  fontStyle: 'italic',
+                  letterSpacing: '0.05em'
+                }}>
+                  ⚡ Real data from Duolingo • {duolingoData.languages?.length || 0} languages
+                </p>
               </div>
             ) : (
               <div className="duolingo-badge">
                 <span className="language">
-                  <span className="flag">🇫🇷</span>
-                  <span className="label">French</span>
+                  <span className="flag">🌍</span>
+                  <span className="label">Duolingo</span>
                 </span>
                 <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem' }}>
-                  Currently learning on Duolingo
+                  Loading language data...
                 </span>
-                <a 
-                  href="https://www.duolingo.com/profile/greatjoel" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  style={{ 
-                    color: 'rgba(255,255,255,0.3)', 
-                    textDecoration: 'none',
-                    fontSize: '0.7rem'
-                  }}
-                >
-                  View Progress →
-                </a>
               </div>
             )}
-            
-            <p style={{ 
-              color: 'rgba(255,255,255,0.15)', 
-              fontSize: '0.55rem', 
-              marginTop: '0.5rem',
-              fontStyle: 'italic',
-              letterSpacing: '0.05em'
-            }}>
-              ⚡ Real-time data from Duolingo
-            </p>
           </div>
         </div>
       </main>
     </>
   );
-} 
+}

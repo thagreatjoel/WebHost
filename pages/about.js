@@ -61,8 +61,8 @@ export default function About() {
           learningLanguage: 'en',
           languages: ['en', 'de'],
           languageProgress: {
-            en: { level: 11, points: 1013, streak: 13, language_string: 'English', crowns: 9999 },
-            de: { level: 9, points: 806, streak: 13, language_string: 'German', crowns: 9999 }
+            en: { level: 11, points: 1013, streak: 13, language_string: 'English' },
+            de: { level: 9, points: 806, streak: 13, language_string: 'German' }
           },
           source: 'fallback'
         });
@@ -440,24 +440,54 @@ export default function About() {
     return flags[code] || '🌍';
   }
 
-  // Helper function to get flag image URLs
-  function getFlagUrl(langCode) {
-    const flags = {
-      'en': 'https://static.wikia.nocookie.net/duolingo/images/5/59/American_flag.png/revision/latest/scale-to-width-down/250?cb=20240930044000',
-      'de': 'https://static.wikia.nocookie.net/duolingo/images/5/50/German_flag.png/revision/latest/smart/width/386/height/259?cb=20240929062800',
-      'fr': 'https://static.wikia.nocookie.net/duolingo/images/4/4b/France_flag.png/revision/latest/smart/width/386/height/259?cb=20240929152429',
-      'es': 'https://static.wikia.nocookie.net/duolingo/images/6/61/Spain_flag.png/revision/latest/smart/width/386/height/259?cb=20240929152919',
-      'it': 'https://static.wikia.nocookie.net/duolingo/images/f/f2/Italy_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153147',
-      'pt': 'https://static.wikia.nocookie.net/duolingo/images/9/94/Portugal_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153400',
-      'ru': 'https://static.wikia.nocookie.net/duolingo/images/7/7c/Russia_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153605',
-      'ja': 'https://static.wikia.nocookie.net/duolingo/images/d/da/Japan_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153717',
-      'ko': 'https://static.wikia.nocookie.net/duolingo/images/5/5d/South_Korea_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153840',
-      'zh': 'https://static.wikia.nocookie.net/duolingo/images/b/bd/China_flag.png/revision/latest/smart/width/386/height/259?cb=20240929153938',
-      'ar': 'https://static.wikia.nocookie.net/duolingo/images/0/04/Saudi_Arabia_flag.png/revision/latest/smart/width/386/height/259?cb=20240929154032',
-      'hi': 'https://static.wikia.nocookie.net/duolingo/images/2/25/India_flag.png/revision/latest/smart/width/386/height/259?cb=20240929154516'
-    };
-    return flags[langCode] || null;
-  }
+  // Flag SVG components
+  const EnglishFlag = () => (
+    <svg width="24" height="18" viewBox="0 0 70 54" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      <g clipPath="url(#clip0_129_593)">
+        <path fillRule="evenodd" clipRule="evenodd" d="M12.563 0H57.437C61.8054 0 63.3895 0.454846 64.9865 1.30895C66.5836 2.16305 67.8369 3.41642 68.691 5.01346C69.5452 6.61049 70 8.1946 70 12.563V41.437C70 45.8054 69.5452 47.3895 68.691 48.9865C67.8369 50.5836 66.5836 51.8369 64.9865 52.6911C63.3895 53.5452 61.8054 54 57.437 54H12.563C8.1946 54 6.61049 53.5452 5.01346 52.6911C3.41642 51.8369 2.16305 50.5836 1.30895 48.9865C0.454846 47.3895 0 45.8054 0 41.437V12.563C0 8.1946 0.454846 6.61049 1.30895 5.01346C2.16305 3.41642 3.41642 2.16305 5.01346 1.30895C6.61049 0.454846 8.1946 0 12.563 0Z" fill="#EEEEEE"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M12.563 0H57.437C61.8054 0 63.3895 0.454846 64.9865 1.30895C66.5836 2.16305 67.8369 3.41642 68.691 5.01346C68.8631 5.3352 69.019 5.65643 69.1582 6H0.841797C0.981005 5.65643 1.13687 5.3352 1.30895 5.01346C2.16305 3.41642 3.41641 2.16305 5.01345 1.30895C6.61049 0.454846 8.19459 0 12.563 0Z" fill="#FF4B4B"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M69.9973 12C69.9991 12.1824 70 12.37 70 12.563V18H0V12.563C0 12.37 0.000888148 12.1824 0.00265965 12H69.9973Z" fill="#FF4B4B"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M70 24V30H0V24H70Z" fill="#FF4B4B"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M70 41.437C70 41.63 69.9991 41.8176 69.9973 42H0.00265965C0.000888148 41.8176 0 41.63 0 41.437V36H70V41.437Z" fill="#FF4B4B"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M69.1582 48C69.019 48.3436 68.8631 48.6648 68.691 48.9865C67.8369 50.5836 66.5836 51.8369 64.9865 52.6911C63.3895 53.5452 61.8054 54 57.437 54H12.563C8.19459 54 6.61049 53.5452 5.01345 52.6911C3.41641 51.8369 2.16305 50.5836 1.30895 48.9865C1.13687 48.6648 0.981005 48.3436 0.841797 48H69.1582Z" fill="#FF4B4B"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M12.563 0H35V24H0V12.563C0 8.1946 0.454846 6.61049 1.30895 5.01346C2.16305 3.41642 3.41642 2.16305 5.01346 1.30895C6.61049 0.454846 8.1946 0 12.563 0Z" fill="#1CB0F6"/>
+        <path d="M27.8065 9.60198L26.531 10.2726C26.1304 10.4832 25.635 10.3292 25.4245 9.92863C25.3406 9.76914 25.3117 9.58645 25.3421 9.40885L25.5857 7.98849C25.6089 7.85332 25.5641 7.71541 25.4659 7.61968L24.434 6.61377C24.1099 6.29791 24.1033 5.77918 24.4191 5.45514C24.5449 5.32611 24.7097 5.24214 24.888 5.21623L26.3142 5.009C26.4499 4.98928 26.5672 4.90404 26.6279 4.78107L27.2657 3.48877C27.4659 3.08299 27.9572 2.91639 28.363 3.11665C28.5246 3.1964 28.6554 3.32719 28.7351 3.48877L29.3729 4.78107C29.4336 4.90404 29.5509 4.98928 29.6867 5.009L31.1128 5.21623C31.5606 5.2813 31.8709 5.69707 31.8058 6.14487C31.7799 6.32319 31.6959 6.48799 31.5669 6.61377L30.5349 7.61968C30.4367 7.71541 30.3919 7.85332 30.4151 7.98849L30.6587 9.40885C30.7352 9.85485 30.4357 10.2784 29.9897 10.3549C29.8121 10.3854 29.6294 10.3564 29.4699 10.2726L28.1943 9.60198C28.0729 9.53816 27.9279 9.53816 27.8065 9.60198Z" fill="white"/>
+        <path d="M27.8065 19.602L26.531 20.2726C26.1304 20.4832 25.635 20.3292 25.4245 19.9286C25.3406 19.7691 25.3117 19.5865 25.3421 19.4089L25.5857 17.9885C25.6089 17.8533 25.5641 17.7154 25.4659 17.6197L24.434 16.6138C24.1099 16.2979 24.1033 15.7792 24.4191 15.4551C24.5449 15.3261 24.7097 15.2421 24.888 15.2162L26.3142 15.009C26.4499 14.9893 26.5672 14.904 26.6279 14.7811L27.2657 13.4888C27.4659 13.083 27.9572 12.9164 28.363 13.1167C28.5246 13.1964 28.6554 13.3272 28.7351 13.4888L29.3729 14.7811C29.4336 14.904 29.5509 14.9893 29.6867 15.009L31.1128 15.2162C31.5606 15.2813 31.8709 15.6971 31.8058 16.1449C31.7799 16.3232 31.6959 16.488 31.5669 16.6138L30.5349 17.6197C30.4367 17.7154 30.3919 17.8533 30.4151 17.9885L30.6587 19.4089C30.7352 19.8549 30.4357 20.2784 29.9897 20.3549C29.8121 20.3854 29.6294 20.3564 29.4699 20.2726L28.1943 19.602C28.0729 19.5382 27.9279 19.5382 27.8065 19.602Z" fill="white"/>
+        <path d="M17.8065 9.60198L16.531 10.2726C16.1304 10.4832 15.635 10.3292 15.4245 9.92863C15.3406 9.76914 15.3117 9.58645 15.3421 9.40885L15.5857 7.98849C15.6089 7.85332 15.5641 7.71541 15.4659 7.61968L14.434 6.61377C14.1099 6.29791 14.1033 5.77918 14.4191 5.45514C14.5449 5.32611 14.7097 5.24214 14.888 5.21623L16.3142 5.009C16.4499 4.98928 16.5672 4.90404 16.6279 4.78107L17.2657 3.48877C17.466 3.08299 17.9572 2.91639 18.363 3.11665C18.5246 3.1964 18.6554 3.32719 18.7351 3.48877L19.3729 4.78107C19.4336 4.90404 19.5509 4.98928 19.6867 5.009L21.1128 5.21623C21.5606 5.2813 21.8709 5.69707 21.8058 6.14487C21.7799 6.32319 21.6959 6.48799 21.5669 6.61377L20.5349 7.61968C20.4367 7.71541 20.3919 7.85332 20.4151 7.98849L20.6587 9.40885C20.7352 9.85485 20.4357 10.2784 19.9897 10.3549C19.8121 10.3854 19.6294 10.3564 19.4699 10.2726L18.1943 9.60198C18.0729 9.53816 17.9279 9.53816 17.8065 9.60198Z" fill="white"/>
+        <path d="M17.8065 19.602L16.531 20.2726C16.1304 20.4832 15.635 20.3292 15.4245 19.9286C15.3406 19.7691 15.3117 19.5865 15.3421 19.4089L15.5857 17.9885C15.6089 17.8533 15.5641 17.7154 15.4659 17.6197L14.434 16.6138C14.1099 16.2979 14.1033 15.7792 14.4191 15.4551C14.5449 15.3261 14.7097 15.2421 14.888 15.2162L16.3142 15.009C16.4499 14.9893 16.5672 14.904 16.6279 14.7811L17.2657 13.4888C17.466 13.083 17.9572 12.9164 18.363 13.1167C18.5246 13.1964 18.6554 13.3272 18.7351 13.4888L19.3729 14.7811C19.4336 14.904 19.5509 14.9893 19.6867 15.009L21.1128 15.2162C21.5606 15.2813 21.8709 15.6971 21.8058 16.1449C21.7799 16.3232 21.6959 16.488 21.5669 16.6138L20.5349 17.6197C20.4367 17.7154 20.3919 17.8533 20.4151 17.9885L20.6587 19.4089C20.7352 19.8549 20.4357 20.2784 19.9897 20.3549C19.8121 20.3854 19.6294 20.3564 19.4699 20.2726L18.1943 19.602C18.0729 19.5382 17.9279 19.5382 17.8065 19.602Z" fill="white"/>
+        <path d="M7.80652 9.60198L6.53095 10.2726C6.13042 10.4832 5.63503 10.3292 5.42446 9.92863C5.34061 9.76914 5.31167 9.58645 5.34213 9.40885L5.58575 7.98849C5.60893 7.85332 5.56412 7.71541 5.46591 7.61968L4.43395 6.61377C4.10992 6.29791 4.10329 5.77918 4.41915 5.45514C4.54492 5.32611 4.70973 5.24214 4.88804 5.21623L6.31418 5.009C6.44989 4.98928 6.56721 4.90404 6.6279 4.78107L7.26569 3.48877C7.46595 3.08299 7.95725 2.91639 8.36303 3.11665C8.52461 3.1964 8.6554 3.32719 8.73515 3.48877L9.37293 4.78107C9.43363 4.90404 9.55095 4.98928 9.68666 5.009L11.1128 5.21623C11.5606 5.2813 11.8709 5.69707 11.8058 6.14487C11.7799 6.32319 11.6959 6.48799 11.5669 6.61377L10.5349 7.61968C10.4367 7.71541 10.3919 7.85332 10.4151 7.98849L10.6587 9.40885C10.7352 9.85485 10.4357 10.2784 9.98966 10.3549C9.81206 10.3854 9.62937 10.3564 9.46988 10.2726L8.19431 9.60198C8.07292 9.53816 7.92791 9.53816 7.80652 9.60198Z" fill="white"/>
+        <path d="M7.80652 19.602L6.53095 20.2726C6.13042 20.4832 5.63503 20.3292 5.42446 19.9286C5.34061 19.7691 5.31167 19.5865 5.34213 19.4089L5.58575 17.9885C5.60893 17.8533 5.56412 17.7154 5.46591 17.6197L4.43395 16.6138C4.10992 16.2979 4.10329 15.7792 4.41915 15.4551C4.54492 15.3261 4.70973 15.2421 4.88804 15.2162L6.31418 15.009C6.44989 14.9893 6.56721 14.904 6.6279 14.7811L7.26569 13.4888C7.46595 13.083 7.95725 12.9164 8.36303 13.1167C8.52461 13.1964 8.6554 13.3272 8.73515 13.4888L9.37293 14.7811C9.43363 14.904 9.55095 14.9893 9.68666 15.009L11.1128 15.2162C11.5606 15.2813 11.8709 15.6971 11.8058 16.1449C11.7799 16.3232 11.6959 16.488 11.5669 16.6138L10.5349 17.6197C10.4367 17.7154 10.3919 17.8533 10.4151 17.9885L10.6587 19.4089C10.7352 19.8549 10.4357 20.2784 9.98966 20.3549C9.81206 20.3854 9.62937 20.3564 9.46988 20.2726L8.19431 19.602C8.07292 19.5382 7.92791 19.5382 7.80652 19.602Z" fill="white"/>
+      </g>
+      <defs>
+        <clipPath id="clip0_129_593">
+          <rect width="70" height="54" fill="white"/>
+        </clipPath>
+      </defs>
+    </svg>
+  );
+
+  const GermanFlag = () => (
+    <svg width="24" height="18" viewBox="0 0 70 54" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+      <path d="M12.563 0H57.437C61.8054 0 63.3895 0.454846 64.9865 1.30895C66.5836 2.16305 67.8369 3.41642 68.691 5.01346C69.5452 6.61049 70 8.1946 70 12.563V41.437C70 45.8054 69.5452 47.3895 68.691 48.9865C67.8369 50.5836 66.5836 51.8369 64.9865 52.6911C63.3895 53.5452 61.8054 54 57.437 54H12.563C8.1946 54 6.61049 53.5452 5.01346 52.6911C3.41642 51.8369 2.16305 50.5836 1.30895 48.9865C0.454846 47.3895 0 45.8054 0 41.437L0 12.563C0 8.1946 0.454846 6.61049 1.30895 5.01346C2.16305 3.41642 3.41642 2.16305 5.01346 1.30895C6.61049 0.454846 8.1946 0 12.563 0Z" fill="#FF4B4B"/>
+      <path d="M70 36V41.437C70 45.8054 69.5452 47.3895 68.691 48.9865C67.8369 50.5836 66.5836 51.8369 64.9865 52.691C63.3895 53.5452 61.8054 54 57.437 54H12.563C8.1946 54 6.61049 53.5452 5.01346 52.691C3.41642 51.8369 2.16305 50.5836 1.30895 48.9865C0.454846 47.3895 0 45.8054 0 41.437V36H70Z" fill="#FFC800"/>
+      <path d="M12.563 0H57.437C61.8054 0 63.3895 0.454846 64.9865 1.30895C66.5836 2.16306 67.8369 3.41642 68.691 5.01346C69.5452 6.61049 70 8.1946 70 12.563V18H0V12.563C0 8.1946 0.454846 6.61049 1.30895 5.01346C2.16305 3.41642 3.41642 2.16306 5.01346 1.30895C6.61049 0.454846 8.1946 0 12.563 0Z" fill="#4C4C4C"/>
+    </svg>
+  );
+
+  const XPIcon = () => (
+    <svg width="22" height="30" viewBox="0 0 22 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path fillRule="evenodd" clipRule="evenodd" d="M14.0367 2.67272C13.8379 0.718003 11.3282 0.0455378 10.1787 1.63898L0.717665 14.7538C-0.157342 15.9667 0.452676 17.6801 1.89732 18.0672L7.2794 19.5093L8.07445 27.3273C8.27323 29.282 10.7829 29.9545 11.9324 28.361L21.3935 15.2462C22.2685 14.0333 21.6585 12.3199 20.2138 11.9328L14.8317 10.4907L14.0367 2.67272Z" fill="#FFD900"/>
+      <path d="M2.574 16.4882C2.08457 16.3561 2.03731 15.6803 2.50359 15.4813L6.24415 13.8853C6.58188 13.7412 6.96093 13.973 6.98654 14.3393L7.17226 16.9952C7.19787 17.3615 6.85477 17.6438 6.50027 17.5481L2.574 16.4882Z" fill="#F7C100"/>
+      <path d="M19.717 13.2505C20.2064 13.3826 20.2537 14.0584 19.7874 14.2573L16.0469 15.8533C15.7091 15.9974 15.3301 15.7656 15.3045 15.3993L15.1188 12.7435C15.0931 12.3772 15.4362 12.0949 15.7907 12.1906L19.717 13.2505Z" fill="#FFEF8F"/>
+    </svg>
+  );
+
+  const StreakIcon = () => (
+    <svg width="24" height="30" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', marginRight: '4px' }}>
+      <path d="M6.77271 0.532617C7.336 -0.177539 8.414 -0.177539 8.97729 0.532616L14.0623 6.94342C15.1193 8.23421 15.75 9.86374 15.75 11.6351C15.75 15.8233 12.2242 19.2185 7.875 19.2185C3.52576 19.2185 0 15.8233 0 11.6351C0 11.3414 0.0173457 11.0515 0.0511046 10.7664L0.0333507 4.37841C0.0307386 3.43858 0.542464 2.74527 1.41725 2.89269C1.59157 2.92207 1.9601 3.0331 2.12522 3.12149L3.94611 4.09617L6.77271 0.532617Z" fill="#FF9600"/>
+      <path d="M8.40677 8.24144C8.1299 7.86443 7.5667 7.86443 7.28982 8.24144L5.30202 10.9482C5.28343 10.9735 5.2689 11 5.25814 11.027C4.7842 11.5866 4.5 12.3011 4.5 13.0796C4.5 14.8745 6.01104 16.3296 7.875 16.3296C9.73896 16.3296 11.25 14.8745 11.25 13.0796C11.25 12.2008 10.8878 11.4035 10.2993 10.8185L8.40677 8.24144Z" fill="#FFC800"/>
+    </svg>
+  );
 
   return (
     <>
@@ -843,7 +873,7 @@ export default function About() {
         }
 
         /* ============================================ */
-        /* DUOLINGO STATS CARD - UPDATED WITH IMAGES */
+        /* DUOLINGO STATS CARD - UPDATED */
         /* ============================================ */
         .duolingo-stats-container {
           display: flex;
@@ -886,10 +916,6 @@ export default function About() {
           border-radius: 4px;
         }
 
-        .duolingo-icon {
-          font-size: 1.5rem;
-        }
-
         .duolingo-title {
           color: rgba(255,255,255,0.8);
           font-size: 1.1rem;
@@ -912,7 +938,6 @@ export default function About() {
           border-color: rgba(255,255,255,0.12);
         }
 
-        /* Stats Grid - Like Duolingo App */
         .duolingo-stats-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
@@ -978,13 +1003,15 @@ export default function About() {
           flex-wrap: wrap;
         }
 
-        .language-flag-img {
+        .language-flag {
+          flex-shrink: 0;
+        }
+
+        .language-flag svg {
           width: 24px;
           height: 18px;
-          object-fit: cover;
           border-radius: 2px;
           border: 1px solid rgba(255,255,255,0.1);
-          flex-shrink: 0;
         }
 
         .language-name {
@@ -998,6 +1025,14 @@ export default function About() {
           color: #58cc02;
           font-size: clamp(0.7rem, 0.8vw, 0.75rem);
           font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .language-xp svg {
+          width: 16px;
+          height: 22px;
         }
 
         .active-badge {
@@ -1034,7 +1069,6 @@ export default function About() {
           color: rgba(255,255,255,0.25);
         }
 
-        /* Source Tag */
         .source-tag {
           font-size: 0.5rem;
           padding: 2px 8px;
@@ -1050,7 +1084,6 @@ export default function About() {
           text-align: center;
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
           .top-nav {
             padding: 8px 16px;
@@ -1095,10 +1128,6 @@ export default function About() {
           }
           .duolingo-logo-img {
             height: 24px;
-          }
-          .language-flag-img {
-            width: 20px;
-            height: 15px;
           }
         }
 
@@ -1145,10 +1174,6 @@ export default function About() {
           }
           .duolingo-logo-img {
             height: 20px;
-          }
-          .language-flag-img {
-            width: 18px;
-            height: 13px;
           }
         }
       `}</style>
@@ -1292,14 +1317,11 @@ export default function About() {
                     </a>
                   </div>
 
-                  {/* Stats Grid - Like Duolingo App */}
+                  {/* Stats Grid */}
                   <div className="duolingo-stats-grid">
                     <div className="stat-item">
                       <div className="stat-value">
-                        <svg width="24" height="30" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', marginRight: '4px' }}>
-                          <path d="M6.77271 0.532617C7.336 -0.177539 8.414 -0.177539 8.97729 0.532616L14.0623 6.94342C15.1193 8.23421 15.75 9.86374 15.75 11.6351C15.75 15.8233 12.2242 19.2185 7.875 19.2185C3.52576 19.2185 0 15.8233 0 11.6351C0 11.3414 0.0173457 11.0515 0.0511046 10.7664L0.0333507 4.37841C0.0307386 3.43858 0.542464 2.74527 1.41725 2.89269C1.59157 2.92207 1.9601 3.0331 2.12522 3.12149L3.94611 4.09617L6.77271 0.532617Z" fill="#FF9600"/>
-                          <path d="M8.40677 8.24144C8.1299 7.86443 7.5667 7.86443 7.28982 8.24144L5.30202 10.9482C5.28343 10.9735 5.2689 11 5.25814 11.027C4.7842 11.5866 4.5 12.3011 4.5 13.0796C4.5 14.8745 6.01104 16.3296 7.875 16.3296C9.73896 16.3296 11.25 14.8745 11.25 13.0796C11.25 12.2008 10.8878 11.4035 10.2993 10.8185L8.40677 8.24144Z" fill="#FFC800"/>
-                        </svg>
+                        <StreakIcon />
                         {duolingoData.streak || 0}
                       </div>
                       <div className="stat-label">Day Streak</div>
@@ -1325,30 +1347,20 @@ export default function About() {
                         const langData = duolingoData.languageProgress?.[langCode] || {};
                         const langName = langData.language_string || getLanguageName(langCode);
                         const progress = Math.min(((langData.points || 0) / 1000) * 100, 100);
-                        const flagUrl = getFlagUrl(langCode);
                         
                         return (
                           <div key={langCode} className="language-progress-bar">
                             <div className="language-bar-header">
-                              {flagUrl ? (
-                                <img 
-                                  src={flagUrl} 
-                                  alt={langName} 
-                                  className="language-flag-img"
-                                  onError={(e) => {
-                                    // Fallback to emoji if image fails to load
-                                    e.target.style.display = 'none';
-                                    const fallbackSpan = document.createElement('span');
-                                    fallbackSpan.className = 'language-flag-emoji';
-                                    fallbackSpan.textContent = getFlagEmoji(langCode);
-                                    e.target.parentNode.insertBefore(fallbackSpan, e.target);
-                                  }}
-                                />
-                              ) : (
-                                <span className="language-flag-emoji">{getFlagEmoji(langCode)}</span>
-                              )}
+                              <span className="language-flag">
+                                {langCode === 'en' ? <EnglishFlag /> : 
+                                 langCode === 'de' ? <GermanFlag /> :
+                                 <span>{getFlagEmoji(langCode)}</span>}
+                              </span>
                               <span className="language-name">{langName}</span>
-                              <span className="language-xp">{langData.points || 0} XP</span>
+                              <span className="language-xp">
+                                <XPIcon />
+                                {langData.points || 0}
+                              </span>
                               {langCode === duolingoData.learningLanguage && (
                                 <span className="active-badge">Active</span>
                               )}
@@ -1361,9 +1373,6 @@ export default function About() {
                             </div>
                             <div className="language-level-info">
                               <span>Level {langData.level || 0}</span>
-                              {langData.crowns > 0 && (
-                                <span>👑 {langData.crowns} crowns</span>
-                              )}
                             </div>
                           </div>
                         );

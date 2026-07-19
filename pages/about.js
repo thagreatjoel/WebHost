@@ -12,12 +12,13 @@ export default function About() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
-  // ─── HOOKS ───
+  // Clean up overlays on mount
   useEffect(() => {
     const overlays = document.querySelectorAll('.nav-overlay');
     overlays.forEach(el => el.remove());
   }, []);
 
+  // INTRO ANIMATION
   useEffect(() => {
     if (pageShellRef.current && !introComplete) {
       pageShellRef.current.classList.add('zoom-in-big');
@@ -26,43 +27,82 @@ export default function About() {
           pageShellRef.current.classList.remove('zoom-in-big');
           setIntroComplete(true);
           setIsLoaded(true);
-          setTimeout(() => setShowContent(true), 100);
+          setTimeout(() => {
+            setShowContent(true);
+          }, 100);
         }
       }, 800);
     }
   }, [introComplete]);
 
-  // ─── NAVIGATION ───
+  // ─── NAVIGATION HANDLER ───
   const handleNavigation = (path) => (e) => {
     if (e) e.preventDefault();
     if (isRedirecting || !path) return;
     setIsRedirecting(true);
     setShowContent(false);
-    if (pageShellRef.current) pageShellRef.current.classList.add('zoom-in-big');
+    
+    if (pageShellRef.current) {
+      pageShellRef.current.classList.add('zoom-in-big');
+    }
+    
     const overlay = document.createElement('div');
     overlay.className = 'nav-overlay';
-    overlay.style.cssText = `position:fixed;inset:0;background:#0F0F0F;z-index:99999;opacity:0;transition:opacity 0.6s ease;pointer-events:none;`;
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: #0F0F0F;
+      z-index: 99999;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    `;
     document.body.appendChild(overlay);
-    setTimeout(() => { overlay.style.opacity = '1'; }, 100);
+    
     setTimeout(() => {
-      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      overlay.style.opacity = '1';
+    }, 100);
+    
+    setTimeout(() => {
+      if (overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
       router.push(path);
     }, 800);
   };
 
+  // ─── BACK TO HOME ───
   const handleBackToHome = () => {
     if (isRedirecting) return;
     setIsRedirecting(true);
     sessionStorage.setItem('redirectedToHome', 'true');
     setShowContent(false);
-    if (pageShellRef.current) pageShellRef.current.classList.add('zoom-in-big');
+    
+    if (pageShellRef.current) {
+      pageShellRef.current.classList.add('zoom-in-big');
+    }
+    
     const overlay = document.createElement('div');
     overlay.className = 'nav-overlay';
-    overlay.style.cssText = `position:fixed;inset:0;background:#0F0F0F;z-index:99999;opacity:0;transition:opacity 0.6s ease;pointer-events:none;`;
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: #0F0F0F;
+      z-index: 99999;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    `;
     document.body.appendChild(overlay);
-    setTimeout(() => { overlay.style.opacity = '1'; }, 100);
+    
     setTimeout(() => {
-      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      overlay.style.opacity = '1';
+    }, 100);
+    
+    setTimeout(() => {
+      if (overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
       window.location.href = '/';
     }, 800);
   };
@@ -70,6 +110,7 @@ export default function About() {
   // ─── STAR BACKGROUND ───
   useEffect(() => {
     if (!isLoaded) return;
+
     const canvas = bgCanvasRef.current;
     if (!canvas) return;
 
@@ -285,7 +326,9 @@ export default function About() {
     let resizeTimeout;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => { resize(); }, 100);
+      resizeTimeout = setTimeout(() => {
+        resize();
+      }, 100);
     };
     window.addEventListener('resize', handleResize);
 
@@ -393,126 +436,59 @@ export default function About() {
           overflow-y: auto;
           text-align: left;
         }
-        .page-content.visible { opacity: 1; }
 
-        .page-content::-webkit-scrollbar { width: 4px; }
-        .page-content::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        .page-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
-        /* ─── HERO ─── */
-        .hero-section {
-          text-align: center;
-          margin-bottom: 2.5rem;
-          padding-bottom: 2rem;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
+        .page-content.visible {
+          opacity: 1;
         }
 
-        .hero-name {
-          font-size: clamp(2.8rem, 7vw, 4.5rem);
-          font-weight: 700;
-          color: #fff;
-          letter-spacing: 0.04em;
-          line-height: 1.1;
+        .page-content::-webkit-scrollbar {
+          width: 4px;
         }
-
-        .hero-name .highlight {
-          background: linear-gradient(135deg, #fbbf24, #f59e0b);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .hero-tagline {
-          color: rgba(255,255,255,0.4);
-          font-size: clamp(0.85rem, 1.2vw, 1.1rem);
-          letter-spacing: 0.08em;
-          margin-top: 0.5rem;
-          font-weight: 300;
-        }
-
-        .hero-badge {
-          display: inline-block;
-          margin-top: 0.75rem;
-          padding: 0.3rem 1.2rem;
-          background: rgba(251, 191, 36, 0.08);
-          border: 1px solid rgba(251, 191, 36, 0.12);
-          border-radius: 20px;
-          color: #fbbf24;
-          font-size: clamp(0.6rem, 0.7vw, 0.7rem);
-          letter-spacing: 0.08em;
-        }
-
-        /* ─── STATS BAR ─── */
-        .stats-bar {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 0.5rem;
-          margin-bottom: 2.5rem;
-          padding: 1rem 0;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .stat-item {
-          text-align: center;
-          padding: 0.5rem;
-          transition: all 0.3s ease;
-          border-radius: 8px;
-        }
-
-        .stat-item:hover {
+        .page-content::-webkit-scrollbar-track {
           background: rgba(255,255,255,0.02);
         }
+        .page-content::-webkit-scrollbar-thumb {
+          background: rgba(255,255,255,0.1);
+          border-radius: 2px;
+        }
 
-        .stat-number {
-          display: block;
-          font-size: clamp(1.4rem, 2.5vw, 2rem);
-          font-weight: 600;
+        .about-title {
+          font-size: clamp(2.5rem, 6vw, 4rem);
           color: #fff;
-          letter-spacing: 0.02em;
+          margin-bottom: 0.25rem;
+          letter-spacing: 0.05em;
+          font-weight: 700;
+          text-align: center;
         }
 
-        .stat-label {
-          display: block;
-          font-size: clamp(0.5rem, 0.6vw, 0.6rem);
-          color: rgba(255,255,255,0.25);
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          margin-top: 0.15rem;
-        }
-
-        .stat-number .accent {
-          color: #fbbf24;
-        }
-
-        /* ─── SECTION HEADERS ─── */
-        .section-header {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          margin-bottom: 0.75rem;
-        }
-
-        .section-header h2 {
-          color: rgba(255,255,255,0.8);
-          font-size: clamp(0.9rem, 1.2vw, 1.1rem);
-          font-weight: 500;
-          letter-spacing: 0.08em;
-        }
-
-        .section-header .line {
-          flex: 1;
-          height: 1px;
-          background: rgba(255,255,255,0.04);
+        .about-headline {
+          color: rgba(255,255,255,0.5);
+          font-size: clamp(0.8rem, 1.2vw, 1rem);
+          text-align: center;
+          margin-bottom: 2rem;
+          font-weight: 300;
+          letter-spacing: 0.05em;
+          line-height: 1.6;
         }
 
         .about-section {
           margin-bottom: 2rem;
         }
 
+        .about-section h2 {
+          color: rgba(255,255,255,0.8);
+          font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          margin-bottom: 0.6rem;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          padding-bottom: 0.4rem;
+        }
+
         .about-section p {
-          color: rgba(255,255,255,0.55);
-          font-size: clamp(0.85rem, 1.05vw, 0.95rem);
-          line-height: 1.9;
+          color: rgba(255,255,255,0.6);
+          font-size: clamp(0.85rem, 1.1vw, 1rem);
+          line-height: 1.8;
           letter-spacing: 0.02em;
           margin-bottom: 0.5rem;
         }
@@ -521,104 +497,133 @@ export default function About() {
           color: rgba(255,255,255,0.85);
         }
 
-        /* ─── SKILLS GRID ─── */
-        .skills-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        .about-section .tech-highlight {
+          color: #fbbf24;
+        }
+
+        .tag-grid {
+          display: flex;
+          flex-wrap: wrap;
           gap: 0.5rem;
           margin-top: 0.5rem;
         }
 
-        .skill-item {
-          padding: 0.5rem 0.75rem;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.04);
-          border-radius: 8px;
-          text-align: center;
-          font-size: clamp(0.6rem, 0.7vw, 0.7rem);
+        .tag {
+          display: inline-block;
+          padding: 4px 14px;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 20px;
+          font-size: clamp(0.7rem, 0.8vw, 0.75rem);
           color: rgba(255,255,255,0.5);
-          letter-spacing: 0.04em;
+          letter-spacing: 0.05em;
           transition: all 0.3s ease;
         }
 
-        .skill-item:hover {
-          background: rgba(255,255,255,0.05);
-          border-color: rgba(255,255,255,0.08);
+        .tag:hover {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.12);
           color: rgba(255,255,255,0.8);
-          transform: translateY(-2px);
         }
 
-        .skill-item .icon {
-          display: block;
-          font-size: 1.2rem;
-          margin-bottom: 0.2rem;
+        .tag.skill {
+          color: rgba(255,255,255,0.6);
         }
 
-        /* ─── EXPERIENCE CARDS ─── */
-        .exp-card {
-          padding: 1rem 1.2rem;
-          margin-bottom: 0.75rem;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.04);
-          border-radius: 10px;
-          transition: all 0.3s ease;
+        .tag.skill:hover {
+          color: rgba(255,255,255,0.9);
         }
 
-        .exp-card:hover {
-          background: rgba(255,255,255,0.03);
-          border-color: rgba(255,255,255,0.08);
+        .experience-item {
+          margin-bottom: 1rem;
+          padding-left: 0.5rem;
+          border-left: 2px solid rgba(255,255,255,0.06);
+          padding-left: 1rem;
         }
 
-        .exp-card .role {
-          color: rgba(255,255,255,0.85);
+        .experience-item .role {
+          color: rgba(255,255,255,0.8);
           font-weight: 500;
           font-size: clamp(0.9rem, 1.1vw, 1rem);
         }
 
-        .exp-card .org {
-          color: rgba(255,255,255,0.25);
-          font-size: clamp(0.7rem, 0.8vw, 0.75rem);
+        .experience-item .org {
+          color: rgba(255,255,255,0.3);
+          font-size: clamp(0.75rem, 0.9vw, 0.85rem);
           letter-spacing: 0.05em;
-          margin-left: 0.5rem;
         }
 
-        .exp-card ul {
+        .experience-item ul {
           list-style: none;
           margin-top: 0.3rem;
         }
 
-        .exp-card ul li {
-          color: rgba(255,255,255,0.45);
-          font-size: clamp(0.8rem, 0.9vw, 0.85rem);
-          line-height: 1.7;
-          padding-left: 1.2rem;
+        .experience-item ul li {
+          color: rgba(255,255,255,0.5);
+          font-size: clamp(0.8rem, 0.95vw, 0.9rem);
+          line-height: 1.6;
+          padding-left: 1rem;
           position: relative;
         }
 
-        .exp-card ul li::before {
-          content: '▸';
+        .experience-item ul li::before {
+          content: '•';
           position: absolute;
           left: 0;
-          color: rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.15);
         }
 
-        /* ─── ROLE TAGS ─── */
+        .project-item {
+          margin-bottom: 1rem;
+        }
+
+        .project-item .name {
+          color: rgba(255,255,255,0.8);
+          font-weight: 500;
+          font-size: clamp(0.9rem, 1.1vw, 1rem);
+        }
+
+        .project-item .tech {
+          color: rgba(255,255,255,0.25);
+          font-size: clamp(0.65rem, 0.8vw, 0.75rem);
+          letter-spacing: 0.05em;
+          margin-left: 0.5rem;
+        }
+
+        .project-item p {
+          color: rgba(255,255,255,0.5);
+          font-size: clamp(0.8rem, 0.95vw, 0.9rem);
+          line-height: 1.6;
+          margin-top: 0.2rem;
+        }
+
+        .project-item .github-link {
+          color: rgba(255,255,255,0.25);
+          text-decoration: none;
+          font-size: clamp(0.65rem, 0.75vw, 0.7rem);
+          transition: color 0.3s ease;
+        }
+
+        .project-item .github-link:hover {
+          color: rgba(255,255,255,0.6);
+        }
+
         .role-tags {
           display: flex;
           flex-wrap: wrap;
           gap: 0.4rem;
-          margin-top: 0.5rem;
+          margin-top: 0.3rem;
         }
 
         .role-tag {
-          padding: 0.2rem 0.8rem;
+          display: inline-block;
+          padding: 2px 10px;
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.05);
           border-radius: 12px;
-          font-size: clamp(0.55rem, 0.65vw, 0.6rem);
+          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
           color: rgba(255,255,255,0.3);
           letter-spacing: 0.05em;
-          transition: all 0.3s ease;
         }
 
         .role-tag:hover {
@@ -627,31 +632,33 @@ export default function About() {
           color: rgba(255,255,255,0.5);
         }
 
-        /* ─── DUOLINGO ─── */
-        .duolingo-card {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          padding: 0.75rem 1.2rem;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.04);
-          border-radius: 10px;
-          margin-top: 0.3rem;
-          transition: all 0.3s ease;
+        .bg-canvas {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 0;
+          pointer-events: none;
+          display: block;
         }
 
-        .duolingo-card:hover {
-          background: rgba(255,255,255,0.03);
-          border-color: rgba(255,255,255,0.08);
+        .grid-blueprint {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          pointer-events: none;
+          z-index: 1;
+          background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), 
+                           linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+          background-size: 60px 60px;
+          background-position: 0 0, 0 0;
+          mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
+          -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
         }
 
-        .duolingo-card .flag { font-size: 1.5rem; }
-        .duolingo-card .lang { color: rgba(255,255,255,0.8); font-weight: 500; font-size: clamp(0.9rem, 1vw, 1rem); }
-        .duolingo-card .score { color: #58cc02; font-weight: 600; font-size: clamp(0.85rem, 1vw, 0.95rem); }
-        .duolingo-card .link { color: rgba(255,255,255,0.2); text-decoration: none; font-size: clamp(0.6rem, 0.7vw, 0.65rem); transition: color 0.3s ease; margin-left: auto; }
-        .duolingo-card .link:hover { color: rgba(255,255,255,0.5); }
-
-        /* ─── NAV ─── */
         .top-nav {
           position: fixed;
           top: 30px;
@@ -679,7 +686,10 @@ export default function About() {
           transition: opacity 0.5s ease;
           gap: 2rem;
         }
-        .top-nav.visible { opacity: 1; pointer-events: all; }
+        .top-nav.visible {
+          opacity: 1;
+          pointer-events: all;
+        }
 
         .top-nav .nav-group {
           display: flex;
@@ -711,10 +721,28 @@ export default function About() {
           transition: all 0.3s ease;
           transform: translateX(-50%);
         }
-        .top-nav a:hover::after { width: 80%; }
-        .top-nav a:hover { color: rgba(255, 255, 255, 0.9); }
-        .top-nav a.active { color: #ffffff; }
-        .top-nav a.active::after { width: 80%; }
+
+        .top-nav a:hover::after {
+          width: 80%;
+        }
+
+        .top-nav a:hover {
+          color: rgba(255, 255, 255, 0.9);
+        }
+
+        .top-nav a.active {
+          color: #ffffff;
+        }
+
+        .top-nav a.active::after {
+          width: 80%;
+        }
+
+        .top-nav .nav-divider {
+          width: 1px;
+          height: 20px;
+          background: rgba(255, 255, 255, 0.15);
+        }
 
         .back-button {
           position: fixed;
@@ -735,56 +763,100 @@ export default function About() {
           transition: opacity 0.8s ease;
           opacity: 0;
         }
-        .back-button.visible { opacity: 1; }
-        .back-button:hover { color: rgba(255, 255, 255, 0.9); }
-
-        .bg-canvas {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          z-index: 0;
-          pointer-events: none;
-          display: block;
+        .back-button.visible {
+          opacity: 1;
+        }
+        .back-button:hover {
+          color: rgba(255, 255, 255, 0.9);
         }
 
-        .grid-blueprint {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          pointer-events: none;
-          z-index: 1;
-          background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), 
-                           linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-          background-size: 60px 60px;
-          background-position: 0 0, 0 0;
-          mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
-          -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 15%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 55%);
+        /* Duolingo Badge */
+        .duolingo-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 12px;
+          padding: 0.4rem 1rem;
+          margin-top: 0.3rem;
+          transition: all 0.3s ease;
+        }
+
+        .duolingo-badge:hover {
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(255,255,255,0.12);
+        }
+
+        .duolingo-badge .score {
+          color: #58cc02;
+          font-weight: 600;
+          font-size: clamp(0.9rem, 1.1vw, 1rem);
+        }
+
+        .duolingo-badge .label {
+          color: rgba(255,255,255,0.3);
+          font-size: clamp(0.6rem, 0.7vw, 0.65rem);
+          letter-spacing: 0.05em;
         }
 
         @media (max-width: 768px) {
-          .top-nav { padding: 8px 16px; min-width: 280px; gap: 1rem; top: 20px; }
-          .top-nav .nav-group { gap: 1.5rem; }
-          .top-nav a { font-size: clamp(0.5rem, 0.6vw, 0.6rem); letter-spacing: 0.1em; padding: 4px 6px; }
-          .back-button { top: 20px; left: 20px; padding: 8px 16px; font-size: 0.6rem; }
-          .page-content { padding: 30px 16px; }
-          .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-          .skills-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+          .top-nav {
+            padding: 8px 16px;
+            min-width: 280px;
+            gap: 1rem;
+            top: 20px;
+          }
+          .top-nav .nav-group {
+            gap: 1.5rem;
+          }
+          .top-nav a {
+            font-size: clamp(0.5rem, 0.6vw, 0.6rem);
+            letter-spacing: 0.1em;
+            padding: 4px 6px;
+          }
+          .back-button {
+            top: 20px;
+            left: 20px;
+            padding: 8px 16px;
+            font-size: 0.6rem;
+          }
+          .page-content {
+            padding: 30px 16px;
+          }
+          .about-headline {
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+          }
         }
 
         @media (max-width: 480px) {
-          .top-nav { padding: 6px 12px; min-width: 200px; gap: 0.8rem; top: 16px; }
-          .top-nav .nav-group { gap: 1rem; }
-          .top-nav a { font-size: clamp(0.4rem, 0.5vw, 0.5rem); letter-spacing: 0.08em; padding: 3px 4px; }
-          .back-button { top: 16px; left: 16px; padding: 6px 12px; font-size: 0.5rem; }
-          .page-content { padding: 20px 12px; }
-          .stats-bar { grid-template-columns: 1fr 1fr; gap: 0.3rem; }
-          .skills-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
-          .duolingo-card { flex-wrap: wrap; gap: 0.5rem; }
-          .duolingo-card .link { margin-left: 0; }
+          .top-nav {
+            padding: 6px 12px;
+            min-width: 200px;
+            gap: 0.8rem;
+            top: 16px;
+          }
+          .top-nav .nav-group {
+            gap: 1rem;
+          }
+          .top-nav a {
+            font-size: clamp(0.4rem, 0.5vw, 0.5rem);
+            letter-spacing: 0.08em;
+            padding: 3px 4px;
+          }
+          .back-button {
+            top: 16px;
+            left: 16px;
+            padding: 6px 12px;
+            font-size: 0.5rem;
+          }
+          .page-content {
+            padding: 20px 12px;
+          }
+          .about-headline {
+            font-size: clamp(0.65rem, 0.9vw, 0.75rem);
+            margin-bottom: 1.5rem;
+          }
         }
       `}</style>
 
@@ -807,84 +879,55 @@ export default function About() {
       
       <main ref={pageShellRef} className="page-shell">
         <div className={`page-content ${showContent ? 'visible' : ''}`}>
-          
-          {/* ─── HERO ─── */}
-          <div className="hero-section">
-            <h1 className="hero-name">
-              Joel <span className="highlight">Joju</span>
-            </h1>
-            <p className="hero-tagline">
-              Embedded Systems · Hardware · Firmware · PCB Design
-            </p>
-            <span className="hero-badge">✦ Hack Club · Project Reviewer &amp; Event Manager</span>
-          </div>
+          <h1 className="about-title">Joel Joju</h1>
+          <p className="about-headline">
+            Embedded Systems &amp; Hardware Developer · PCB Design · ESP32 · Robotics · UAV Systems<br />
+            <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.8em' }}>Hack Club Project Reviewer &amp; Event Manager</span>
+          </p>
 
-          {/* ─── STATS BAR ─── */}
-          <div className="stats-bar">
-            <div className="stat-item">
-              <span className="stat-number">17</span>
-              <span className="stat-label">Age</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number"><span className="accent">∞</span></span>
-              <span className="stat-label">Projects Built</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">📍</span>
-              <span className="stat-label">Kerala, India</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-number">⚡</span>
-              <span className="stat-label">Embedded Systems</span>
-            </div>
-          </div>
-
-          {/* ─── ABOUT ─── */}
+          {/* About */}
           <div className="about-section">
-            <div className="section-header">
-              <h2>About</h2>
-              <span className="line" />
-            </div>
+            <h2>About</h2>
             <p>
-              I'm an embedded systems and hardware developer with a passion for building practical technology that combines <span className="highlight">electronics and software</span>.
+              I'm an embedded systems and hardware developer with a passion for building practical technology that combines electronics and software.
             </p>
             <p>
-              I design <span className="highlight">PCBs</span>, develop firmware for <span className="highlight">ESP32</span> and <span className="highlight">Arduino</span>, build robotics and UAV prototypes, and create full-stack web applications. I take ideas from concept to working prototype—designing circuits, writing firmware, debugging hardware, and refining systems through hands-on experimentation.
+              My experience includes designing PCBs, developing firmware for ESP32 and Arduino, building robotics and UAV prototypes, and creating full-stack web applications with Node.js and Express. I enjoy taking ideas from concept to working prototype—designing circuits, writing firmware, debugging hardware, and refining systems through hands-on experimentation.
             </p>
-            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.85rem', marginTop: '0.3rem' }}>
-              <span className="highlight" style={{ color: 'rgba(255,255,255,0.6)' }}>Open to:</span> Embedded Systems · Hardware Engineering · PCB Design · Robotics · IoT · Firmware
+            <p>
+              Through <span className="highlight">Hack Club</span>, I've contributed as a <span className="highlight">Project Reviewer</span> and <span className="highlight">Event Manager</span>, helping organize community events and providing feedback on hardware projects built by students around the world.
+            </p>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+              <span className="highlight">Open to:</span> Embedded Systems Intern · Hardware Engineer Intern · PCB Design · Robotics Engineer · IoT Developer · Firmware Engineer · Mechatronics Engineer
             </p>
             <div className="role-tags">
               <span className="role-tag">Embedded Systems Intern</span>
-              <span className="role-tag">Hardware Engineer</span>
-              <span className="role-tag">PCB Design</span>
-              <span className="role-tag">Robotics Engineer</span>
+              <span className="role-tag">Hardware Engineer Intern</span>
+              <span className="role-tag">PCB Design Engineer</span>
+              <span className="role-tag">Robotics Engineer Intern</span>
               <span className="role-tag">IoT Developer</span>
               <span className="role-tag">Firmware Engineer</span>
-              <span className="role-tag">Mechatronics</span>
+              <span className="role-tag">Mechatronics Engineer</span>
             </div>
           </div>
 
-          {/* ─── EXPERIENCE ─── */}
+          {/* Experience */}
           <div className="about-section">
-            <div className="section-header">
-              <h2>Experience</h2>
-              <span className="line" />
-            </div>
+            <h2>Experience</h2>
             
-            <div className="exp-card">
-              <span className="role">Project Reviewer</span>
-              <span className="org">Hack Club</span>
+            <div className="experience-item">
+              <div className="role">Project Reviewer</div>
+              <div className="org">Hack Club</div>
               <ul>
-                <li>Reviewed hardware and embedded systems projects submitted by Hack Club members worldwide</li>
+                <li>Reviewed hardware and embedded systems projects submitted by Hack Club members</li>
                 <li>Provided constructive technical feedback on PCB design, electronics, firmware, and hardware implementation</li>
                 <li>Helped improve project quality through engineering reviews and troubleshooting guidance</li>
               </ul>
             </div>
 
-            <div className="exp-card">
-              <span className="role">Event Manager</span>
-              <span className="org">Hack Club · Blueprint Build Guild</span>
+            <div className="experience-item">
+              <div className="role">Event Manager</div>
+              <div className="org">Hack Club · Blueprint Build Guild</div>
               <ul>
                 <li>Helped organize Hack Club Blueprint Build Guild events in Kochi</li>
                 <li>Coordinated event logistics and supported participant engagement</li>
@@ -893,47 +936,92 @@ export default function About() {
             </div>
           </div>
 
-          {/* ─── SKILLS ─── */}
+          {/* Projects */}
           <div className="about-section">
-            <div className="section-header">
-              <h2>Skills</h2>
-              <span className="line" />
+            <h2>Projects</h2>
+            
+            <div className="project-item">
+              <span className="name">ESP32 Drone Flight Controller</span>
+              <span className="tech">ESP32 · C++ · MPU6050 · PWM</span>
+              <p>Custom flight controller for UAVs using ESP32, sensor fusion, and motor control</p>
             </div>
-            <div className="skills-grid">
-              <div className="skill-item"><span className="icon">⚡</span>Embedded</div>
-              <div className="skill-item"><span className="icon">🔧</span>ESP32</div>
-              <div className="skill-item"><span className="icon">📟</span>Arduino</div>
-              <div className="skill-item"><span className="icon">📐</span>PCB Design</div>
-              <div className="skill-item"><span className="icon">🔌</span>Electronics</div>
-              <div className="skill-item"><span className="icon">🧠</span>Firmware</div>
-              <div className="skill-item"><span className="icon">💻</span>C++</div>
-              <div className="skill-item"><span className="icon">⚙️</span>Node.js</div>
-              <div className="skill-item"><span className="icon">🤖</span>Robotics</div>
-              <div className="skill-item"><span className="icon">🌐</span>IoT</div>
-              <div className="skill-item"><span className="icon">🔬</span>Debugging</div>
-              <div className="skill-item"><span className="icon">🛠️</span>Soldering</div>
-              <div className="skill-item"><span className="icon">📊</span>EasyEDA</div>
-              <div className="skill-item"><span className="icon">🖥️</span>Git</div>
-              <div className="skill-item"><span className="icon">📡</span>Raspberry Pi</div>
+
+            <div className="project-item">
+              <span className="name">MarketView PCB</span>
+              <span className="tech">ESP32 · OLED · USB-C · EasyEDA</span>
+              <p>Custom PCB with ESP32, OLED display, buttons, USB-C, and buzzer</p>
+              <a href="https://github.com/thagreatjoel/MarketView" target="_blank" rel="noopener noreferrer" className="github-link">View on GitHub →</a>
+            </div>
+
+            <div className="project-item">
+              <span className="name">DualDesk</span>
+              <span className="tech">Windows · HID · C++ · WinAPI</span>
+              <p>Turn one Windows PC into two independent workstations with multiple mice and screen barriers</p>
+            </div>
+
+            <div className="project-item">
+              <span className="name">VTOL Aircraft Prototype</span>
+              <span className="tech">ESP32 · Brushless Motors · ESCs · CAD</span>
+              <p>Vertical takeoff and landing aircraft with custom flight control and motor mixing</p>
+            </div>
+
+            <div className="project-item">
+              <span className="name">Friend Lee Robot</span>
+              <span className="tech">ESP32 · Motors · Sensors · Robotics</span>
+              <p>Mobile robot platform with motor control, sensor integration, and autonomous navigation</p>
+            </div>
+
+            <div className="project-item">
+              <span className="name">Large MAX7219 Display System</span>
+              <span className="tech">MAX7219 · ESP32 · LED Matrix · C++</span>
+              <p>Multi-panel LED matrix display system with custom content rendering</p>
             </div>
           </div>
 
-          {/* ─── DUOLINGO ─── */}
+          {/* Tech Stack */}
+          <div className="about-section">
+            <h2>Skills</h2>
+            <div className="tag-grid">
+              <span className="tag skill">Embedded Systems</span>
+              <span className="tag skill">ESP32</span>
+              <span className="tag skill">Arduino</span>
+              <span className="tag skill">PCB Design</span>
+              <span className="tag skill">EasyEDA</span>
+              <span className="tag skill">Electronics</span>
+              <span className="tag skill">Circuit Design</span>
+              <span className="tag skill">Firmware Development</span>
+              <span className="tag skill">C++</span>
+              <span className="tag skill">JavaScript</span>
+              <span className="tag skill">Node.js</span>
+              <span className="tag skill">Express.js</span>
+              <span className="tag skill">Git</span>
+              <span className="tag skill">REST APIs</span>
+              <span className="tag skill">Robotics</span>
+              <span className="tag skill">IoT</span>
+              <span className="tag skill">Hardware Debugging</span>
+              <span className="tag skill">Soldering</span>
+              <span className="tag skill">Onshape</span>
+              <span className="tag skill">Raspberry Pi</span>
+            </div>
+          </div>
+
+          {/* Duolingo */}
           <div className="about-section" style={{ marginBottom: 0 }}>
-            <div className="section-header">
-              <h2>Language Learning</h2>
-              <span className="line" />
+            <h2>Language Learning</h2>
+            <div className="duolingo-badge">
+              <span className="label">🇫🇷 Duolingo</span>
+              <span className="score">French</span>
+              <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.7rem' }}>·</span>
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem' }}>
+                <a href="https://www.duolingo.com/profile/joeljoju06" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>
+                  View Progress →
+                </a>
+              </span>
             </div>
-            <div className="duolingo-card">
-              <span className="flag">🇫🇷</span>
-              <span className="lang">French</span>
-              <span className="score">● Learning</span>
-              <a href="https://www.duolingo.com/profile/joeljoju06" target="_blank" rel="noopener noreferrer" className="link">
-                View Progress →
-              </a>
-            </div>
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', marginTop: '0.3rem' }}>
+              Currently learning French on Duolingo
+            </p>
           </div>
-
         </div>
       </main>
     </>

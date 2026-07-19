@@ -81,7 +81,7 @@ export default function Home() {
     { 
       id: 3, 
       name: 'Nest', 
-      imageUrl: 'https://user-cdn.hackclub-assets.com/019d730b-7fdb-700a-8fe5-c0d3b5195538/wwW8TpeXYvDe1JJ2ZuhJvhdFki3YRA9_garbc7Du5n8'
+      imageUrl: 'https://cdn.hackclub.com/019d730c-c4f1-749d-bde6-d3a267cfd9e9/l6qEZptkPsfCkS7GDVFyCVnRCsz3xqV2l2ZqiUKOcN0'
     },
     { 
       id: 4, 
@@ -95,8 +95,8 @@ export default function Home() {
     },
     { 
       id: 6, 
-      name: 'Star',
-      imageUrl: ''
+      name: 'Hedie',
+      imageUrl: 'https://cdn.hackclub.com/019d730d-dace-7ff6-bc6a-397f57df52cc/oieajKLOysFXHoCKEOXmcKg93V4IRniO5U2JUSThi2Y'
     },
   ];
 

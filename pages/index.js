@@ -236,14 +236,12 @@ export default function Home() {
         setStickerPosition({ x: e.clientX, y: e.clientY });
       }
       
-      // Handle dragging - update positions in real-time with percentage
       if (isDragging && dragData) {
         const dx = (e.clientX - dragData.startX) / dragData.viewportWidth * 100;
         const dy = (e.clientY - dragData.startY) / dragData.viewportHeight * 100;
         const newX = Math.max(0, Math.min(100, dragData.originalX + dx));
         const newY = Math.max(0, Math.min(100, dragData.originalY + dy));
         
-        // Update placedStickers
         setPlacedStickers(prev => prev.map(s => {
           const id = s.id || s._id;
           if (id === dragData.stickerId) {
@@ -252,7 +250,6 @@ export default function Home() {
           return s;
         }));
         
-        // Update allStickers
         setAllStickers(prev => prev.map(s => {
           if (s._id === dragData.stickerId) {
             return { ...s, x: newX, y: newY };
@@ -261,7 +258,6 @@ export default function Home() {
         }));
       }
       
-      // Bulge effect
       if (bulgeEnabled) {
         const mouseX = e.clientX;
         const mouseY = e.clientY;
@@ -410,6 +406,7 @@ export default function Home() {
       if (isPlacingSticker && selectedSticker) {
         if (stickerModalRef.current && stickerModalRef.current.contains(e.target)) return;
         if (e.target.closest('.top-nav')) return;
+        if (e.target.closest('.top-nav-right')) return;
         if (e.target.closest('.click-prompt')) return;
         if (e.target.closest('.sticker-placement-overlay')) return;
         
@@ -904,7 +901,6 @@ export default function Home() {
   const handlePlaceSticker = async (data) => {
     if (!pendingSticker) return;
 
-    // ✅ Convert click position to percentage of viewport
     const xPercent = (stickerClickPosition.x / window.innerWidth) * 100;
     const yPercent = (stickerClickPosition.y / window.innerHeight) * 100;
 
@@ -915,8 +911,8 @@ export default function Home() {
       emoji: pendingSticker.emoji,
       name: pendingSticker.name,
       imageUrl: pendingSticker.imageUrl || '',
-      x: Math.max(0, Math.min(100, xPercent)),  // ✅ Store as percentage (0-100)
-      y: Math.max(0, Math.min(100, yPercent)),  // ✅ Store as percentage (0-100)
+      x: Math.max(0, Math.min(100, xPercent)),
+      y: Math.max(0, Math.min(100, yPercent)),
       scale: 1 + Math.random() * 0.3,
       rotation: (Math.random() - 0.5) * 30,
       publicNote: data.publicNote,
@@ -1358,6 +1354,7 @@ export default function Home() {
           50% { opacity: 1; transform: translateX(-50%) scale(1.03); }
         }
 
+        /* ─── PRIMARY NAVIGATION ─── */
         .top-nav {
           position: fixed;
           top: 30px;
@@ -1366,7 +1363,7 @@ export default function Home() {
           z-index: 10004;
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: center;
           font-family: 'Aeonik', 'General Sans', sans-serif;
           font-size: clamp(0.6rem, 0.8vw, 0.75rem);
           letter-spacing: 0.12em;
@@ -1384,6 +1381,7 @@ export default function Home() {
           max-width: 90%;
           transition: opacity 0.5s ease;
         }
+
         .top-nav.visible {
           opacity: 1;
           pointer-events: all;
@@ -1436,33 +1434,80 @@ export default function Home() {
           width: 80%;
         }
 
-        .top-nav .nav-divider {
-          width: 1px;
-          height: 20px;
-          background: rgba(255, 255, 255, 0.15);
+        /* ─── SECONDARY NAVIGATION (Right Side) ─── */
+        .top-nav-right {
+          position: fixed;
+          top: 30px;
+          right: 30px;
+          z-index: 10004;
+          display: flex;
+          align-items: center;
+          font-family: 'Aeonik', 'General Sans', sans-serif;
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(16px);
+          padding: 12px 18px;
+          border-radius: 2mm;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.5s ease;
         }
 
-        .top-nav .nav-plus {
-          font-size: 1.2rem;
-          font-weight: 300;
-          color: rgba(255, 255, 255, 0.4);
-          padding: 0 4px;
+        .top-nav-right.visible {
+          opacity: 1;
+          pointer-events: all;
+        }
+
+        .top-nav-right .nav-sticker-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2px;
+          border-radius: 50%;
           transition: all 0.3s ease;
+          animation: subtleFade 2.5s ease-in-out infinite;
+          background: transparent !important;
+          box-shadow: none !important;
           cursor: pointer;
-          user-select: none;
-          display: inline-block;
-          position: relative;
         }
 
-        .top-nav .nav-plus:hover {
-          color: rgba(255, 255, 255, 0.9);
-          transform: rotate(90deg);
+        .top-nav-right .nav-sticker-btn:hover {
+          transform: scale(1.05);
+          animation: none;
+        }
+
+        .top-nav-right .nav-sticker-btn img {
+          display: block;
+          width: 24px;
+          height: 24px;
+          filter: brightness(0.85);
+          transition: filter 0.3s ease, border-color 0.3s ease;
+          border-radius: 50%;
+          border: 1.5px solid rgba(255, 255, 255, 0.1);
+          padding: 1px;
+          background: transparent;
+        }
+
+        .top-nav-right .nav-sticker-btn:hover img {
+          filter: brightness(1.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes subtleFade {
+          0%, 100% {
+            opacity: 0.7;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.03);
+          }
         }
 
         .sticker-count {
           position: absolute;
-          top: -6px;
-          right: -12px;
+          top: -4px;
+          right: -4px;
           background: #fbbf24;
           color: #0F0F0F;
           font-size: 0.5rem;
@@ -1471,6 +1516,7 @@ export default function Home() {
           font-weight: 700;
           min-width: 18px;
           text-align: center;
+          z-index: 5;
         }
 
         .sticker-overlay {
@@ -2098,6 +2144,11 @@ export default function Home() {
             letter-spacing: 0.1em;
             padding: 4px 6px;
           }
+          .top-nav-right {
+            top: 80px;
+            right: 16px;
+            padding: 10px 14px;
+          }
           .click-prompt {
             bottom: 30px;
             font-size: 0.8rem;
@@ -2135,6 +2186,10 @@ export default function Home() {
             width: 40px;
             height: 40px;
           }
+          .top-nav-right .nav-sticker-btn img {
+            width: 20px;
+            height: 20px;
+          }
           .placement-instructions {
             bottom: 100px;
             font-size: 0.8rem;
@@ -2161,15 +2216,22 @@ export default function Home() {
             top: 16px;
           }
           .top-nav .nav-group {
-            gap: 1rem;
+            gap: 0.8rem;
           }
           .top-nav a {
             font-size: clamp(0.4rem, 0.5vw, 0.5rem);
             letter-spacing: 0.08em;
             padding: 3px 4px;
           }
-          .top-nav .nav-plus {
-            font-size: 0.9rem;
+          .top-nav-right {
+            top: 68px;
+            right: 12px;
+            padding: 8px 12px;
+          }
+          .top-nav-right .nav-sticker-btn img {
+            width: 18px;
+            height: 18px;
+            border-width: 1px;
           }
           .click-prompt {
             bottom: 20px;
@@ -2235,25 +2297,51 @@ export default function Home() {
 
       <div className={`black-top ${showBlackTop ? 'active' : ''}`} />
 
+      {/* ─── PRIMARY NAVIGATION ─── */}
       <nav className={`top-nav ${showNav ? 'visible' : ''}`}>
         <div className="nav-group">
           <a href="/dashboard" onClick={handleNavigation('/dashboard')}>Dashboard</a>
           <a href="/projects" onClick={handleNavigation('/projects')}>Projects</a>
           <a href="/about" onClick={handleNavigation('/about')}>About</a>
         </div>
+      </nav>
+
+      {/* ─── SECONDARY NAVIGATION (Sticker Button - Right Side) ─── */}
+      <nav className={`top-nav-right ${showNav ? 'visible' : ''}`}>
         <div className="nav-group">
-          <div className="nav-divider" />
-          <a 
-            href="#" 
-            className={`nav-plus ${showStickers ? 'active' : ''}`} 
+          <div 
+            className="nav-sticker-btn" 
             onClick={toggleStickers}
-            style={{ position: 'relative' }}
+            style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}
+            title="Click to place a sticker"
           >
-            +
+            <img 
+              src="https://cdn.hackclub.com/019f7440-98e0-7b3b-86ae-eaa60188ec2c/foxy.png" 
+              alt="Sticker button" 
+              style={{ 
+                width: '24px', 
+                height: '24px', 
+                display: 'block',
+                filter: 'brightness(0.85)',
+                transition: 'filter 0.3s ease, border-color 0.3s ease',
+                borderRadius: '50%',
+                border: '1.5px solid rgba(255,255,255,0.1)',
+                padding: '1px',
+                background: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.filter = 'brightness(1.1)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.filter = 'brightness(0.85)';
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+              }}
+            />
             {userStickers.length > 0 && (
               <span className="sticker-count">{userStickers.length}/2</span>
             )}
-          </a>
+          </div>
         </div>
       </nav>
 
@@ -2318,10 +2406,8 @@ export default function Home() {
         />
       )}
 
-      {/* Stickers - Only shown when stickersVisible is true */}
       {stickersVisible && (
         <>
-          {/* Render placed stickers from placedStickers state */}
           {placedStickers.map((sticker) => (
             <div 
               key={sticker.id}
@@ -2367,7 +2453,6 @@ export default function Home() {
             </div>
           ))}
 
-          {/* Render stickers from allStickers (from database) */}
           {allStickers.map((sticker) => {
             const isPlaced = placedStickers.some(s => s.id === sticker._id);
             if (isPlaced) return null;
@@ -2420,7 +2505,6 @@ export default function Home() {
         </>
       )}
 
-      {/* Context Menu */}
       {contextMenu && (
         <div 
           className="context-menu"
